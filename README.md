@@ -1,2 +1,19 @@
 # visualDon2026-rociry
-Repository de notre groupe de travail pour le cours de visualDon 2026. Le groupe est composé de Ryad, Cindy et Romain et notre nom d'équipe est rociry.
+Ce repository contiendra le code et le développement de notre projet en visualDon, pour cette année 2026. Le groupe d'élèves est composé de Cindy Demont, Ryad Ait-Slimane et Romain Blanchard.
+
+# Notre sujet de recherche
+Nous avons décidé de nous intéresser aux corrélations entre sport et études. Compatibles, incompatibles ? Nous allons tenter d'y répondre en interrogeant nos pairs sur leur mode de vie. L'objectif est de comprendre comment certain·e·s arrivent avec succès à allier leur activité sportive, tout en gardant le cap aux cours. Mais il sera aussi important pour nous de mettre en lumière celles et ceux qui dans le cas contraire se retrouvent dans l'obligation de couper toute activité physique.
+
+# Contexte des données
+Afin de collecter des données, nous avons mis en place en *questionnaire (Google Forms)* qui va nous permettre de segmenter des informations et d'obtenir des données sur notre échantillon (les étudiant·e·s dans le Canton de Vaud, avec différentes options proposées). De cette manière, nous sommes certain·e·s que les données répondront à ce que nous voulons exactement traiter. Il existe également des *documents de recherche sur internet*, et nous allons nous inspirer de leurs processus d'extraction de données. Toutefois, nous savons que ces données ne correspondent pas forcément aux réalités actuelles ni à notre public cible, donc nous resterons vigilant·e·s et attentif·ve·s aux biais potentiels.
+
+# Description des données
+Puisque nous souhaitons explorer un échantillon plutôt large, nos données seront principalement quantitatives, représentant la masse et non le détail. Le format de ces dernières sera à la base l'ensemble des réponses collectées, puis le tout sera traité et catégorisé dans un fichier .csv, afin de mieux pouvoir interpréter ces résultats.
+## Il y aura différents types de ressources, les voici en détail (les attributs sont amenés à évoluer) :
+Attribut : id_reponse | genre | niveau_etudes | pratique_sport | arret_sport | raisons_arret | heure_sport_hebdo
+Type de données : integer | string | string | boolean | boolean | list | float
+Le format : auto-increment | texte (identité de genre) | texte (choix unique) | boolean (pratique ou a pratiqué) | boolean (arrêt dû aux cours) | liste de motifs possibles | nombre
+
+# But de notre recherche
+Comme brièvement expliqué dans l'explication du sujet, notre but est de mettre en avant l'impact des cours sur la pratique quotidienne du sport. Nous ne voulons pas imposer un point de vue, mais explorer de manière objective les corrélations entre charge de travail et rythme d'entraînements sportifs. L'objectif est que chacun·e puisse se retrouver dans notre approche, et comprendre les raisons d'un arrêt complet, ou au contraire, de l'équilibre que l'on peut trouver pour être plus performant·e.
+
