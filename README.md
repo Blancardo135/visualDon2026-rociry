@@ -10,9 +10,15 @@ Afin de collecter des données, nous avons mis en place en *questionnaire (Googl
 # Description des données
 Puisque nous souhaitons explorer un échantillon plutôt large, nos données seront principalement quantitatives, représentant la masse et non le détail. Le format de ces dernières sera à la base l'ensemble des réponses collectées, puis le tout sera traité et catégorisé dans un fichier .csv, afin de mieux pouvoir interpréter ces résultats.
 ## Il y aura différents types de ressources, les voici en détail (les attributs sont amenés à évoluer) :
-Attribut : id_reponse | genre | niveau_etudes | pratique_sport | arret_sport | raisons_arret | heure_sport_hebdo
-Type de données : integer | string | string | boolean | boolean | list | float
-Le format : auto-increment | texte (identité de genre) | texte (choix unique) | boolean (pratique ou a pratiqué) | boolean (arrêt dû aux cours) | liste de motifs possibles | nombre
+| Attribut | Type de données | Format |
+|---|---|---|
+| `id_reponse` | integer | Auto-increment |
+| `genre` | string | Texte (identité de genre) |
+| `niveau_etudes` | string | Texte (choix unique) |
+| `pratique_sport` | boolean | Boolean (pratique ou a pratiqué) |
+| `arret_sport` | boolean | Boolean (arrêt dû aux cours) |
+| `raisons_arret` | list | Liste de motifs possibles |
+| `heure_sport_hebdo` | float | Nombre |
 
 # But de notre recherche
 Comme brièvement expliqué dans l'explication du sujet, notre but est de mettre en avant l'impact des cours sur la pratique quotidienne du sport. Nous ne voulons pas imposer un point de vue, mais explorer de manière objective les corrélations entre charge de travail et rythme d'entraînements sportifs. L'objectif est que chacun·e puisse se retrouver dans notre approche, et comprendre les raisons d'un arrêt complet, ou au contraire, de l'équilibre que l'on peut trouver pour être plus performant·e.
