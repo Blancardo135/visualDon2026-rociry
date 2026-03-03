@@ -1,4 +1,4 @@
-# visualDon2026-rociry
+# visualDon2026-rociry - Sport et études
 Ce repository contiendra le code et le développement de notre projet en visualDon, pour cette année 2026. Le groupe d'élèves est composé de Cindy Demont, Ryad Ait-Slimane et Romain Blanchard.
 
 # Notre sujet de recherche
