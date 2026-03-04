@@ -18,7 +18,9 @@ Puisque nous souhaitons explorer un échantillon plutôt large, nos données ser
 | `id_reponse` | integer | Auto-increment |
 | `genre` | string | Texte (identité de genre) |
 | `niveau_etudes` | string | Texte (choix unique) |
-| `lieu_residence` | string | Texte (choix unique : canton) |
+| `lieu` | string | Texte (choix unique : canton) |
+| `lieu_residence` | boolean | choix (rural ou citadin) |
+| `lieu_influence` | boolean | choix (oui ou non) |
 | `pratique_sport` | boolean | Boolean (pratique ou a pratiqué) |
 | `type_sport` | string | Texte (choix unique : Individuel, Collectif) |
 | `frequence_sport` | integer | Nombre entier (séances par semaine) |
