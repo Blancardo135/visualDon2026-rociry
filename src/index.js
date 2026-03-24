@@ -2,6 +2,9 @@ import "./style.css";
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 import { select, selectAll } from "d3-selection";
 import { scaleLinear, scalePoint } from "d3-scale";
