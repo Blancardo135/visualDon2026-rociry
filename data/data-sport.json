@@ -1,0 +1,539 @@
+{
+    "meta": {
+        "titre": "Sport & Études – Données pour infographie",
+        "sources": [
+            {
+                "id": "etude_officielle",
+                "nom": "Enquête Sport et Études 2025",
+                "auteur": "Lamprecht und Stamm Sozialforschung",
+                "repondants": 15915,
+                "universites": 21,
+                "annee": 2025
+            },
+            {
+                "id": "quizz_local",
+                "nom": "Notre Quizz – Enquête locale",
+                "repondants": 48,
+                "repartition": {
+                    "Bachelor": 38,
+                    "Master": 4,
+                    "Gymnase": 3,
+                    "Apprentissage": 3
+                },
+                "note": "Échantillon réduit – données indicatives uniquement"
+            }
+        ]
+    },
+    "gymnasiens": {
+        "source": "quizz_local",
+        "note_methodo": "Basé sur 3 répondants – à interpréter avec précaution",
+        "pratiquent_sport_regulier_pct": 66.7,
+        "narretent_sport_pct": 33.3,
+        "top3_raisons_arret": [
+            {
+                "rang": 1,
+                "raison": "Manque de temps"
+            },
+            {
+                "rang": 2,
+                "raison": "Rythme des cours"
+            },
+            {
+                "rang": 3,
+                "raison": "Temps de trajet"
+            }
+        ]
+    },
+    "apprentis": {
+        "source": "quizz_local",
+        "note_methodo": "Basé sur 3 répondants – à interpréter avec précaution",
+        "pratiquent_sport_regulier_pct": 66.7,
+        "top5_benefices_sport": [
+            {
+                "rang": 1,
+                "benefice": "Meilleure santé physique",
+                "pct": 100
+            },
+            {
+                "rang": 2,
+                "benefice": "Bien-être",
+                "pct": 100
+            },
+            {
+                "rang": 3,
+                "benefice": "Meilleur sommeil",
+                "pct": 50
+            },
+            {
+                "rang": 4,
+                "benefice": "Plus de liens sociaux",
+                "pct": 50
+            },
+            {
+                "rang": 5,
+                "benefice": "Moins de stress",
+                "pct": 50
+            }
+        ]
+    },
+    "bachelor": {
+        "pratiquent_sport_regulier": {
+            "source_officielle": {
+                "source": "etude_officielle",
+                "tres_actifs_pct": 54,
+                "actifs_au_moins_2h_semaine_pct": 21,
+                "peu_actifs_pct": 8,
+                "inactifs_pct": 7,
+                "participent_sport_univ_au_moins_1x_semaine_pct": 27
+            },
+            "source_quizz": {
+                "source": "quizz_local",
+                "pratiquent_regulier_pct": 57.9,
+                "n": 38
+            }
+        },
+        "top5_raisons_pratique_quizz": [
+            {
+                "rang": 1,
+                "raison": "Meilleure santé physique",
+                "pct": 95
+            },
+            {
+                "rang": 2,
+                "raison": "Bien-être",
+                "pct": 82
+            },
+            {
+                "rang": 3,
+                "raison": "Moins de stress",
+                "pct": 50
+            },
+            {
+                "rang": 4,
+                "raison": "Plus de liens sociaux",
+                "pct": 36
+            },
+            {
+                "rang": 5,
+                "raison": "Meilleur sommeil",
+                "pct": 23
+            }
+        ],
+        "top5_raisons_participation_sport_univ_officiel": [
+            {
+                "rang": 1,
+                "raison": "Coûts avantageux",
+                "moyenne_sur_5": 4.6,
+                "tres_valable_pct": 77
+            },
+            {
+                "rang": 2,
+                "raison": "Équilibre avec les études / travail",
+                "moyenne_sur_5": 4.3,
+                "tres_valable_pct": 54
+            },
+            {
+                "rang": 3,
+                "raison": "Proximité / accessibilité",
+                "moyenne_sur_5": 4.3,
+                "tres_valable_pct": 57
+            },
+            {
+                "rang": 4,
+                "raison": "Offres d'entraînement appréciées",
+                "moyenne_sur_5": 4.2,
+                "tres_valable_pct": 42
+            },
+            {
+                "rang": 5,
+                "raison": "Possibilités d'entraînement pendant le quotidien",
+                "moyenne_sur_5": 4.1,
+                "tres_valable_pct": 48
+            }
+        ],
+        "top3_raisons_arret_quizz": [
+            {
+                "rang": 1,
+                "raison": "Manque de temps",
+                "occurrences": 7
+            },
+            {
+                "rang": 2,
+                "raison": "Rythme des cours",
+                "occurrences": 7
+            },
+            {
+                "rang": 3,
+                "raison": "Manque d'énergie",
+                "occurrences": 4
+            }
+        ],
+        "env_organisationnel_pct_heures": {
+            "source": "etude_officielle",
+            "sport_libre": 38,
+            "association_entrainement_competition": 20,
+            "offre_guidee_sport_univ": 15,
+            "entrainement_individuel_sport_univ": 14,
+            "centre_fitness_prive": 12
+        }
+    },
+    "master": {
+        "pratiquent_sport_regulier": {
+            "source_officielle": {
+                "source": "etude_officielle",
+                "tres_actifs_pct": 52,
+                "actifs_au_moins_2h_semaine_pct": 22,
+                "peu_actifs_pct": 10,
+                "inactifs_pct": 4,
+                "participent_sport_univ_au_moins_1x_semaine_pct": 34
+            },
+            "source_quizz": {
+                "source": "quizz_local",
+                "pratiquent_regulier_pct": 50.0,
+                "n": 4
+            }
+        },
+        "top3_raisons_pratiques_logistiques": {
+            "source": "etude_officielle",
+            "note": "Raisons de non-participation au sport univ. – facteurs logistiques/localisation",
+            "raisons": [
+                {
+                    "rang": 1,
+                    "raison": "Manque de temps",
+                    "moyenne_sur_5": 3.6,
+                    "tout_a_fait_valable_pct": 31
+                },
+                {
+                    "rang": 2,
+                    "raison": "Installations géographiquement défavorables",
+                    "moyenne_sur_5": 3.2,
+                    "tout_a_fait_valable_pct": 29
+                },
+                {
+                    "rang": 3,
+                    "raison": "Horaires d'entraînement défavorables",
+                    "moyenne_sur_5": 3.2,
+                    "tout_a_fait_valable_pct": 21
+                }
+            ]
+        },
+        "top5_impacts_positifs_etudes": {
+            "source": "etude_officielle",
+            "note": "Motivations sportives – corrélation avec bien-être académique",
+            "raisons": [
+                {
+                    "rang": 1,
+                    "raison": "Santé / bien-être général",
+                    "moyenne_sur_5": 4.7,
+                    "tres_important_pct": 74
+                },
+                {
+                    "rang": 2,
+                    "raison": "Forme physique",
+                    "moyenne_sur_5": 4.5,
+                    "tres_important_pct": 58
+                },
+                {
+                    "rang": 3,
+                    "raison": "Équilibre avec les études",
+                    "moyenne_sur_5": 4.2,
+                    "tres_important_pct": 51
+                },
+                {
+                    "rang": 4,
+                    "raison": "Plaisir / amusement",
+                    "moyenne_sur_5": 4.3,
+                    "tres_important_pct": 53
+                },
+                {
+                    "rang": 5,
+                    "raison": "Performance / être plus fort",
+                    "moyenne_sur_5": 4.1,
+                    "tres_important_pct": 41
+                }
+            ],
+            "correlation_sante_activite": [
+                {
+                    "niveau_activite": "Plusieurs fois/sem ≥3h",
+                    "sante_generale_moy": 4.3,
+                    "bien_etre_psychique_moy": 3.9
+                },
+                {
+                    "niveau_activite": "Au moins 2h/sem",
+                    "sante_generale_moy": 4.0,
+                    "bien_etre_psychique_moy": 3.7
+                },
+                {
+                    "niveau_activite": "Jamais (inactifs)",
+                    "sante_generale_moy": 3.7,
+                    "bien_etre_psychique_moy": 3.5
+                }
+            ]
+        },
+        "env_organisationnel_pct_heures": {
+            "source": "etude_officielle",
+            "sport_libre": 32,
+            "association_entrainement_competition": 21,
+            "offre_guidee_sport_univ": 20,
+            "entrainement_individuel_sport_univ": 15,
+            "centre_fitness_prive": 12
+        }
+    },
+    "par_universite": {
+        "source": "etude_officielle",
+        "note": "Données tous niveaux confondus – la ventilation bachelor/master par université n'est pas disponible dans les données source",
+        "tres_actifs_2025_et_participation_sport_univ": [
+            {
+                "universite": "Tous les étudiants",
+                "tres_actifs_2025_pct": 62.6,
+                "inactifs_2025_pct": 5.3,
+                "deja_participe_sport_univ_pct": 65,
+                "participe_1x_semaine_pct": 34
+            },
+            {
+                "universite": "Université de Saint-Gall",
+                "tres_actifs_2025_pct": 72.2,
+                "inactifs_2025_pct": 3.6,
+                "deja_participe_sport_univ_pct": 76,
+                "participe_1x_semaine_pct": 46
+            },
+            {
+                "universite": "ETH Zurich",
+                "tres_actifs_2025_pct": 69.3,
+                "inactifs_2025_pct": 3.0,
+                "deja_participe_sport_univ_pct": 86,
+                "participe_1x_semaine_pct": 63
+            },
+            {
+                "universite": "Université de Zurich",
+                "tres_actifs_2025_pct": 68.3,
+                "inactifs_2025_pct": 3.2,
+                "deja_participe_sport_univ_pct": 88,
+                "participe_1x_semaine_pct": 62
+            },
+            {
+                "universite": "EPF Lausanne",
+                "tres_actifs_2025_pct": 67.3,
+                "inactifs_2025_pct": 3.6,
+                "deja_participe_sport_univ_pct": 60,
+                "participe_1x_semaine_pct": 30
+            },
+            {
+                "universite": "Université de Berne",
+                "tres_actifs_2025_pct": 66.3,
+                "inactifs_2025_pct": 4.4,
+                "deja_participe_sport_univ_pct": 80,
+                "participe_1x_semaine_pct": 46
+            },
+            {
+                "universite": "Université de Neuchâtel",
+                "tres_actifs_2025_pct": 64.7,
+                "inactifs_2025_pct": 4.7,
+                "deja_participe_sport_univ_pct": 64,
+                "participe_1x_semaine_pct": 40
+            },
+            {
+                "universite": "Université de Bâle",
+                "tres_actifs_2025_pct": 64.7,
+                "inactifs_2025_pct": 5.9,
+                "deja_participe_sport_univ_pct": 75,
+                "participe_1x_semaine_pct": 40
+            },
+            {
+                "universite": "HE spécialisée bernoise",
+                "tres_actifs_2025_pct": 63.5,
+                "inactifs_2025_pct": 4.8,
+                "deja_participe_sport_univ_pct": 38,
+                "participe_1x_semaine_pct": 18
+            },
+            {
+                "universite": "HEP Berne",
+                "tres_actifs_2025_pct": 62.4,
+                "inactifs_2025_pct": 6.5,
+                "deja_participe_sport_univ_pct": 74,
+                "participe_1x_semaine_pct": 43
+            },
+            {
+                "universite": "Université de Lausanne",
+                "tres_actifs_2025_pct": 61.3,
+                "inactifs_2025_pct": 8.6,
+                "deja_participe_sport_univ_pct": 62,
+                "participe_1x_semaine_pct": 32
+            },
+            {
+                "universite": "OST",
+                "tres_actifs_2025_pct": 61.1,
+                "inactifs_2025_pct": 8.9,
+                "deja_participe_sport_univ_pct": 25,
+                "participe_1x_semaine_pct": 8
+            },
+            {
+                "universite": "ZHAW",
+                "tres_actifs_2025_pct": 61.0,
+                "inactifs_2025_pct": 3.1,
+                "deja_participe_sport_univ_pct": 71,
+                "participe_1x_semaine_pct": 34
+            },
+            {
+                "universite": "Université de Fribourg",
+                "tres_actifs_2025_pct": 59.8,
+                "inactifs_2025_pct": 4.7,
+                "deja_participe_sport_univ_pct": 78,
+                "participe_1x_semaine_pct": 46
+            },
+            {
+                "universite": "Université de Lucerne",
+                "tres_actifs_2025_pct": 60.0,
+                "inactifs_2025_pct": 6.3,
+                "deja_participe_sport_univ_pct": 59,
+                "participe_1x_semaine_pct": 29
+            },
+            {
+                "universite": "Université de Genève",
+                "tres_actifs_2025_pct": 56.7,
+                "inactifs_2025_pct": 8.0,
+                "deja_participe_sport_univ_pct": 48,
+                "participe_1x_semaine_pct": 22
+            },
+            {
+                "universite": "HEP Zurich",
+                "tres_actifs_2025_pct": 56.4,
+                "inactifs_2025_pct": 5.1,
+                "deja_participe_sport_univ_pct": 67,
+                "participe_1x_semaine_pct": 37
+            },
+            {
+                "universite": "HEP Saint-Gall",
+                "tres_actifs_2025_pct": 52.9,
+                "inactifs_2025_pct": 8.9,
+                "deja_participe_sport_univ_pct": 27,
+                "participe_1x_semaine_pct": 9
+            },
+            {
+                "universite": "Haute école de Lucerne",
+                "tres_actifs_2025_pct": 51.7,
+                "inactifs_2025_pct": 7.6,
+                "deja_participe_sport_univ_pct": 40,
+                "participe_1x_semaine_pct": 20
+            },
+            {
+                "universite": "ZHdK",
+                "tres_actifs_2025_pct": 49.6,
+                "inactifs_2025_pct": 8.3,
+                "deja_participe_sport_univ_pct": 63,
+                "participe_1x_semaine_pct": 30
+            },
+            {
+                "universite": "FHNW",
+                "tres_actifs_2025_pct": 54.4,
+                "inactifs_2025_pct": 8.6,
+                "deja_participe_sport_univ_pct": 39,
+                "participe_1x_semaine_pct": 16
+            }
+        ]
+    },
+    "evolution_temporelle_2010_2025": {
+        "source": "etude_officielle",
+        "note": "Données officielles disponibles par niveau d'études universitaires uniquement (pas gymnase/apprentissage) ; données quizz local pour niveaux pré-universitaires",
+        "par_niveau_officiel": {
+            "bachelor": [
+                {
+                    "annee": 2025,
+                    "tres_actifs_pct": 54,
+                    "actifs_2h_semaine_pct": 21,
+                    "peu_actifs_pct": 8,
+                    "inactifs_pct": 7
+                }
+            ],
+            "master": [
+                {
+                    "annee": 2025,
+                    "tres_actifs_pct": 52,
+                    "actifs_2h_semaine_pct": 22,
+                    "peu_actifs_pct": 10,
+                    "inactifs_pct": 4
+                }
+            ],
+            "doctorat": [
+                {
+                    "annee": 2025,
+                    "tres_actifs_pct": 69,
+                    "actifs_2h_semaine_pct": 16,
+                    "peu_actifs_pct": 4,
+                    "inactifs_pct": 3
+                }
+            ]
+        },
+        "tous_etudiants_evolution": [
+            {
+                "annee": 2010,
+                "tres_actifs_pct": 51,
+                "actifs_2h_semaine_pct": 17,
+                "peu_actifs_pct": 12,
+                "inactifs_pct": 16
+            },
+            {
+                "annee": 2015,
+                "tres_actifs_pct": 50,
+                "actifs_2h_semaine_pct": 19,
+                "peu_actifs_pct": 9,
+                "inactifs_pct": 16
+            },
+            {
+                "annee": 2020,
+                "tres_actifs_pct": 61,
+                "actifs_2h_semaine_pct": 19,
+                "peu_actifs_pct": 5,
+                "inactifs_pct": 8
+            },
+            {
+                "annee": 2025,
+                "tres_actifs_pct": 62,
+                "actifs_2h_semaine_pct": 18,
+                "peu_actifs_pct": 11,
+                "inactifs_pct": 5
+            }
+        ],
+        "gymnase_apprentissage_quizz": {
+            "source": "quizz_local",
+            "note": "Données ponctuelles 2026, échantillon très réduit",
+            "gymnase_sport_regulier_pct": 66.7,
+            "apprentissage_sport_regulier_pct": 66.7
+        }
+    },
+    "inactivite_globale": {
+        "source": "etude_officielle",
+        "top5_raisons_inactivite_2025": [
+            {
+                "rang": 1,
+                "raison": "Trop peu de temps",
+                "pct_2025": 45,
+                "pct_2020": 43.4
+            },
+            {
+                "rang": 2,
+                "raison": "Trop de stress lié aux études / travail",
+                "pct_2025": 36.4,
+                "pct_2020": 35.9
+            },
+            {
+                "rang": 3,
+                "raison": "Manque d'énergie",
+                "pct_2025": 36.4,
+                "pct_2020": 35.2
+            },
+            {
+                "rang": 4,
+                "raison": "Temps de travail / étude défavorables et longs",
+                "pct_2025": 28.2,
+                "pct_2020": 29.0
+            },
+            {
+                "rang": 5,
+                "raison": "Pas envie, sport ne plaît pas",
+                "pct_2025": 27.8,
+                "pct_2020": 32.4
+            }
+        ]
+    }
+}
