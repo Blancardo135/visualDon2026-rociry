@@ -1,13 +1,417 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Exercice 4</title>
+    <title>Visualisation Sport et Études</title>
 </head>
 
 <body>
+
+    <!-- =============================================
+       FOLD N°1 — Introduction des personnages
+       4 avatars se présentent (Louis, Chloé, Thomas, Bruna)
+  ============================================= -->
+    <div id="fold-1" class="fold fold--intro">
+
+        <div class="characters-row">
+
+            <div class="character" data-name="louis" data-level="gymnase">
+                <div class="character__avatar"></div>
+                <div class="character__bubble">
+                    Salut ! je m'appelle Louis. Je suis étudiant de gymnase dans la filière communication et
+                    information.
+                </div>
+            </div>
+
+            <div class="character" data-name="chloe" data-level="apprentissage">
+                <div class="character__avatar"></div>
+                <div class="character__bubble">
+                    Salut ! je m'appelle Chloé. Je suis étudiante en apprentissage en assistante vétérinaire.
+                </div>
+            </div>
+
+            <div class="character" data-name="thomas" data-level="bachelor">
+                <div class="character__avatar"></div>
+                <div class="character__bubble">
+                    Salut ! je m'appelle Thomas. Je suis étudiant en Bachelor Ingénierie des médias.
+                </div>
+            </div>
+
+            <div class="character" data-name="bruna" data-level="master">
+                <div class="character__avatar"></div>
+                <div class="character__bubble">
+                    Salut ! je m'appelle Bruna. Je suis étudiante en Master de criminologie.
+                </div>
+            </div>
+
+        </div>
+
+        <p class="fold__subtitle">Ce scrollytelling s'intéresse au lien entre les études et le sport.</p>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°2 — Gymnase & Apprentissage : chiffres clés
+       data-stat pointe vers les champs JSON — le JS injecte les valeurs
+  ============================================= -->
+    <div id="fold-2" class="fold fold--stats fold--dark-split">
+
+        <h2 class="fold__title">Gymnase / Apprentissage</h2>
+
+        <div class="stats-split">
+
+            <div class="stat-block stat-block--light">
+                <div class="stat-block__pictogram" aria-label="gymnasiens actifs"></div>
+                <span class="stat-block__number" data-stat="gymnasiens.pratiquent_sport_regulier_pct"></span>
+                <p class="stat-block__label">des gymnasiens pratiquent un sport de manière régulière.</p>
+            </div>
+
+            <div class="stat-block stat-block--dark">
+                <div class="stat-block__pictogram" aria-label="apprentis actifs"></div>
+                <span class="stat-block__number" data-stat="apprentis.pratiquent_sport_regulier_pct"></span>
+                <p class="stat-block__label">des apprentis pratiquent un sport de manière régulière.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°3 — % arrêtent le sport au gymnase
+       data-stat injecte le pourcentage dans la bulle ET dans le grand chiffre
+  ============================================= -->
+    <div id="fold-3" class="fold fold--dropout">
+
+        <div class="character character--speaking" data-name="louis">
+            <div class="character__avatar"></div>
+            <div class="character__bubble">
+                Comme <span data-stat="gymnasiens.narretent_sport_pct"></span>% des étudiants, j'arrête le sport au
+                gymnase.
+            </div>
+        </div>
+
+        <div class="big-stat">
+            <span class="big-stat__number" data-stat="gymnasiens.narretent_sport_pct"></span>
+            <p class="big-stat__label">des étudiants arrêtent le sport au gymnase.</p>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°4 — Motifs principaux d'arrêt au gymnase
+       <ul> vide — le JS boucle sur gymnasiens.top3_raisons_arret et génère les <li>
+  ============================================= -->
+    <div id="fold-4" class="fold fold--reasons">
+
+        <div class="big-stat">
+            <span class="big-stat__number" data-stat="gymnasiens.narretent_sport_pct"></span>
+        </div>
+
+        <div class="reasons-list">
+            <p class="reasons-list__intro">Voici les motifs principaux :</p>
+            <ul id="gymnase-reasons-list">
+                <!-- Généré par JS : gymnasiens.top3_raisons_arret -->
+            </ul>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°5 — Quiz interactif : Bachelor
+       Slider — la bonne réponse sera comparée à bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct
+  ============================================= -->
+    <div id="fold-5" class="fold fold--quiz">
+
+        <div class="character" data-name="thomas">
+            <div class="character__avatar"></div>
+        </div>
+
+        <div class="quiz-block">
+            <p class="quiz-block__question">
+                Selon-vous, combien d'étudiants au niveau bachelor continuent à faire du sport régulièrement ?
+            </p>
+            <div class="quiz-block__slider-wrap">
+                <input type="range" id="quiz-slider" class="quiz-block__slider" min="0" max="100" value="50"
+                    aria-label="Pourcentage estimé" />
+                <output class="quiz-block__output" for="quiz-slider">50%</output>
+            </div>
+            <div class="quiz-block__scale">
+                <span>0%</span>
+                <span>100%</span>
+            </div>
+            <button class="quiz-block__submit" type="button">Valider</button>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°6 — Révélation de la vraie réponse
+       data-stat injecte la valeur + le JS génère le ticker répété
+  ============================================= -->
+    <div id="fold-6" class="fold fold--reveal fold--green">
+
+        <div class="reveal-banner" aria-hidden="true">
+            <!-- Ticker généré en JS : répète la valeur de bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct -->
+            <span class="reveal-banner__ticker"></span>
+        </div>
+
+        <div class="reveal-content">
+            <p class="reveal-content__answer">EXACT</p>
+            <p class="reveal-content__number"
+                data-stat="bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct"></p>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°7 — Pourquoi ils continuent (Bachelor)
+       Conteneur vide — le JS boucle sur bachelor.top5_raisons_pratique_quizz (top 3)
+       et génère les blocs pictogramme + label + pourcentage
+  ============================================= -->
+    <div id="fold-7" class="fold fold--why-continue">
+
+        <div class="character" data-name="thomas">
+            <div class="character__avatar"></div>
+            <div class="character__bubble">
+                Et oui, car plusieurs raisons expliquent cela. Nous sommes donc plus de la moitié à penser que le sport
+                est
+                indispensable et parallèle des cours.
+            </div>
+        </div>
+
+        <div class="reasons-pictogram-list" id="bachelor-reasons-pictogram">
+            <!-- Généré par JS : bachelor.top5_raisons_pratique_quizz (rang 1, 2, 3) -->
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°8 — Malgré tout : majorité arrêtent au Bachelor
+       Le JS calcule (100 - pratiquent_regulier_pct) et l'injecte dans #bachelor-dropout-pct
+       puis génère les pictogrammes dans #bachelor-dropout-pictogram
+  ============================================= -->
+    <div id="fold-8" class="fold fold--dropout-bachelor fold--dark">
+
+        <p class="fold__statement">
+            Malgré tout ces benfaits, ils sont plus de
+            <span id="bachelor-dropout-pct"></span>%,
+            au niveau bachelor, à couper toute activité sportive.
+        </p>
+
+        <div class="dropout-pictogram" id="bachelor-dropout-pictogram" aria-label="Pictogramme abandon sport bachelor">
+            <!-- Généré par JS depuis bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct -->
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°9 — Pourquoi ce déclin ? (bar chart vertical)
+       Conteneur vide — le JS boucle sur inactivite_globale.top5_raisons_inactivite_2025
+       et génère les barres avec --bar-height calculé depuis pct_2025
+  ============================================= -->
+    <div id="fold-9" class="fold fold--chart">
+
+        <h2 class="fold__title">Pourquoi ce déclin ?</h2>
+
+        <div class="bar-chart" role="img" aria-label="Graphique des raisons d'abandon du sport">
+            <div class="bar-chart__bars" id="inactivite-bar-chart">
+                <!-- Généré par JS : inactivite_globale.top5_raisons_inactivite_2025 -->
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°10 — Master : % qui continuent + raisons logistiques
+       data-stat injecte le %, #master-reasons-list est rempli par JS
+       depuis master.top3_raisons_pratiques_logistiques.raisons
+  ============================================= -->
+    <div id="fold-10" class="fold fold--master">
+
+        <h2 class="fold__title">Master</h2>
+
+        <div class="character" data-name="bruna">
+            <div class="character__avatar"></div>
+            <div class="character__bubble">
+                Comme <span data-stat="master.pratiquent_sport_regulier.source_officielle.tres_actifs_pct"></span>% des
+                étudiants en Master, j'ai réussi à continuer à avoir une activité sportive, ça a été possible grâce à :
+                <ul id="master-reasons-list">
+                    <!-- Généré par JS : master.top3_raisons_pratiques_logistiques.raisons -->
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°11 — Impact positif du sport sur les études (Master)
+       Conteneur vide — le JS boucle sur master.top5_impacts_positifs_etudes.raisons
+       et génère les barres horizontales avec --bar-width calculé depuis tres_important_pct
+  ============================================= -->
+    <div id="fold-11" class="fold fold--impact">
+
+        <h3 class="fold__subtitle">Comment cela a pu impacter positivement mes études :</h3>
+
+        <div class="hbar-chart" id="master-impact-chart" role="img" aria-label="Impact positif du sport sur les études">
+            <!-- Généré par JS : master.top5_impacts_positifs_etudes.raisons -->
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°12 — Par région : carte interactive
+       Points générés par JS depuis par_universite.tres_actifs_2025_et_participation_sport_univ
+  ============================================= -->
+    <div id="fold-12" class="fold fold--map">
+
+        <h2 class="fold__title">Par région, ça donne quoi ?</h2>
+
+        <p class="fold__instruction">
+            Passer sur les différents points rouges pour découvrir les pourcentages d'étudiants qui font encore du sport
+            au
+            sein de ces structures :
+        </p>
+
+        <div class="map-container" role="application" aria-label="Carte interactive des universités suisses">
+
+            <div class="map-switzerland" id="map-switzerland">
+                <!-- Points injectés par JS : par_universite.tres_actifs_2025_et_participation_sport_univ -->
+            </div>
+
+            <div class="map-tooltip" id="map-tooltip" hidden role="tooltip">
+                <strong class="map-tooltip__name"></strong>
+                <span class="map-tooltip__tres-actifs"></span>
+                <span class="map-tooltip__participation"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°13 — Biais à prendre en considération
+  ============================================= -->
+    <div id="fold-13" class="fold fold--bias">
+
+        <div class="bias-block">
+            <span class="bias-block__icon" aria-hidden="true">!</span>
+            <p class="bias-block__text">
+                Il y a un biais à prendre en considération. Selon le type d'école, certains étudiants ont besoin d'un
+                travail à
+                côté de leurs études, ce qui rend la possibilité de faire du sport encore plus complexe.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°14 — Évolution temporelle globale (courbe)
+       Graphique injecté par JS depuis evolution_temporelle_2010_2025.tous_etudiants_evolution
+  ============================================= -->
+    <div id="fold-14" class="fold fold--evolution">
+
+        <h3 class="fold__subtitle">Pourcentage d'étudiant qui font du sport</h3>
+
+        <div class="line-chart-wrap" id="chart-global" role="img" aria-label="Évolution globale 2010–2025">
+            <!-- Graphique SVG injecté par JS : evolution_temporelle_2010_2025.tous_etudiants_evolution -->
+        </div>
+
+        <div class="chart-axis-label" aria-hidden="true">
+            <span>2010</span><span>2015</span><span>2020</span><span>2025</span>
+        </div>
+
+        <p class="scroll-hint" aria-hidden="true">Scrollez encore, vous y êtes presque.</p>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°15 — Évolution par niveau (4 courbes)
+       Graphique injecté par JS depuis evolution_temporelle_2010_2025.par_niveau_officiel
+       + evolution_temporelle_2010_2025.gymnase_apprentissage_quizz
+  ============================================= -->
+    <div id="fold-15" class="fold fold--evolution-by-level">
+
+        <h3 class="fold__subtitle">Pourcentage d'étudiant qui font du sport</h3>
+
+        <div class="line-chart-wrap" id="chart-by-level" role="img" aria-label="Évolution par niveau 2010–2025">
+            <!-- Graphique 4 courbes injecté par JS -->
+        </div>
+
+        <div class="chart-axis-label" aria-hidden="true">
+            <span>2010</span><span>2015</span><span>2020</span><span>2025</span>
+        </div>
+
+        <div class="chart-legend" id="chart-legend">
+            <span class="legend-item legend-item--master">Master</span>
+            <span class="legend-item legend-item--bachelor">Bachelor</span>
+            <span class="legend-item legend-item--gymnase">Gymnase</span>
+            <span class="legend-item legend-item--apprentissage">Apprentissage</span>
+        </div>
+
+        <p class="scroll-hint" aria-hidden="true">Bien joué !</p>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°16 — Débat entre personnages (partie 1)
+  ============================================= -->
+    <div id="fold-16" class="fold fold--debate fold--dark">
+
+        <div class="debate-scene">
+            <div class="debate-bubble debate-bubble--left">Je trouve que c'est cool pour la santé mentale.</div>
+            <div class="debate-bubble debate-bubble--right">Oui mais ça prend beaucoup de temps.</div>
+            <div class="debate-bubble debate-bubble--left">Moi ça m'aide à me changer les idées. Mais le plus important
+                c'est de trouver un équilibre.</div>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°17 — Débat entre personnages (partie 2)
+  ============================================= -->
+    <div id="fold-17" class="fold fold--debate fold--dark">
+
+        <div class="debate-scene">
+            <div class="debate-bubble debate-bubble--right">Je suis d'accord, chacun peut faire comme il préfère. Il y
+                autant de bonnes raisons que d'arguments contraire.</div>
+            <div class="debate-bubble debate-bubble--left">Oui c'est vrai, chacun trouve sa propre voie, et ce qui
+                compte c'est d'être de trouver un équilibre.</div>
+        </div>
+
+    </div>
+
+
+    <!-- =============================================
+       FOLD N°18 — Conclusion
+  ============================================= -->
+    <div id="fold-18" class="fold fold--conclusion fold--dark">
+
+        <p class="conclusion__text">Au final, nous avons tous des chemins différents.</p>
+
+        <footer class="site-footer">
+            <small>© Rust Ait-Slimane · Noérah Blanchard · Cindy Damont · HEG-id 2026</small>
+        </footer>
+
+    </div>
+
 
     <script type="module" src="/src/index.js"></script>
 </body>
