@@ -350,11 +350,30 @@ ul {
 }
 
 .stat-block__pictogram {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  justify-content: center;
-  max-width: 260px;
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  /* height injecté inline par JS */
+}
+
+/* Anneau pulsant autour du héros dans la foule */
+.crowd-hero-ring {
+  animation: crowd-ring-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes crowd-ring-pulse {
+
+  0%,
+  100% {
+    opacity: .55;
+    transform: translate(-50%, -58%) scale(1);
+  }
+
+  50% {
+    opacity: .9;
+    transform: translate(-50%, -58%) scale(1.08);
+  }
 }
 
 .stat-block__number {
@@ -742,12 +761,11 @@ ul {
   gap: 2.5rem;
 }
 
+/* le JS injecte le style inline pour la foule animée */
 .dropout-pictogram {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-  max-width: 520px;
+  position: relative;
+  width: 100%;
+  max-width: 380px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1319,4 +1337,19 @@ ul {
 .quiz-block__slider:focus-visible {
   outline: 2px solid var(--thomas);
   outline-offset: 4px;
+}
+
+/* ── Foule animée — keyframes ───────────────────────────────── */
+@keyframes halo-pulse {
+
+  0%,
+  100% {
+    opacity: .45;
+    transform: translate(-50%, -55%) scale(1);
+  }
+
+  50% {
+    opacity: .75;
+    transform: translate(-50%, -55%) scale(1.08);
+  }
 }

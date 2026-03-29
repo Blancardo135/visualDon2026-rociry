@@ -381,25 +381,82 @@ function avatarSVG(name, displaySize = 120) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PICTOGRAMME — stylisé
+   STICKMAN — icône SVG propre viewBox 0 0 40 62
+   poses : 'stand' | 'walk-a' | 'walk-b' | 'hero'
    ═══════════════════════════════════════════════════════════════ */
-function pictoSVG(color = '#ccc', isHero = false, size = 32) {
-  const body = isHero ? '#F5A623' : color;
-  const glow = isHero
-    ? `<circle cx="16" cy="16" r="15" fill="#F5A623" opacity=".2"/>
-       <circle cx="16" cy="7" r="6.5" fill="#F5A623" stroke="white" stroke-width="1.5"/>
-       <path d="M6 30 C6 21 26 21 26 30" fill="#F5A623"/>
-       <circle cx="16" cy="4" r="2" fill="white"/>
-       <line x1="16" y1="1" x2="16" y2="6" stroke="white" stroke-width="1.5"/>`
-    : `<circle cx="16" cy="7" r="6" fill="${body}" opacity=".9"/>
-       <path d="M7 30 C7 22 25 22 25 30" fill="${body}" opacity=".9"/>`;
-  return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">${glow}</svg>`;
+function stickmanSVG({ color = '#C8C4BB', pose = 'stand', isHero = false, size = 36 } = {}) {
+  const col = isHero ? C.gold : color;
+  const sw = 3.0;
+  const hw = 3.4;
+  const r = 7;
+
+  const halo = isHero ? `
+    <circle cx="20" cy="8" r="13" fill="${col}" opacity=".15"/>
+    <path d="M14 2 L15.8 6.5 L20 5 L18 8.5 L20 7.5 L22 8.5 L20 5 L24.2 6.5 L26 2 L20 5.5 Z"
+          fill="${col}" opacity=".8"/>` : '';
+
+  const P = {
+    stand: {
+      to: 'M20 16 L20 30',
+      al: 'M20 21 L11 27', ar: 'M20 21 L29 27',
+      ll: 'M20 30 L14 44 L13 57', lr: 'M20 30 L26 44 L27 57',
+    },
+    'walk-a': {
+      to: 'M20 17 L19 30',
+      al: 'M19 21 L28 26', ar: 'M19 21 L11 24',
+      ll: 'M19 30 L12 43 L10 56', lr: 'M19 30 L26 42 L31 54',
+    },
+    'walk-b': {
+      to: 'M20 17 L21 30',
+      al: 'M21 21 L12 26', ar: 'M21 21 L30 24',
+      ll: 'M21 30 L28 43 L30 56', lr: 'M21 30 L14 42 L9  54',
+    },
+    hero: {
+      to: 'M20 16 L20 30',
+      al: 'M20 20 L9  11', ar: 'M20 20 L31 11',
+      ll: 'M20 30 L14 44 L13 57', lr: 'M20 30 L26 44 L27 57',
+    },
+  };
+
+  const p = P[pose] ?? P.stand;
+  const lc = 'round';
+  const lj = 'round';
+
+  return `<svg width="${size}" height="${Math.round(size * 62 / 40)}"
+    viewBox="0 0 40 62" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;overflow:visible">
+    ${halo}
+    <circle cx="20" cy="8" r="${r}" fill="none"
+      stroke="${col}" stroke-width="${hw}" stroke-linejoin="${lj}"/>
+    <circle cx="17" cy="7"  r="1" fill="${col}" opacity=".75"/>
+    <circle cx="23" cy="7"  r="1" fill="${col}" opacity=".75"/>
+    <path d="M17 11 Q20 13 23 11" stroke="${col}" stroke-width="1.3"
+      fill="none" stroke-linecap="${lc}" opacity=".6"/>
+    <path d="${p.to}" stroke="${col}" stroke-width="${sw}"
+      stroke-linecap="${lc}" fill="none"/>
+    <path d="${p.al}" stroke="${col}" stroke-width="${sw - .4}"
+      stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.ar}" stroke="${col}" stroke-width="${sw - .4}"
+      stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.ll}" stroke="${col}" stroke-width="${sw}"
+      stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.lr}" stroke="${col}" stroke-width="${sw}"
+      stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    ${isHero ? `<circle cx="20" cy="23" r="3" fill="${col}" opacity=".85"/>` : ''}
+  </svg>`;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   GRILLE DE PICTOGRAMMES
+   GRILLE DE STICKMEN ANIMÉS
    ═══════════════════════════════════════════════════════════════ */
-function buildPictoGrid(container, { total = 10, active = 5, color = '#888', heroIndex = -1, label = '', pct = null }) {
+function buildPictoGrid(container, {
+  total = 10,
+  active = 5,
+  color = '#888',
+  heroIndex = -1,
+  label = '',
+  pct = null,
+} = {}) {
   container.innerHTML = '';
 
   if (label) {
@@ -413,21 +470,88 @@ function buildPictoGrid(container, { total = 10, active = 5, color = '#888', her
   wrap.className = 'picto-grid';
   container.appendChild(wrap);
 
+  const items = [];
   for (let i = 0; i < total; i++) {
+    const isActive = i < active;
+    const isHero = i === heroIndex;
+    const col = isActive ? color : C.muted;
+    const initPose = isHero ? 'hero' : (isActive ? 'walk-a' : 'stand');
+
     const span = document.createElement('span');
-    span.className = 'picto-grid__item' + (i < active ? ' picto-grid__item--active' : '');
-    span.innerHTML = pictoSVG(i < active ? color : C.muted, i === heroIndex);
-    gsap.set(span, { opacity: 0, y: 16, scale: 0.8 });
+    span.className = 'picto-grid__item' + (isActive ? ' picto-grid__item--active' : '');
+    span.innerHTML = stickmanSVG({ color: col, pose: initPose, isHero, size: 36 });
+    gsap.set(span, { opacity: 0, y: 22, scale: 0.65 });
     wrap.appendChild(span);
+    items.push({ span, col, isActive, isHero, idx: i });
   }
 
   ScrollTrigger.create({
-    trigger: container, start: 'top 80%', once: true,
-    onEnter: () => gsap.to(wrap.querySelectorAll('.picto-grid__item'), {
-      opacity: 1, y: 0, scale: 1,
-      duration: 0.5, stagger: 0.07, ease: 'back.out(2.5)',
-    }),
+    trigger: container,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      gsap.to(wrap.querySelectorAll('.picto-grid__item'), {
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.42,
+        stagger: { each: 0.055, from: 'start' },
+        ease: 'back.out(3)',
+        onComplete: startWalk,
+      });
+    },
   });
+
+  function startWalk() {
+    items.forEach(({ span, col, isActive, isHero, idx }) => {
+
+      /* actifs : alternance walk-a / walk-b désynchronisée */
+      if (isActive && !isHero) {
+        const speed = 0.46 + (idx % 4) * 0.06;
+        const delay = idx * 0.09;
+        let phase = idx % 2;
+
+        function step() {
+          phase = (phase + 1) % 2;
+          span.innerHTML = stickmanSVG({
+            color: col,
+            pose: phase === 0 ? 'walk-a' : 'walk-b',
+            isHero: false, size: 36,
+          });
+          gsap.to(span, {
+            y: phase === 0 ? -3.5 : 0,
+            duration: speed,
+            ease: 'sine.inOut',
+            onComplete: step,
+          });
+        }
+        gsap.delayedCall(delay, step);
+      }
+
+      /* inactifs : léger balancement */
+      if (!isActive) {
+        gsap.to(span, {
+          y: -1.5, duration: 1.8 + idx * 0.13,
+          repeat: -1, yoyo: true, ease: 'sine.inOut', delay: idx * 0.18,
+        });
+      }
+
+      /* héros : bras levés en alternance */
+      if (isHero) {
+        let up = true;
+        function heroStep() {
+          up = !up;
+          span.innerHTML = stickmanSVG({
+            color: col, pose: up ? 'hero' : 'stand', isHero: true, size: 36,
+          });
+          gsap.to(span, {
+            y: up ? -6 : 0, scale: up ? 1.08 : 1,
+            duration: 0.7, ease: 'sine.inOut',
+            onComplete: () => gsap.delayedCall(0.45, heroStep),
+          });
+        }
+        gsap.delayedCall(0.5, heroStep);
+      }
+    });
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -509,43 +633,294 @@ function initFold1() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 2 — Stats Gymnase / Apprentissage
+   FOLD 2 — Foule animée Gymnase & Apprentissage
    ═══════════════════════════════════════════════════════════════ */
+
+/*
+  Logique foule :
+  - 30 stickmen par bloc (W×H = 340×240)
+  - 66.7% colorés (actifs), 33.3% gris (inactifs)
+  - Phase 1 : tous déambulent aléatoirement ~2s
+  - Phase 2 : regroupement → actifs à gauche, inactifs à droite
+  - Phase 3 : marche sur place continue
+  - 1 protagoniste (Louis/Chloé) légèrement plus grand avec son prénom
+*/
+
+const CROWD_W = 340;
+const CROWD_H = 240;
+const CROWD_N = 30;
+
+/* Position aléatoire dans la scène */
+function randPos(W, H, margin = 20) {
+  return {
+    x: margin + Math.random() * (W - margin * 2),
+    y: margin + Math.random() * (H - margin * 2),
+  };
+}
+
+/* Positions finales groupées :
+   actifs en grille dense à gauche, inactifs dispersés à droite */
+function crowdFinalPositions(total, activeN, W, H) {
+  const pos = [];
+
+  // Actifs : grille organique, côté gauche (60% de la largeur)
+  const aCols = Math.ceil(Math.sqrt(activeN * 1.6));
+  const aRows = Math.ceil(activeN / aCols);
+  const cW = (W * 0.60) / aCols;
+  const cH = (H - 30) / aRows;
+
+  for (let i = 0; i < activeN; i++) {
+    const jitter = 0.35;
+    pos.push({
+      x: 10 + (i % aCols) * cW + (Math.random() - .5) * cW * jitter,
+      y: 18 + Math.floor(i / aCols) * cH + (Math.random() - .5) * cH * jitter,
+    });
+  }
+
+  // Inactifs : dispersés à droite (40% restants)
+  const iN = total - activeN;
+  const iCols = 3;
+  const iW = (W * 0.35) / iCols;
+  const iH = (H - 30) / Math.ceil(iN / iCols);
+
+  for (let i = 0; i < iN; i++) {
+    pos.push({
+      x: W * 0.63 + (i % iCols) * iW + (Math.random() - .5) * iW * .5,
+      y: 18 + Math.floor(i / iCols) * iH + (Math.random() - .5) * iH * .4,
+    });
+  }
+
+  return pos;
+}
+
+/* Animation de marche continue sur une liste de { div, svgWrap, col, isActive, isHero, sz, idx } */
+function animateCrowd(men) {
+  men.forEach(({ div, svgWrap, col, isActive, isHero, sz, idx }) => {
+
+    if (isHero) {
+      // Protagoniste : petit rebond en boucle
+      gsap.to(div, {
+        y: '-=6', duration: 0.6, repeat: -1, yoyo: true,
+        ease: 'sine.inOut', delay: 0.1,
+      });
+      return;
+    }
+
+    if (!isActive) {
+      // Inactifs : très léger balancement
+      gsap.to(div, {
+        y: '-=1.5', duration: 1.8 + idx * 0.08,
+        repeat: -1, yoyo: true, ease: 'sine.inOut', delay: idx * 0.12,
+      });
+      return;
+    }
+
+    // Actifs : alternance walk-a / walk-b désynchronisée
+    const speed = 0.40 + (idx % 5) * 0.06;
+    const delay = idx * 0.068;
+    let phase = idx % 2;
+
+    function step() {
+      phase = (phase + 1) % 2;
+      svgWrap.innerHTML = stickmanSVG({
+        color: col,
+        pose: phase === 0 ? 'walk-a' : 'walk-b',
+        isHero: false, size: sz,
+      });
+      gsap.to(div, {
+        y: `+=${phase === 0 ? -3.5 : 3.5}`,
+        duration: speed,
+        ease: 'sine.inOut',
+        onComplete: step,
+      });
+    }
+    gsap.delayedCall(delay, step);
+  });
+}
+
 function initFold2() {
   const fold = document.getElementById('fold-2');
   if (!fold) return;
 
-  // Ticker
-  const wrap = document.createElement('div'); wrap.className = 'ticker-wrap';
+  /* ── Ticker ── */
+  const tickWrap = document.createElement('div'); tickWrap.className = 'ticker-wrap';
   const tick = document.createElement('div'); tick.className = 'ticker';
   tick.innerHTML = ('GYMNASE · APPRENTISSAGE · SPORT & ÉTUDES · ').repeat(6);
-  wrap.appendChild(tick);
-  fold.insertBefore(wrap, fold.querySelector('.fold__title'));
+  tickWrap.appendChild(tick);
+  fold.insertBefore(tickWrap, fold.querySelector('.fold__title'));
   gsap.to(tick, { x: '-50%', duration: 20, repeat: -1, ease: 'none' });
 
-  // Pictogrammes
-  [
-    { sel: '.stat-block--light .stat-block__pictogram', pct: sportData.gymnasiens.pratiquent_sport_regulier_pct, color: C.louis },
-    { sel: '.stat-block--dark .stat-block__pictogram', pct: sportData.apprentis.pratiquent_sport_regulier_pct, color: C.chloe },
-  ].forEach(({ sel, pct, color }) => {
-    const container = fold.querySelector(sel);
-    if (container) buildPictoGrid(container, { total: 10, active: Math.round(pct / 10), color, heroIndex: 0 });
-  });
+  /* ── Config par bloc ── */
+  const BLOCS = [
+    {
+      sel: '.stat-block--light',
+      pct: sportData.gymnasiens.pratiquent_sport_regulier_pct,   // 66.7
+      color: C.louis,
+      heroName: 'Louis',
+      heroAvatar: 'louis',
+    },
+    {
+      sel: '.stat-block--dark',
+      pct: sportData.apprentis.pratiquent_sport_regulier_pct,    // 66.7
+      color: C.chloe,
+      heroName: 'Chloé',
+      heroAvatar: 'chloe',
+    },
+  ];
 
-  // Compteurs animés
-  fold.querySelectorAll('.stat-block__number').forEach(el => {
-    const target = parseFloat(resolvePath(sportData, el.dataset.stat));
-    if (isNaN(target)) return;
-    const obj = { val: 0 };
+  BLOCS.forEach(({ sel, pct, color, heroName, heroAvatar }) => {
+    const block = fold.querySelector(sel);
+    if (!block) return;
+    const pictC = block.querySelector('.stat-block__pictogram');
+    if (!pictC) return;
+
+    // Préparer le conteneur de la scène
+    pictC.innerHTML = '';
+    pictC.style.cssText = [
+      'position:relative',
+      `width:${CROWD_W}px`,
+      `height:${CROWD_H}px`,
+      'overflow:visible',
+      'flex-shrink:0',
+      'margin:0 auto',
+    ].join(';');
+
+    const activeN = Math.round((pct / 100) * CROWD_N); // ~20
+    const heroIdx = activeN - 1;                        // dernier actif = le protagoniste
+    const finalPos = crowdFinalPositions(CROWD_N, activeN, CROWD_W, CROWD_H);
+
+    const men = [];
+
+    for (let i = 0; i < CROWD_N; i++) {
+      const isActive = i < activeN;
+      const isHero = i === heroIdx;
+      const col = isActive ? color : C.muted;
+      const sz = isHero ? 42 : 26;
+      const initPose = i % 2 === 0 ? 'walk-a' : 'walk-b';
+
+      const div = document.createElement('div');
+      div.style.cssText = `position:absolute;line-height:0;${isHero ? 'z-index:4;' : 'z-index:' + (isActive ? '2' : '1') + ';'}`;
+
+      // Halo de mise en évidence du héros
+      if (isHero) {
+        const halo = document.createElement('div');
+        halo.style.cssText = [
+          'position:absolute',
+          'top:50%', 'left:50%',
+          'transform:translate(-50%,-55%)',
+          `width:${sz + 16}px`,
+          `height:${sz * 1.55 + 16}px`,
+          'border-radius:50%',
+          `border:2px solid ${color}`,
+          'opacity:.5',
+          'pointer-events:none',
+          'animation:halo-pulse 1.4s ease-in-out infinite',
+        ].join(';');
+        div.appendChild(halo);
+      }
+
+      // SVG stickman (wrapper remplaçable)
+      const svgWrap = document.createElement('div');
+      svgWrap.style.cssText = 'position:relative;';
+      svgWrap.innerHTML = stickmanSVG({ color: col, pose: initPose, isHero: false, size: sz });
+      div.appendChild(svgWrap);
+
+      // Étiquette nom héros
+      if (isHero) {
+        const tag = document.createElement('span');
+        tag.textContent = heroName;
+        tag.style.cssText = [
+          'display:block',
+          'text-align:center',
+          `font-family:var(--f-d)`,
+          'font-size:8.5px',
+          'font-weight:800',
+          `color:${color}`,
+          'letter-spacing:.1em',
+          'margin-top:2px',
+          'white-space:nowrap',
+          'text-transform:uppercase',
+        ].join(';');
+        div.appendChild(tag);
+      }
+
+      pictC.appendChild(div);
+      men.push({ div, svgWrap, isActive, isHero, col, sz, idx: i });
+
+      // Position de départ : éparpillés en bas hors vue
+      const startP = randPos(CROWD_W, CROWD_H * 0.3, 10);
+      gsap.set(div, {
+        x: startP.x,
+        y: CROWD_H + 20 + Math.random() * 30,
+        opacity: 0,
+        scale: 0.7,
+      });
+    }
+
     ScrollTrigger.create({
-      trigger: el, start: 'top 84%', once: true,
-      onEnter: () => gsap.to(obj, {
-        val: target, duration: 1.9, ease: 'power2.out',
-        onUpdate: () => { el.textContent = obj.val.toFixed(1) + '%'; },
-      }),
+      trigger: block,
+      start: 'top 68%',
+      once: true,
+      onEnter: () => {
+
+        /* ── Phase 1 : entrée dispersée + déambulation ── */
+        men.forEach(({ div }, i) => {
+          const wanderP = randPos(CROWD_W, CROWD_H, 15);
+          gsap.to(div, {
+            opacity: 1,
+            scale: 1,
+            x: wanderP.x,
+            y: wanderP.y,
+            duration: 0.6 + Math.random() * 0.4,
+            delay: i * 0.035,
+            ease: 'power2.out',
+          });
+        });
+
+        /* ── Phase 2 (après 1.4s) : deuxième déambulation ── */
+        gsap.delayedCall(1.4, () => {
+          men.forEach(({ div }, i) => {
+            const wanderP2 = randPos(CROWD_W, CROWD_H, 12);
+            gsap.to(div, {
+              x: wanderP2.x,
+              y: wanderP2.y,
+              duration: 0.7 + Math.random() * 0.5,
+              delay: i * 0.028,
+              ease: 'power1.inOut',
+            });
+          });
+        });
+
+        /* ── Phase 3 (après 2.5s) : regroupement ── */
+        gsap.delayedCall(2.5, () => {
+          men.forEach(({ div }, i) => {
+            gsap.to(div, {
+              x: finalPos[i].x,
+              y: finalPos[i].y,
+              duration: 0.9 + Math.random() * 0.4,
+              delay: i * 0.04,
+              ease: 'power3.out',
+            });
+          });
+
+          // Après regroupement → démarrer la marche
+          gsap.delayedCall(1.2, () => animateCrowd(men));
+        });
+
+        /* ── Compteur animé ── */
+        const numEl = block.querySelector('.stat-block__number');
+        if (numEl) {
+          const obj = { val: 0 };
+          gsap.to(obj, {
+            val: pct, duration: 2.2, ease: 'power2.out', delay: 0.6,
+            onUpdate: () => { numEl.textContent = obj.val.toFixed(1) + '%'; },
+          });
+        }
+      },
     });
   });
 
+  /* Apparition des blocs */
   gsap.from(fold.querySelectorAll('.stat-block'), {
     opacity: 0, x: -55, duration: 1, stagger: 0.25, ease: 'power3.out',
     scrollTrigger: { trigger: fold.querySelector('.stats-split'), start: 'top 65%' },
@@ -724,12 +1099,23 @@ function initFold7() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 8 — Déclin bachelor
    ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   FOLD 8 — Foule bachelor : 42% ont arrêté le sport
+   Thomas est parmi les actifs (green), la majorité rouge = abandon
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   FOLD 8 — Foule bachelor : 42% ont arrêté le sport
+   Thomas parmi les actifs (vert), rouges = abandon
+   Même pattern d'apparition que fold 2
+   ═══════════════════════════════════════════════════════════════ */
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
 
   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
-  const dropoutPct = Math.round(100 - practPct);
+  const dropoutPct = Math.round(100 - practPct); // ~42
+
+  /* ── Compteur animé ── */
   const el = document.getElementById('bachelor-dropout-pct');
   if (el) {
     const obj = { val: 0 };
@@ -742,8 +1128,178 @@ function initFold8() {
     });
   }
 
+  /* ── Foule ── */
   const pictoC = document.getElementById('bachelor-dropout-pictogram');
-  if (pictoC) buildPictoGrid(pictoC, { total: 10, active: Math.round(dropoutPct / 10), color: C.accent, heroIndex: 3 });
+  if (!pictoC) return;
+
+  const CROWD = 28;
+  const stoppedN = Math.round((dropoutPct / 100) * CROWD); // ~12 rouges
+  const activeN = CROWD - stoppedN;                       // ~16 verts
+  const thomasIdx = activeN - 1;
+
+  /* Conteneur absolu — même setup que fold 2 */
+  pictoC.innerHTML = '';
+  pictoC.style.cssText = [
+    'position:relative',
+    'width:100%',
+    'max-width:360px',
+    'height:250px',
+    'overflow:visible',   // les stickmen peuvent dépasser
+    'flex-shrink:0',
+  ].join(';');
+
+  const W = 340;
+  const men = [];
+
+  /* Calculer les positions cibles en premier */
+  const targets = crowdFinalPositions(CROWD, activeN, W, 215);
+
+  for (let i = 0; i < CROWD; i++) {
+    const isActive = i < activeN;
+    const isThomas = i === thomasIdx;
+    const col = isActive ? C.thomas : C.accent;
+    const sz = isThomas ? 42 : 26;
+
+    const div = document.createElement('div');
+    div.style.cssText = `position:absolute;line-height:0;${isThomas ? 'z-index:4;' : ''}`;
+
+    /* Anneau pulsant pour Thomas */
+    if (isThomas) {
+      const ring = document.createElement('div');
+      ring.className = 'crowd-hero-ring';
+      ring.style.cssText = [
+        'position:absolute',
+        'top:50%;left:50%',
+        `transform:translate(-50%,-58%)`,
+        `width:${sz + 12}px`,
+        `height:${Math.round(sz * 1.55) + 12}px`,
+        'border-radius:50%',
+        `border:2.5px solid ${C.thomas}`,
+        'pointer-events:none',
+        'opacity:.6',
+      ].join(';');
+      div.appendChild(ring);
+    }
+
+    const svgWrap = document.createElement('div');
+    svgWrap.style.cssText = 'position:relative;';
+    svgWrap.innerHTML = stickmanSVG({
+      color: col,
+      pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
+      isHero: false,
+      size: sz,
+    });
+    div.appendChild(svgWrap);
+
+    /* Tag Thomas */
+    if (isThomas) {
+      const tag = document.createElement('span');
+      tag.textContent = 'Thomas';
+      tag.style.cssText = [
+        'display:block',
+        'text-align:center',
+        'font-family:var(--f-d)',
+        'font-size:8px',
+        'font-weight:800',
+        `color:${C.thomas}`,
+        'letter-spacing:.08em',
+        'margin-top:1px',
+        'white-space:nowrap',
+      ].join(';');
+      div.appendChild(tag);
+    }
+
+    pictoC.appendChild(div);
+
+    /* ── Position initiale : target + décalage bas + invisible
+         (reste dans le conteneur → overflow:visible le montre dès qu'il monte) */
+    gsap.set(div, {
+      x: targets[i].x,
+      y: targets[i].y + 80 + Math.random() * 30,
+      opacity: 0,
+      scale: 0.5,
+    });
+
+    men.push({ div, svgWrap, isActive, isThomas, col, sz, idx: i });
+  }
+
+  /* ── Apparition en vague depuis le bas ── */
+  ScrollTrigger.create({
+    trigger: fold,
+    start: 'top 66%',
+    once: true,
+    onEnter: () => {
+
+      men.forEach(({ div }, i) => {
+        gsap.to(div, {
+          y: targets[i].y,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8 + Math.random() * 0.4,
+          delay: i * 0.038,
+          ease: 'power3.out',
+        });
+      });
+
+      /* ── Marche après installation ── */
+      gsap.delayedCall(1.8, () => {
+        men.forEach(({ div, svgWrap, isActive, isThomas, col, sz, idx }) => {
+
+          /* Actifs qui continuent → marchent */
+          if (isActive && !isThomas) {
+            const speed = 0.44 + (idx % 5) * 0.055;
+            const delay = idx * 0.07;
+            let phase = idx % 2;
+
+            function step() {
+              phase = (phase + 1) % 2;
+              svgWrap.innerHTML = stickmanSVG({
+                color: col,
+                pose: phase === 0 ? 'walk-a' : 'walk-b',
+                isHero: false,
+                size: sz,
+              });
+              gsap.to(div, {
+                y: `+=${phase === 0 ? -3.5 : 3.5}`,
+                duration: speed,
+                ease: 'sine.inOut',
+                onComplete: step,
+              });
+            }
+            gsap.delayedCall(delay, step);
+          }
+
+          /* Thomas → petit saut enthousiaste */
+          if (isThomas) {
+            gsap.to(div, {
+              y: '-=5',
+              duration: 0.6,
+              repeat: -1,
+              yoyo: true,
+              ease: 'sine.inOut',
+              delay: 0.3,
+            });
+          }
+
+          /* Arrêtés → pose stand + balancement lent */
+          if (!isActive) {
+            svgWrap.innerHTML = stickmanSVG({
+              color: col, pose: 'stand', isHero: false, size: sz,
+            });
+            gsap.to(div, {
+              y: '-=2',
+              duration: 2.2 + idx * 0.09,
+              repeat: -1,
+              yoyo: true,
+              ease: 'sine.inOut',
+              delay: idx * 0.12,
+            });
+          }
+
+        });
+      });
+    },
+  });
 
   gsap.from(fold.querySelector('.fold__statement'), {
     opacity: 0, y: 36, duration: 0.9, ease: 'power2.out',
