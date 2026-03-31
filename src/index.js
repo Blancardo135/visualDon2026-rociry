@@ -1000,12 +1000,6 @@ function initFold2() {
       cell.appendChild(wrap);
       pictC.appendChild(cell);
       items.push({ wrap, col, isActive, isHero, idx: i });
-
-      // PATCH : stocker immédiatement les refs de Louis
-      if (heroName === 'louis' && isHero) {
-        louisGridWrap = wrap;
-        louisGridCell = cell;
-      }
     }
 
     let gridLoops = [];
@@ -1086,12 +1080,13 @@ function initFold2() {
       /* Nettoyer le flier s'il vole encore */
       if (heroFlier) { heroFlier.remove(); heroFlier = null; }
 
-      /* PATCH : Louis ne retourne PAS dans la barre — il transitera vers fold-3.
-         Les autres personnages (Chloé) retournent normalement. */
-      if (heroName !== 'louis') {
-        CharSystem.undim(heroName);
+      /* Stocker la référence DOM de la cellule Louis pour fold 3 */
+      if (heroName === 'louis') {
+        louisGridCell = items[heroIdx].wrap.parentElement ?? null;
       }
-      // Pour Louis : le slot reste dim, fold-3 appellera undim() à l'arrivée
+
+      /* Remettre le héros dans la barre */
+      CharSystem.undim(heroName);
 
       /* Reset visuel de la grille pour la prochaine entrée */
       gsap.delayedCall(0.3, () => resetGrid(items, heroName));
@@ -1128,8 +1123,7 @@ function initFold2() {
    ═══════════════════════════════════════════════════════════════ */
 
 /* Stocke la position de la cellule Louis dans fold 2 pour la transition */
-let louisGridCell = null;   // cellule <div> parente du héros dans la grille
-let louisGridWrap = null;   // <div> contenant le SVG du héros (pour masquer/afficher)
+let louisGridCell = null;
 
 function initFold3() {
   const fold = document.getElementById('fold-3');
@@ -1408,6 +1402,32 @@ function initFold7() {
    Thomas parmi les actifs (vert), rouges = abandon
    Même pattern d'apparition que fold 2
    ═══════════════════════════════════════════════════════════════ */
+/* Positions finales groupées pour les foules (fold 8) */
+function crowdFinalPositions(total, activeN, W, H) {
+  const pos = [];
+  const aCols = Math.ceil(Math.sqrt(activeN * 1.6));
+  const aRows = Math.ceil(activeN / aCols);
+  const cW = (W * 0.60) / aCols;
+  const cH = (H - 30) / aRows;
+  for (let i = 0; i < activeN; i++) {
+    pos.push({
+      x: 10 + (i % aCols) * cW + (Math.random() - .5) * cW * .35,
+      y: 18 + Math.floor(i / aCols) * cH + (Math.random() - .5) * cH * .35,
+    });
+  }
+  const iN = total - activeN;
+  const iCols = 3;
+  const iW = (W * 0.35) / iCols;
+  const iH = (H - 30) / Math.ceil(iN / iCols);
+  for (let i = 0; i < iN; i++) {
+    pos.push({
+      x: W * 0.63 + (i % iCols) * iW + (Math.random() - .5) * iW * .5,
+      y: 18 + Math.floor(i / iCols) * iH + (Math.random() - .5) * iH * .4,
+    });
+  }
+  return pos;
+}
+
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
