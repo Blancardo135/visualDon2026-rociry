@@ -1526,3 +1526,113 @@ ul {
 #fold-4 {
   display: none !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PATCH CSS — fold-3 / fold-4 : push horizontal au scroll
+   À AJOUTER à la fin de style.css
+   (remplace aussi la règle #fold-4 { display:none !important })
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Annuler le display:none du fold-4 mis précédemment ── */
+#fold-4 {
+  display: flex !important;  /* on le réactive */
+}
+
+/* ── Outer : conteneur qui sera épinglé par ScrollTrigger ── */
+#panels-34-outer {
+  position: relative;
+  overflow: hidden;          /* masque le panel qui déborde à droite */
+  width: 100%;
+}
+
+/* ── Track : les deux panels côte à côte, 200vw de large ── */
+#panels-34-track {
+  display: flex;
+  width: 200%;               /* 2 panels × 100vw */
+  will-change: transform;    /* optimise l'animation GPU */
+}
+
+/* ── Chaque fold dans le track prend exactement 50% du track = 100vw ── */
+#panels-34-track > .fold {
+  width: 50%;                /* 50% de 200% = 100vw exact */
+  flex-shrink: 0;
+  min-height: 100vh;
+}
+
+/* ── fold-3 : fond clair (inchangé) ── */
+#fold-3 {
+  background: var(--bg);
+  flex-direction: row;
+  gap: clamp(2rem, 7vw, 6rem);
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── fold-4 : même fond clair que fold-3 pour la cohabitation ── */
+#fold-4 {
+  background: var(--bg);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* ── Ajustements internes fold-4 pour le fond clair ── */
+#fold-4 .big-stat__number {
+  /* Annuler les styles dark hérités */
+  color: var(--accent);
+  font-size: clamp(6rem, 20vw, 16rem);
+}
+
+#fold-4 .big-stat__label {
+  color: var(--text-muted);
+}
+
+#fold-4 .reasons-list__intro {
+  color: var(--text-muted);
+  font-family: var(--f-d);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.4rem;
+}
+
+/* Réutilise le style fold3-reasons__item pour cohérence */
+#fold-4 #gymnase-reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 500px;
+  width: 100%;
+}
+
+#fold-4 .reasons-list__item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1.4rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+}
+
+#fold-4 .reasons-list__rank {
+  font-family: var(--f-d);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  min-width: 2rem;
+  flex-shrink: 0;
+}
+
+/* ── Séparateur visuel subtil entre les deux panels ── */
+#fold-3 {
+  border-right: 1px solid rgba(0,0,0,0.06);
+}

@@ -1120,93 +1120,72 @@ function initFold2() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   FOLD 3 — Louis : 33% arrêtent
-   Louis vient directement du fold 2 (pas de la barre)
-   Les 3 raisons glissent depuis la droite sur le même écran
-   Fold 4 (écran foncé) est supprimé
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Stocke la position de la cellule Louis dans fold 2 pour la transition */
-let louisGridCell = null;   // cellule <div> parente du héros dans la grille
-let louisGridWrap = null;   // <div> contenant le SVG du héros (pour masquer/afficher)
-
+/* ══════════════════════════════════════════════════════════════
+   3. FOLD 3 — Louis arrive depuis la grille + setup du push
+   ══════════════════════════════════════════════════════════════ */
 function initFold3() {
-  const fold = document.getElementById('fold-3');
-  if (!fold) return;
-
+  const outer = document.getElementById('panels-34-outer');
+  const track = document.getElementById('panels-34-track');
+  const fold3 = document.getElementById('fold-3');
   const fold4 = document.getElementById('fold-4');
-  if (fold4) fold4.style.display = 'none';
-
-  const avatarEl = fold.querySelector('.character__avatar');
-  const bubble = fold.querySelector('.character__bubble');
-  const bigNum = fold.querySelector('.big-stat__number');
-
-  /* Injecter les raisons */
-  let reasonsEl = fold.querySelector('.fold3-reasons');
-  if (!reasonsEl) {
-    reasonsEl = document.createElement('div');
-    reasonsEl.className = 'fold3-reasons';
-    reasonsEl.innerHTML = `<p class="fold3-reasons__title">Pourquoi ?</p><ul class="fold3-reasons__list"></ul>`;
-    fold.appendChild(reasonsEl);
-    sportData.gymnasiens.top3_raisons_arret.forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'fold3-reasons__item';
-      li.innerHTML = `<span class="fold3-reasons__rank">${item.rang}</span>${item.raison}`;
-      reasonsEl.querySelector('.fold3-reasons__list').appendChild(li);
-    });
-  }
-
-  /* État initial */
-  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: 20 });
-  gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
+  if (!outer || !track || !fold3 || !fold4) return;
+ 
+  const avatarEl = fold3.querySelector('.character__avatar');
+  const bubble   = fold3.querySelector('.character__bubble');
+  const bigNum   = fold3.querySelector('.big-stat__number');
+ 
+  /* État initial — tout caché */
+  if (bubble) gsap.set(bubble,   { autoAlpha: 0, x: 20 });
+  gsap.set(bigNum,   { autoAlpha: 0, scale: 0.4 });
   gsap.set(avatarEl, { autoAlpha: 0 });
-  gsap.set(reasonsEl, { autoAlpha: 0, x: 80 });
-
-  /* Pré-remplir l'avatar avec Louis */
+ 
+  /* Pré-remplir l'avatar Louis */
   avatarEl.innerHTML = avatarSVG('louis', 130);
-
+ 
   let activeFlier = null;
-
-  function arrive() {
+ 
+  /* ── Arrivée de Louis (vol depuis grille ou barre) ── */
+  function louisArrive() {
     CharSystem.dim('louis');
-
-    /* Masquer cellule source dans la grille */
-    const louWrap = louisGridCell?.querySelector('div');
-    if (louWrap) gsap.set(louWrap, { autoAlpha: 0 });
-
-    /* Lire les rectangles au bon moment */
+    if (louisGridWrap) gsap.set(louisGridWrap, { autoAlpha: 0 });
+ 
     requestAnimationFrame(() => {
-      const srcRect = louisGridCell?.getBoundingClientRect();
       const dstRect = avatarEl.getBoundingClientRect();
-
-      const canAnimate = srcRect && srcRect.width > 0
-        && dstRect.width > 0
+      const srcRect = louisGridCell?.getBoundingClientRect();
+ 
+      /* Cas A : la cellule grille est encore visible à l'écran */
+      const gridVisible = srcRect
+        && srcRect.width > 0
+        && srcRect.top  > -200
+        && srcRect.top  < window.innerHeight + 200
         && Math.abs(srcRect.top - dstRect.top) > 20;
-
-      if (canAnimate) {
-        /* Flier part de la cellule grille, descend vers avatarEl */
+ 
+      const startRect  = gridVisible ? srcRect : CharSystem.slotRect('louis');
+      const startSize  = gridVisible ? STICK_SIZE : 44;
+      const startHTML  = gridVisible
+        ? avatarSVG('louis', STICK_SIZE)
+        : avatarSVG('louis', 44);
+ 
+      if (startRect && dstRect.width > 0) {
         const flier = document.createElement('div');
-        flier.className = 'char-flier';
-        flier.innerHTML = avatarSVG('louis', STICK_SIZE);
+        flier.className  = 'char-flier';
+        flier.innerHTML  = startHTML;
         document.body.appendChild(flier);
         activeFlier = flier;
-
+ 
         gsap.set(flier, {
-          left: srcRect.left + srcRect.width / 2,
-          top: srcRect.top + srcRect.height / 2,
+          left: startRect.left + startRect.width  / 2,
+          top:  startRect.top  + startRect.height / 2,
           xPercent: -50, yPercent: -50,
-          width: STICK_SIZE,
-          autoAlpha: 1,
-          zIndex: 9999,
+          width: startSize, autoAlpha: 1, zIndex: 9999,
         });
-
+ 
         gsap.to(flier, {
-          left: dstRect.left + dstRect.width / 2,
-          top: dstRect.top + dstRect.height / 2,
-          width: 130,
-          duration: 0.8,
-          ease: 'power2.inOut',
+          left:     dstRect.left + dstRect.width  / 2,
+          top:      dstRect.top  + dstRect.height / 2,
+          width:    130,
+          duration: 0.85,
+          ease:     'power2.inOut',
           onComplete: () => {
             flier.remove();
             activeFlier = null;
@@ -1216,48 +1195,97 @@ function initFold3() {
           },
         });
       } else {
-        /* Fallback direct */
         gsap.set(avatarEl, { autoAlpha: 1 });
         CharSystem.undim('louis');
         showContent();
       }
     });
   }
-
-  function depart() {
+ 
+  function showContent() {
+    if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+    gsap.to(bigNum, { scale: 1, autoAlpha: 1, duration: 1.0, delay: 0.1, ease: 'elastic.out(1.1, 0.5)' });
+  }
+ 
+  function louisDepart() {
     if (activeFlier) { activeFlier.remove(); activeFlier = null; }
-    gsap.to([bubble, bigNum, reasonsEl, avatarEl], { autoAlpha: 0, duration: 0.25 });
+    gsap.to([bubble, bigNum, avatarEl], { autoAlpha: 0, duration: 0.25 });
     gsap.delayedCall(0.2, () => {
       CharSystem.dismiss('louis', avatarEl);
-      /* Remettre un avatar vide pour la prochaine entrée */
       gsap.delayedCall(0.1, () => {
         avatarEl.innerHTML = avatarSVG('louis', 130);
         gsap.set(avatarEl, { autoAlpha: 0 });
       });
     });
-    /* Restaurer la cellule grille */
-    const louWrap = louisGridCell?.querySelector('div');
-    if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
-    louisGridCell = null;
+    if (louisGridWrap) gsap.to(louisGridWrap, { autoAlpha: 1, duration: 0.3 });
   }
-
-  function showContent() {
-    if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-    gsap.to(bigNum, { scale: 1, autoAlpha: 1, duration: 1.0, delay: 0.1, ease: 'elastic.out(1.1, 0.5)' });
-    gsap.to(reasonsEl, { autoAlpha: 1, x: 0, duration: 0.7, delay: 0.4, ease: 'power3.out' });
-    gsap.from(reasonsEl.querySelectorAll('.fold3-reasons__item'), {
-      x: 60, autoAlpha: 0, duration: 0.5, stagger: 0.12, delay: 0.5, ease: 'power2.out',
-    });
-  }
-
+ 
+  /* ── ScrollTrigger 1 : Louis arrive quand fold-3 entre en vue ── */
   ScrollTrigger.create({
-    trigger: fold, start: 'top 62%', end: 'bottom top',
-    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+    trigger: outer,
+    start:   'top 62%',
+    end:     'bottom top',
+    onEnter:     louisArrive,
+    onLeave:     louisDepart,
+    onEnterBack: louisArrive,
+    onLeaveBack: louisDepart,
+  });
+ 
+  /* ── ScrollTrigger 2 : push horizontal fold-3 → fold-4 ──────
+     Le outer est épinglé pendant 100vh de scroll supplémentaire.
+     Pendant ce scroll, on anime translateX du track de 0 → -50%
+     (soit -100vw, ce qui amène fold-4 dans le viewport).
+  ─────────────────────────────────────────────────────────────── */
+  gsap.set(track, { x: '0%' });
+ 
+  /* Items de fold-4 cachés au départ pour l'animation d'entrée */
+  const fold4Items = fold4.querySelectorAll('.reasons-list__item');
+  gsap.set(fold4Items, { opacity: 0, x: 40 });
+ 
+  ScrollTrigger.create({
+    trigger: outer,
+    start:   'top top',          /* outer touche le haut du viewport */
+    end:     '+=100%',           /* 100vh de scroll supplémentaire */
+    pin:     true,               /* épingle le outer pendant ce scroll */
+    scrub:   1.2,                /* suit le scroll avec inertie légère */
+    animation: gsap.to(track, {
+      x: '-50%',                 /* pousse fold-3 hors écran, amène fold-4 */
+      ease: 'none',              /* linéaire pour coller au scroll */
+    }),
+    onUpdate: (self) => {
+      /* Dès que fold-4 est à moitié visible → animer ses items */
+      if (self.progress > 0.5 && fold4Items[0]?.style.opacity === '0') {
+        gsap.to(fold4Items, {
+          opacity: 1, x: 0,
+          duration: 0.5, stagger: 0.12, ease: 'power2.out',
+        });
+      }
+    },
   });
 }
-
-/* initFold4 désactivé — fold-4 est caché, ses raisons sont dans fold-3 */
-function initFold4() { }
+ 
+ 
+/* ══════════════════════════════════════════════════════════════
+   4. FOLD 4 — géré entièrement depuis initFold3 ci-dessus.
+      On remplit seulement la liste des raisons ici.
+   ══════════════════════════════════════════════════════════════ */
+function initFold4() {
+  const list = document.getElementById('gymnase-reasons-list');
+  if (!list) return;
+ 
+  /* Vider si déjà rempli (au cas où) */
+  list.innerHTML = '';
+ 
+  sportData.gymnasiens.top3_raisons_arret.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'reasons-list__item';
+    li.innerHTML = `
+      <span class="reasons-list__rank">${item.rang}</span>
+      ${item.raison}
+    `;
+    list.appendChild(li);
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════════
    FOLD 5 — Quiz slider
