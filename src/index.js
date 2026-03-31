@@ -1000,6 +1000,12 @@ function initFold2() {
       cell.appendChild(wrap);
       pictC.appendChild(cell);
       items.push({ wrap, col, isActive, isHero, idx: i });
+
+      // PATCH : stocker immédiatement les refs de Louis
+      if (heroName === 'louis' && isHero) {
+        louisGridWrap = wrap;
+        louisGridCell = cell;
+      }
     }
 
     let gridLoops = [];
@@ -1080,13 +1086,12 @@ function initFold2() {
       /* Nettoyer le flier s'il vole encore */
       if (heroFlier) { heroFlier.remove(); heroFlier = null; }
 
-      /* Stocker la référence DOM de la cellule Louis pour fold 3 */
-      if (heroName === 'louis') {
-        louisGridCell = items[heroIdx].wrap.parentElement ?? null;
+      /* PATCH : Louis ne retourne PAS dans la barre — il transitera vers fold-3.
+         Les autres personnages (Chloé) retournent normalement. */
+      if (heroName !== 'louis') {
+        CharSystem.undim(heroName);
       }
-
-      /* Remettre le héros dans la barre */
-      CharSystem.undim(heroName);
+      // Pour Louis : le slot reste dim, fold-3 appellera undim() à l'arrivée
 
       /* Reset visuel de la grille pour la prochaine entrée */
       gsap.delayedCall(0.3, () => resetGrid(items, heroName));
@@ -1123,7 +1128,8 @@ function initFold2() {
    ═══════════════════════════════════════════════════════════════ */
 
 /* Stocke la position de la cellule Louis dans fold 2 pour la transition */
-let louisGridCell = null;
+let louisGridCell = null;   // cellule <div> parente du héros dans la grille
+let louisGridWrap = null;   // <div> contenant le SVG du héros (pour masquer/afficher)
 
 function initFold3() {
   const fold = document.getElementById('fold-3');
