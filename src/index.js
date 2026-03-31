@@ -494,7 +494,7 @@ function buildPictoGrid(container, {
         opacity: 1, y: 0, scale: 1,
         duration: 0.42,
         stagger: { each: 0.055, from: 'start' },
-        ease: 'back.out(3)',
+        ease: 'power3.out',
         onComplete: startWalk,
       });
     },
@@ -557,6 +557,197 @@ function buildPictoGrid(container, {
 /* ═══════════════════════════════════════════════════════════════
    UI GLOBAUX
    ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   CHARSYSTEM — barre fixe + vols entre barre et folds
+   - Avatars illustrés dans la barre (avatarSVG 72px)
+   - Persistance : summon/dismiss ne rebondissent pas si le perso
+     est déjà présent dans le fold entrant
+   ═══════════════════════════════════════════════════════════════ */
+const CharSystem = (() => {
+  const ORDER = ['louis', 'chloe', 'thomas', 'bruna'];
+  let bar = null;
+  const slots = {};          // { av, slot }
+  const active = new Set();   // noms des persos actuellement "sortis" de la barre
+
+  /* ── Vol animé fr → tr ───────────────────────────────────── */
+  function fly(html, fr, tr, ws, we, delay, cb) {
+    if (!fr || !tr) { cb?.(); return; }
+    const el = document.createElement('div');
+    el.className = 'char-flier';
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    gsap.set(el, {
+      left: fr.left + fr.width / 2,
+      top: fr.top + fr.height / 2,
+      xPercent: -50, yPercent: -50,
+      width: ws, autoAlpha: 1,
+    });
+    gsap.to(el, {
+      left: tr.left + tr.width / 2,
+      top: tr.top + tr.height / 2,
+      width: we,
+      duration: 0.65, delay, ease: 'power3.inOut',
+      onComplete: () => { el.remove(); cb?.(); },
+    });
+  }
+
+  return {
+    ORDER,
+
+    /* ── Initialisation ─────────────────────────────────────── */
+    init() {
+      bar = document.createElement('div');
+      bar.className = 'char-bar';
+      document.body.appendChild(bar);
+
+      ORDER.forEach(name => {
+        const slot = document.createElement('div');
+        slot.className = 'char-bar__slot';
+
+        const av = document.createElement('div');
+        av.className = 'char-bar__av';
+        // Vrai personnage illustré, taille 72px
+        av.innerHTML = avatarSVG(name, 44);
+
+        const nm = document.createElement('span');
+        nm.className = 'char-bar__nm';
+        nm.textContent = name[0].toUpperCase() + name.slice(1);
+
+        slot.appendChild(av);
+        slot.appendChild(nm);
+        bar.appendChild(slot);
+        slots[name] = { slot, av };
+      });
+
+      gsap.set(bar, { yPercent: -110, autoAlpha: 0 });
+    },
+
+    show(delay = 0) {
+      gsap.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, delay, ease: 'power2.out' });
+    },
+
+    hide() {
+      // Ne masquer que si aucun perso n'est actif sur le prochain fold
+      gsap.to(bar, { yPercent: -110, autoAlpha: 0, duration: 0.45, ease: 'power2.in' });
+    },
+
+    slotRect(name) {
+      return slots[name]?.av?.getBoundingClientRect?.() ?? null;
+    },
+
+    /* Slot dim : perso parti, on garde juste une silhouette ghost */
+    dim(name) {
+      const av = slots[name]?.av;
+      if (av) gsap.to(av, { opacity: 0.18, scale: 0.8, duration: 0.3 });
+    },
+
+    undim(name) {
+      const av = slots[name]?.av;
+      if (av) gsap.to(av, { opacity: 1, scale: 1, duration: 0.35 });
+    },
+
+    /* ── Summon : barre → targetEl ──────────────────────────── */
+    /* Si le perso est déjà sorti (active), on ne refait pas le vol,
+       on met juste à jour l'avatar et on signale done */
+    summon(name, targetEl, size, onDone) {
+      if (!targetEl) return;
+      size = size ?? 130;
+
+      if (active.has(name)) {
+        // Déjà sorti — juste mettre à jour le contenu et continuer
+        if (!targetEl.innerHTML) targetEl.innerHTML = avatarSVG(name, size);
+        onDone?.();
+        return;
+      }
+
+      active.add(name);
+      const sr = this.slotRect(name);
+      const tr = targetEl.getBoundingClientRect();
+      this.dim(name);
+
+      fly(avatarSVG(name, size), sr, tr, 44, size, 0, () => {
+        targetEl.innerHTML = avatarSVG(name, size);
+        onDone?.();
+      });
+    },
+
+    /* ── Dismiss : targetEl → barre ─────────────────────────── */
+    /* Si le perso va être summoné juste après (fold suivant),
+       passer skipReturn: true pour éviter le rebond */
+    dismiss(name, fromEl, { skipReturn = false, delay = 0 } = {}) {
+      if (!active.has(name)) return; // pas sorti, rien à faire
+
+      if (skipReturn) {
+        // Perso reste "actif" — juste vider le conteneur local
+        if (fromEl) fromEl.innerHTML = '';
+        return;
+      }
+
+      active.delete(name);
+
+      if (!fromEl || !fromEl.innerHTML) {
+        this.undim(name);
+        return;
+      }
+
+      const fr = fromEl.getBoundingClientRect();
+      const sr = this.slotRect(name);
+      const w = fromEl.offsetWidth || 130;
+      const html = fromEl.innerHTML;
+      fromEl.innerHTML = '';
+
+      gsap.delayedCall(delay, () => {
+        fly(html, fr, sr, w, 44, 0, () => this.undim(name));
+      });
+    },
+
+    /* ── Transition douce entre deux folds pour le même perso ── */
+    /* Appeler au lieu de dismiss+summon quand le perso enchaîne */
+    transfer(name, fromEl, toEl, size, onDone) {
+      if (!fromEl || !toEl) return;
+      size = size ?? 130;
+      const fr = fromEl.getBoundingClientRect();
+      const tr = toEl.getBoundingClientRect();
+      const html = avatarSVG(name, size);
+      fromEl.innerHTML = '';
+      fly(html, fr, tr, fromEl.offsetWidth || size, size, 0, () => {
+        toEl.innerHTML = avatarSVG(name, size);
+        onDone?.();
+      });
+    },
+
+    /* ── Renvoyer tout le monde (utilisé rarement) ──────────── */
+    dismissAll(sourceMap) {
+      ORDER.forEach(name => {
+        const el = sourceMap?.[name];
+        this.dismiss(name, el ?? null);
+      });
+    },
+
+    /* ── Fold 1 → tous volent vers la barre ─────────────────── */
+    flyAllToBar(sources) {
+      /* Crossfade simultané : persos s'estompent + barre monte,
+         le tout en une seule timeline parallèle. */
+      const tl = gsap.timeline();
+
+      /* Persos → opacité 0 + légère remontée */
+      ORDER.forEach(name => {
+        const srcEl = sources[name];
+        const charEl = srcEl?.closest('.character') ?? srcEl;
+        if (charEl) tl.to(charEl, { autoAlpha: 0, y: -14, duration: 0.55, ease: 'power2.inOut' }, 0);
+        active.delete(name);
+        this.undim(name);  // slots déjà à fond dans la barre
+      });
+
+      /* Barre glisse depuis le haut en même temps */
+      gsap.set(bar, { yPercent: -100, autoAlpha: 0 });
+      tl.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, ease: 'power2.out' }, 0);
+    },
+  };
+})();
+
+
 function initScrollProgress() {
   const bar = document.createElement('div');
   bar.className = 'scroll-progress';
@@ -601,29 +792,65 @@ function initFold1() {
   const fold = document.getElementById('fold-1');
   if (!fold) return;
 
-  fold.querySelectorAll('.character__avatar').forEach(el => {
-    const name = el.closest('[data-name]')?.dataset.name;
-    if (name) el.innerHTML = avatarSVG(name, 130);
-  });
-
-  const chars = fold.querySelectorAll('.character');
+  const NAMES = ['louis', 'chloe', 'thomas', 'bruna'];
+  const charEls = fold.querySelectorAll('.character');
   const subtitle = fold.querySelector('.fold__subtitle');
 
-  gsap.set(chars, { opacity: 0, y: 80, scale: 0.88 });
-  gsap.set(subtitle, { opacity: 0, y: 24 });
+  /* Injecter les avatars */
+  charEls.forEach(el => {
+    const name = el.dataset.name;
+    const av = el.querySelector('.character__avatar');
+    if (av && name) av.innerHTML = avatarSVG(name, 130);
+  });
+
+  /* Tout cacher */
+  gsap.set(charEls, { autoAlpha: 0, y: 55 });
+  if (subtitle) gsap.set(subtitle, { autoAlpha: 0, y: 18 });
+
+  /* Timeline scrub : 1 personnage par segment de scroll */
+  const tl = gsap.timeline();
+  charEls.forEach((el, i) => {
+    tl.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
+  });
+  if (subtitle) tl.to(subtitle, { autoAlpha: 1, y: 0, duration: 0.6 }, NAMES.length - 0.2);
 
   ScrollTrigger.create({
-    trigger: fold, start: 'top 55%', once: true,
-    onEnter: () => {
-      gsap.to(chars, {
-        opacity: 1, y: 0, scale: 1,
-        duration: 0.9, stagger: 0.2, ease: 'power3.out',
-        onComplete: () => gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }),
+    trigger: fold,
+    start: 'top top',
+    end: `+=${NAMES.length * 130}%`,
+    pin: true,
+    scrub: 1.4,
+    animation: tl,
+
+    onLeave: () => {
+      /* Crossfade direct — aucun délai, tout en simultané */
+      const sources = {};
+      charEls.forEach(el => {
+        const name = el.dataset.name;
+        const av = el.querySelector('.character__avatar');
+        if (name && av) sources[name] = av;
       });
+      CharSystem.flyAllToBar(sources);
+    },
+
+    onEnterBack: () => {
+      /* Barre remonte + persos réapparaissent — crossfade simultané */
+      const tl = gsap.timeline();
+      tl.to(bar, { yPercent: -100, autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, 0);
+      charEls.forEach(el => {
+        const av = el.querySelector('.character__avatar');
+        if (av && !av.innerHTML) {
+          const name = el.dataset.name;
+          if (name) av.innerHTML = avatarSVG(name, 130);
+        }
+        gsap.set(el, { y: -14 });
+        tl.to(el, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0);
+      });
+      if (subtitle) tl.to(subtitle, { autoAlpha: 1, duration: 0.4 }, 0.1);
     },
   });
 
-  // Bulles respirent légèrement
+  /* Bulles respirent */
   fold.querySelectorAll('.character__bubble').forEach((b, i) => {
     gsap.fromTo(b, { y: 0 }, {
       y: -4, duration: 2.4 + i * 0.5,
@@ -646,95 +873,70 @@ function initFold1() {
   - 1 protagoniste (Louis/Chloé) légèrement plus grand avec son prénom
 */
 
-const CROWD_W = 340;
-const CROWD_H = 240;
-const CROWD_N = 30;
+/* ═══════════════════════════════════════════════════════════════
+   FOLD 2 — Gymnase & Apprentissage
+   100 stickmen grille 20×5, Louis/Chloé intégrés
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Position aléatoire dans la scène */
-function randPos(W, H, margin = 20) {
-  return {
-    x: margin + Math.random() * (W - margin * 2),
-    y: margin + Math.random() * (H - margin * 2),
-  };
-}
+const GRID_COLS = 20;
+const GRID_ROWS = 5;
+const GRID_TOTAL = 100;
+const STICK_SIZE = 22;
+const STICK_GAP = 3;
 
-/* Positions finales groupées :
-   actifs en grille dense à gauche, inactifs dispersés à droite */
-function crowdFinalPositions(total, activeN, W, H) {
-  const pos = [];
-
-  // Actifs : grille organique, côté gauche (60% de la largeur)
-  const aCols = Math.ceil(Math.sqrt(activeN * 1.6));
-  const aRows = Math.ceil(activeN / aCols);
-  const cW = (W * 0.60) / aCols;
-  const cH = (H - 30) / aRows;
-
-  for (let i = 0; i < activeN; i++) {
-    const jitter = 0.35;
-    pos.push({
-      x: 10 + (i % aCols) * cW + (Math.random() - .5) * cW * jitter,
-      y: 18 + Math.floor(i / aCols) * cH + (Math.random() - .5) * cH * jitter,
-    });
-  }
-
-  // Inactifs : dispersés à droite (40% restants)
-  const iN = total - activeN;
-  const iCols = 3;
-  const iW = (W * 0.35) / iCols;
-  const iH = (H - 30) / Math.ceil(iN / iCols);
-
-  for (let i = 0; i < iN; i++) {
-    pos.push({
-      x: W * 0.63 + (i % iCols) * iW + (Math.random() - .5) * iW * .5,
-      y: 18 + Math.floor(i / iCols) * iH + (Math.random() - .5) * iH * .4,
-    });
-  }
-
-  return pos;
-}
-
-/* Animation de marche continue sur une liste de { div, svgWrap, col, isActive, isHero, sz, idx } */
-function animateCrowd(men) {
-  men.forEach(({ div, svgWrap, col, isActive, isHero, sz, idx }) => {
-
-    if (isHero) {
-      // Protagoniste : petit rebond en boucle
-      gsap.to(div, {
-        y: '-=6', duration: 0.6, repeat: -1, yoyo: true,
-        ease: 'sine.inOut', delay: 0.1,
-      });
-      return;
-    }
+/* Animation de marche pour la grille */
+function animateGrid(items) {
+  const loops = []; // stocker les delayedCall pour pouvoir les tuer
+  items.forEach(({ wrap, col, isActive, isHero, idx }) => {
 
     if (!isActive) {
-      // Inactifs : très léger balancement
-      gsap.to(div, {
-        y: '-=1.5', duration: 1.8 + idx * 0.08,
-        repeat: -1, yoyo: true, ease: 'sine.inOut', delay: idx * 0.12,
+      const t = gsap.to(wrap, {
+        y: -1.5, duration: 1.9 + (idx % 7) * 0.15,
+        repeat: -1, yoyo: true, ease: 'sine.inOut',
+        delay: (idx % 11) * 0.12,
       });
+      loops.push(t);
       return;
     }
 
-    // Actifs : alternance walk-a / walk-b désynchronisée
-    const speed = 0.40 + (idx % 5) * 0.06;
-    const delay = idx * 0.068;
+    const speed = 0.40 + (idx % 7) * 0.04;
+    const delay = (idx % 13) * 0.06;
     let phase = idx % 2;
+    let killed = false;
 
     function step() {
+      if (killed) return;
       phase = (phase + 1) % 2;
-      svgWrap.innerHTML = stickmanSVG({
-        color: col,
-        pose: phase === 0 ? 'walk-a' : 'walk-b',
-        isHero: false, size: sz,
+      const pose = phase === 0 ? 'walk-a' : 'walk-b';
+      if (!isHero) {
+        wrap.innerHTML = stickmanSVG({ color: col, pose, isHero: false, size: STICK_SIZE });
+      }
+      const t = gsap.to(wrap, {
+        y: phase === 0 ? -3 : 0,
+        duration: speed, ease: 'sine.inOut', onComplete: step,
       });
-      gsap.to(div, {
-        y: `+=${phase === 0 ? -3.5 : 3.5}`,
-        duration: speed,
-        ease: 'sine.inOut',
-        onComplete: step,
+      loops.push(t);
+    }
+    const dc = gsap.delayedCall(delay, step);
+    loops.push(dc);
+  });
+  return loops;
+}
+
+/* Reset d'une grille pour rejouer l'animation */
+function resetGrid(items, heroName) {
+  items.forEach(({ wrap, col, isActive, isHero, idx }) => {
+    gsap.killTweensOf(wrap);
+    if (isHero) {
+      wrap.innerHTML = avatarSVG(heroName, STICK_SIZE);
+    } else {
+      wrap.innerHTML = stickmanSVG({
+        color: col,
+        pose: idx % 2 === 0 ? 'walk-a' : 'walk-b',
+        isHero: false, size: STICK_SIZE,
       });
     }
-    gsap.delayedCall(delay, step);
+    gsap.set(wrap, { opacity: 0, y: 10, scale: 0.75 });
   });
 }
 
@@ -750,237 +952,306 @@ function initFold2() {
   fold.insertBefore(tickWrap, fold.querySelector('.fold__title'));
   gsap.to(tick, { x: '-50%', duration: 20, repeat: -1, ease: 'none' });
 
-  /* ── Config par bloc ── */
   const BLOCS = [
-    {
-      sel: '.stat-block--light',
-      pct: sportData.gymnasiens.pratiquent_sport_regulier_pct,   // 66.7
-      color: C.louis,
-      heroName: 'Louis',
-      heroAvatar: 'louis',
-    },
-    {
-      sel: '.stat-block--dark',
-      pct: sportData.apprentis.pratiquent_sport_regulier_pct,    // 66.7
-      color: C.chloe,
-      heroName: 'Chloé',
-      heroAvatar: 'chloe',
-    },
+    { sel: '.stat-block--light', pct: sportData.gymnasiens.pratiquent_sport_regulier_pct, color: C.louis, heroName: 'louis' },
+    { sel: '.stat-block--dark', pct: sportData.apprentis.pratiquent_sport_regulier_pct, color: C.chloe, heroName: 'chloe' },
   ];
 
-  BLOCS.forEach(({ sel, pct, color, heroName, heroAvatar }) => {
+  BLOCS.forEach(({ sel, pct, color, heroName }) => {
     const block = fold.querySelector(sel);
-    if (!block) return;
-    const pictC = block.querySelector('.stat-block__pictogram');
-    if (!pictC) return;
+    const pictC = block?.querySelector('.stat-block__pictogram');
+    if (!block || !pictC) return;
 
-    // Préparer le conteneur de la scène
+    const activeN = Math.round((pct / 100) * GRID_TOTAL); // 67
+    const heroIdx = activeN - 1;
+
+    /* ── Grille 20×5 ── */
     pictC.innerHTML = '';
     pictC.style.cssText = [
-      'position:relative',
-      `width:${CROWD_W}px`,
-      `height:${CROWD_H}px`,
-      'overflow:visible',
-      'flex-shrink:0',
+      'display:grid',
+      `grid-template-columns:repeat(${GRID_COLS}, ${STICK_SIZE}px)`,
+      `gap:${STICK_GAP}px`,
+      'width:fit-content',
+      'max-width:100%',
       'margin:0 auto',
+      'overflow:visible',
     ].join(';');
 
-    const activeN = Math.round((pct / 100) * CROWD_N); // ~20
-    const heroIdx = activeN - 1;                        // dernier actif = le protagoniste
-    const finalPos = crowdFinalPositions(CROWD_N, activeN, CROWD_W, CROWD_H);
+    const items = [];
 
-    const men = [];
-
-    for (let i = 0; i < CROWD_N; i++) {
+    for (let i = 0; i < GRID_TOTAL; i++) {
       const isActive = i < activeN;
       const isHero = i === heroIdx;
       const col = isActive ? color : C.muted;
-      const sz = isHero ? 42 : 26;
-      const initPose = i % 2 === 0 ? 'walk-a' : 'walk-b';
 
-      const div = document.createElement('div');
-      div.style.cssText = `position:absolute;line-height:0;${isHero ? 'z-index:4;' : 'z-index:' + (isActive ? '2' : '1') + ';'}`;
+      const cell = document.createElement('div');
+      cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
 
-      // Halo de mise en évidence du héros
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'line-height:0;';
+
       if (isHero) {
-        const halo = document.createElement('div');
-        halo.style.cssText = [
-          'position:absolute',
-          'top:50%', 'left:50%',
-          'transform:translate(-50%,-55%)',
-          `width:${sz + 16}px`,
-          `height:${sz * 1.55 + 16}px`,
-          'border-radius:50%',
-          `border:2px solid ${color}`,
-          'opacity:.5',
-          'pointer-events:none',
-          'animation:halo-pulse 1.4s ease-in-out infinite',
-        ].join(';');
-        div.appendChild(halo);
+        wrap.innerHTML = avatarSVG(heroName, STICK_SIZE);
+      } else {
+        wrap.innerHTML = stickmanSVG({ color: col, pose: i % 2 === 0 ? 'walk-a' : 'walk-b', isHero: false, size: STICK_SIZE });
       }
 
-      // SVG stickman (wrapper remplaçable)
-      const svgWrap = document.createElement('div');
-      svgWrap.style.cssText = 'position:relative;';
-      svgWrap.innerHTML = stickmanSVG({ color: col, pose: initPose, isHero: false, size: sz });
-      div.appendChild(svgWrap);
-
-      // Étiquette nom héros
-      if (isHero) {
-        const tag = document.createElement('span');
-        tag.textContent = heroName;
-        tag.style.cssText = [
-          'display:block',
-          'text-align:center',
-          `font-family:var(--f-d)`,
-          'font-size:8.5px',
-          'font-weight:800',
-          `color:${color}`,
-          'letter-spacing:.1em',
-          'margin-top:2px',
-          'white-space:nowrap',
-          'text-transform:uppercase',
-        ].join(';');
-        div.appendChild(tag);
-      }
-
-      pictC.appendChild(div);
-      men.push({ div, svgWrap, isActive, isHero, col, sz, idx: i });
-
-      // Position de départ : éparpillés en bas hors vue
-      const startP = randPos(CROWD_W, CROWD_H * 0.3, 10);
-      gsap.set(div, {
-        x: startP.x,
-        y: CROWD_H + 20 + Math.random() * 30,
-        opacity: 0,
-        scale: 0.7,
-      });
+      gsap.set(wrap, { opacity: 0, y: 10, scale: 0.75 });
+      cell.appendChild(wrap);
+      pictC.appendChild(cell);
+      items.push({ wrap, col, isActive, isHero, idx: i });
     }
 
-    ScrollTrigger.create({
-      trigger: block,
-      start: 'top 68%',
-      once: true,
-      onEnter: () => {
+    let gridLoops = [];
+    let heroFlier = null;
 
-        /* ── Phase 1 : entrée dispersée + déambulation ── */
-        men.forEach(({ div }, i) => {
-          const wanderP = randPos(CROWD_W, CROWD_H, 15);
-          gsap.to(div, {
-            opacity: 1,
-            scale: 1,
-            x: wanderP.x,
-            y: wanderP.y,
-            duration: 0.6 + Math.random() * 0.4,
-            delay: i * 0.035,
-            ease: 'power2.out',
-          });
-        });
+    function enter() {
+      /* ── 1. Griser le slot dans la barre ── */
+      CharSystem.dim(heroName);
 
-        /* ── Phase 2 (après 1.4s) : deuxième déambulation ── */
-        gsap.delayedCall(1.4, () => {
-          men.forEach(({ div }, i) => {
-            const wanderP2 = randPos(CROWD_W, CROWD_H, 12);
-            gsap.to(div, {
-              x: wanderP2.x,
-              y: wanderP2.y,
-              duration: 0.7 + Math.random() * 0.5,
-              delay: i * 0.028,
-              ease: 'power1.inOut',
-            });
-          });
-        });
+      /* ── 2. Flier de la barre → cellule héros ── */
+      const heroWrap = items[heroIdx].wrap;
+      const heroCellEl = heroWrap.parentElement;
 
-        /* ── Phase 3 (après 2.5s) : regroupement ── */
-        gsap.delayedCall(2.5, () => {
-          men.forEach(({ div }, i) => {
-            gsap.to(div, {
-              x: finalPos[i].x,
-              y: finalPos[i].y,
-              duration: 0.9 + Math.random() * 0.4,
-              delay: i * 0.04,
-              ease: 'power3.out',
-            });
+      // Attendre le prochain frame pour que getBoundingClientRect soit à jour
+      requestAnimationFrame(() => {
+        const slotRect = CharSystem.slotRect(heroName);
+        const cellRect = heroCellEl?.getBoundingClientRect();
+
+        if (slotRect && cellRect && cellRect.width > 0) {
+          /* Cacher la cellule héros pendant le vol */
+          gsap.set(heroWrap, { opacity: 0 });
+
+          const flier = document.createElement('div');
+          flier.className = 'char-flier';
+          flier.innerHTML = avatarSVG(heroName, 44);
+          document.body.appendChild(flier);
+          heroFlier = flier;
+
+          gsap.set(flier, {
+            left: slotRect.left + slotRect.width / 2,
+            top: slotRect.top + slotRect.height / 2,
+            xPercent: -50, yPercent: -50,
+            width: 44, autoAlpha: 1,
           });
 
-          // Après regroupement → démarrer la marche
-          gsap.delayedCall(1.2, () => animateCrowd(men));
-        });
-
-        /* ── Compteur animé ── */
-        const numEl = block.querySelector('.stat-block__number');
-        if (numEl) {
-          const obj = { val: 0 };
-          gsap.to(obj, {
-            val: pct, duration: 2.2, ease: 'power2.out', delay: 0.6,
-            onUpdate: () => { numEl.textContent = obj.val.toFixed(1) + '%'; },
+          gsap.to(flier, {
+            left: cellRect.left + cellRect.width / 2,
+            top: cellRect.top + cellRect.height / 2,
+            width: STICK_SIZE,
+            duration: 0.9, ease: 'power3.inOut',
+            onComplete: () => {
+              flier.remove();
+              heroFlier = null;
+              heroWrap.innerHTML = avatarSVG(heroName, STICK_SIZE);
+              gsap.set(heroWrap, { opacity: 1, y: 0, scale: 1 });
+            },
           });
         }
-      },
+      });
+
+      /* ── 3. Vague d'apparition smooth sur toute la grille ── */
+      const nonHero = items.filter(it => !it.isHero).map(it => it.wrap);
+      gsap.to(nonHero, {
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.55,
+        stagger: { each: 0.007, from: 'start', grid: [GRID_ROWS, GRID_COLS] },
+        ease: 'power2.out',
+        delay: 0.1,
+        onComplete: () => { gridLoops = animateGrid(items); },
+      });
+
+      /* ── 4. Compteur ── */
+      const numEl = block.querySelector('.stat-block__number');
+      if (numEl) {
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: pct, duration: 1.8, ease: 'power2.out', delay: 0.3,
+          onUpdate: () => { numEl.textContent = obj.val.toFixed(1) + '%'; },
+        });
+      }
+    }
+
+    function leave() {
+      /* Tuer toutes les animations de marche */
+      gridLoops.forEach(t => t?.kill?.());
+      gridLoops = [];
+
+      /* Nettoyer le flier s'il vole encore */
+      if (heroFlier) { heroFlier.remove(); heroFlier = null; }
+
+      /* Stocker la référence DOM de la cellule Louis pour fold 3 */
+      if (heroName === 'louis') {
+        louisGridCell = items[heroIdx].wrap.parentElement ?? null;
+      }
+
+      /* Remettre le héros dans la barre */
+      CharSystem.undim(heroName);
+
+      /* Reset visuel de la grille pour la prochaine entrée */
+      gsap.delayedCall(0.3, () => resetGrid(items, heroName));
+
+      /* Reset compteur */
+      const numEl = block.querySelector('.stat-block__number');
+      if (numEl) numEl.textContent = '0%';
+    }
+
+    /* ── ScrollTrigger bidirectionnel (pas once: true) ── */
+    ScrollTrigger.create({
+      trigger: block,
+      start: 'top 72%',
+      end: 'bottom 20%',
+      onEnter: enter,
+      onLeave: leave,
+      onEnterBack: enter,
+      onLeaveBack: leave,
     });
   });
 
   /* Apparition des blocs */
   gsap.from(fold.querySelectorAll('.stat-block'), {
-    opacity: 0, x: -55, duration: 1, stagger: 0.25, ease: 'power3.out',
-    scrollTrigger: { trigger: fold.querySelector('.stats-split'), start: 'top 65%' },
+    opacity: 0, x: -40, duration: 0.9, stagger: 0.2, ease: 'power3.out',
+    scrollTrigger: { trigger: fold.querySelector('.stats-split'), start: 'top 68%' },
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 3 — Louis, 33% arrêtent
+   FOLD 3 — Louis : 33% arrêtent
+   Louis vient directement du fold 2 (pas de la barre)
+   Les 3 raisons glissent depuis la droite sur le même écran
+   Fold 4 (écran foncé) est supprimé
    ═══════════════════════════════════════════════════════════════ */
+
+/* Stocke la position de la cellule Louis dans fold 2 pour la transition */
+let louisGridCell = null;
+
 function initFold3() {
   const fold = document.getElementById('fold-3');
   if (!fold) return;
 
-  const avatar = fold.querySelector('.character__avatar');
-  if (avatar) avatar.innerHTML = avatarSVG('louis', 130);
+  const fold4 = document.getElementById('fold-4');
+  if (fold4) fold4.style.display = 'none';
 
-  const char = fold.querySelector('.character');
+  const avatarEl = fold.querySelector('.character__avatar');
+  const bubble = fold.querySelector('.character__bubble');
   const bigNum = fold.querySelector('.big-stat__number');
 
-  gsap.set(char, { x: 90, opacity: 0 });
-  gsap.set(bigNum, { scale: 0.4, opacity: 0, rotation: -10 });
-
-  ScrollTrigger.create({
-    trigger: fold, start: 'top 62%', once: true,
-    onEnter: () => {
-      gsap.to(char, { x: 0, opacity: 1, duration: 0.9, ease: 'power3.out' });
-      gsap.to(bigNum, { scale: 1, opacity: 1, rotation: 0, duration: 1.1, delay: 0.4, ease: 'elastic.out(1.1, 0.5)' });
-    },
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   FOLD 4 — Raisons arrêt gymnase
-   ═══════════════════════════════════════════════════════════════ */
-function initFold4() {
-  const fold = document.getElementById('fold-4');
-  if (!fold) return;
-
-  const list = document.getElementById('gymnase-reasons-list');
-  if (list) {
+  /* Injecter les raisons */
+  let reasonsEl = fold.querySelector('.fold3-reasons');
+  if (!reasonsEl) {
+    reasonsEl = document.createElement('div');
+    reasonsEl.className = 'fold3-reasons';
+    reasonsEl.innerHTML = `<p class="fold3-reasons__title">Pourquoi ?</p><ul class="fold3-reasons__list"></ul>`;
+    fold.appendChild(reasonsEl);
     sportData.gymnasiens.top3_raisons_arret.forEach(item => {
       const li = document.createElement('li');
-      li.className = 'reasons-list__item';
-      li.innerHTML = `<span class="reasons-list__rank">${item.rang}</span>${item.raison}`;
-      gsap.set(li, { opacity: 0, x: -40 });
-      list.appendChild(li);
-    });
-    ScrollTrigger.create({
-      trigger: list, start: 'top 80%', once: true,
-      onEnter: () => gsap.to(list.querySelectorAll('li'), {
-        opacity: 1, x: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out',
-      }),
+      li.className = 'fold3-reasons__item';
+      li.innerHTML = `<span class="fold3-reasons__rank">${item.rang}</span>${item.raison}`;
+      reasonsEl.querySelector('.fold3-reasons__list').appendChild(li);
     });
   }
 
-  gsap.from(fold.querySelector('.big-stat__number'), {
-    scale: 0.5, opacity: 0, duration: 0.9, ease: 'back.out(2)',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
+  /* État initial */
+  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: 20 });
+  gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
+  gsap.set(avatarEl, { autoAlpha: 0 });
+  gsap.set(reasonsEl, { autoAlpha: 0, x: 80 });
+
+  /* Pré-remplir l'avatar avec Louis */
+  avatarEl.innerHTML = avatarSVG('louis', 130);
+
+  let activeFlier = null;
+
+  function arrive() {
+    CharSystem.dim('louis');
+
+    /* Masquer cellule source dans la grille */
+    const louWrap = louisGridCell?.querySelector('div');
+    if (louWrap) gsap.set(louWrap, { autoAlpha: 0 });
+
+    /* Lire les rectangles au bon moment */
+    requestAnimationFrame(() => {
+      const srcRect = louisGridCell?.getBoundingClientRect();
+      const dstRect = avatarEl.getBoundingClientRect();
+
+      const canAnimate = srcRect && srcRect.width > 0
+        && dstRect.width > 0
+        && Math.abs(srcRect.top - dstRect.top) > 20;
+
+      if (canAnimate) {
+        /* Flier part de la cellule grille, descend vers avatarEl */
+        const flier = document.createElement('div');
+        flier.className = 'char-flier';
+        flier.innerHTML = avatarSVG('louis', STICK_SIZE);
+        document.body.appendChild(flier);
+        activeFlier = flier;
+
+        gsap.set(flier, {
+          left: srcRect.left + srcRect.width / 2,
+          top: srcRect.top + srcRect.height / 2,
+          xPercent: -50, yPercent: -50,
+          width: STICK_SIZE,
+          autoAlpha: 1,
+          zIndex: 9999,
+        });
+
+        gsap.to(flier, {
+          left: dstRect.left + dstRect.width / 2,
+          top: dstRect.top + dstRect.height / 2,
+          width: 130,
+          duration: 0.8,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            flier.remove();
+            activeFlier = null;
+            gsap.set(avatarEl, { autoAlpha: 1 });
+            CharSystem.undim('louis');
+            showContent();
+          },
+        });
+      } else {
+        /* Fallback direct */
+        gsap.set(avatarEl, { autoAlpha: 1 });
+        CharSystem.undim('louis');
+        showContent();
+      }
+    });
+  }
+
+  function depart() {
+    if (activeFlier) { activeFlier.remove(); activeFlier = null; }
+    gsap.to([bubble, bigNum, reasonsEl, avatarEl], { autoAlpha: 0, duration: 0.25 });
+    gsap.delayedCall(0.2, () => {
+      CharSystem.dismiss('louis', avatarEl);
+      /* Remettre un avatar vide pour la prochaine entrée */
+      gsap.delayedCall(0.1, () => {
+        avatarEl.innerHTML = avatarSVG('louis', 130);
+        gsap.set(avatarEl, { autoAlpha: 0 });
+      });
+    });
+    /* Restaurer la cellule grille */
+    const louWrap = louisGridCell?.querySelector('div');
+    if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
+    louisGridCell = null;
+  }
+
+  function showContent() {
+    if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+    gsap.to(bigNum, { scale: 1, autoAlpha: 1, duration: 1.0, delay: 0.1, ease: 'elastic.out(1.1, 0.5)' });
+    gsap.to(reasonsEl, { autoAlpha: 1, x: 0, duration: 0.7, delay: 0.4, ease: 'power3.out' });
+    gsap.from(reasonsEl.querySelectorAll('.fold3-reasons__item'), {
+      x: 60, autoAlpha: 0, duration: 0.5, stagger: 0.12, delay: 0.5, ease: 'power2.out',
+    });
+  }
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 }
+
+/* initFold4 désactivé — fold-4 est caché, ses raisons sont dans fold-3 */
+function initFold4() { }
 
 /* ═══════════════════════════════════════════════════════════════
    FOLD 5 — Quiz slider
@@ -989,14 +1260,27 @@ function initFold5() {
   const fold = document.getElementById('fold-5');
   if (!fold) return;
 
-  const avatar = fold.querySelector('.character__avatar');
-  if (avatar) avatar.innerHTML = avatarSVG('thomas', 130);
+  const avatarEl = fold.querySelector('.character__avatar');
+  const quiz = fold.querySelector('.quiz-block');
 
-  gsap.from([fold.querySelector('.character'), fold.querySelector('.quiz-block')], {
-    opacity: 0, y: 50, duration: 0.9, stagger: 0.2, ease: 'power2.out',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
+  if (quiz) gsap.set(quiz, { autoAlpha: 0, y: 40 });
+
+  function arrive() {
+    CharSystem.summon('thomas', avatarEl, 130, () => {
+      if (quiz) gsap.to(quiz, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+    });
+  }
+  function depart() {
+    if (quiz) gsap.to(quiz, { autoAlpha: 0, duration: 0.2 });
+    gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+  }
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
+  /* ── Quiz logic (inchangé) ── */
   const slider = document.getElementById('quiz-slider');
   const output = fold.querySelector('.quiz-block__output');
   const btn = fold.querySelector('.quiz-block__submit');
@@ -1006,7 +1290,6 @@ function initFold5() {
     output.textContent = slider.value + '%';
     slider.addEventListener('input', () => {
       output.textContent = slider.value + '%';
-      // Couleur slider en temps réel
       const diff = Math.abs(parseFloat(slider.value) - correct);
       const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
       output.style.color = `hsl(${hue}, 80%, 42%)`;
@@ -1019,14 +1302,12 @@ function initFold5() {
       if (diff <= 8) {
         gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 1.1, ease: 'power2.inOut' });
       } else {
-        const quiz = fold.querySelector('.quiz-block');
         gsap.timeline()
           .to(quiz, { x: -14, duration: 0.07 })
           .to(quiz, { x: 14, duration: 0.07 })
           .to(quiz, { x: -10, duration: 0.07 })
           .to(quiz, { x: 10, duration: 0.07 })
           .to(quiz, { x: 0, duration: 0.07 });
-
         let hint = fold.querySelector('.quiz-block__hint');
         if (!hint) {
           hint = document.createElement('p');
@@ -1074,14 +1355,27 @@ function initFold7() {
   const fold = document.getElementById('fold-7');
   if (!fold) return;
 
-  const avatar = fold.querySelector('.character__avatar');
-  if (avatar) avatar.innerHTML = avatarSVG('thomas', 130);
+  const avatarEl = fold.querySelector('.character__avatar');
+  const bubble = fold.querySelector('.character__bubble');
 
-  gsap.from(fold.querySelector('.character'), {
-    opacity: 0, x: -55, duration: 0.9, ease: 'power3.out',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
+  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -20 });
+
+  function arrive() {
+    CharSystem.summon('thomas', avatarEl, 130, () => {
+      if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+    });
+  }
+  function depart() {
+    if (bubble) gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
+    gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+  }
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
+  /* Pictogrammes raisons (inchangé) */
   const container = document.getElementById('bachelor-reasons-pictogram');
   if (!container) return;
 
@@ -1353,9 +1647,27 @@ function initFold10() {
   const fold = document.getElementById('fold-10');
   if (!fold) return;
 
-  const avatar = fold.querySelector('.character__avatar');
-  if (avatar) avatar.innerHTML = avatarSVG('bruna', 130);
+  const avatarEl = fold.querySelector('.character__avatar');
+  const bubble = fold.querySelector('.character__bubble');
 
+  if (bubble) gsap.set(bubble, { autoAlpha: 0, y: 20 });
+
+  function arrive() {
+    CharSystem.summon('bruna', avatarEl, 130, () => {
+      if (bubble) gsap.to(bubble, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+    });
+  }
+  function depart() {
+    if (bubble) gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
+    gsap.delayedCall(0.12, () => CharSystem.dismiss('bruna', avatarEl));
+  }
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+  });
+
+  /* Liste raisons (inchangé) */
   const list = document.getElementById('master-reasons-list');
   if (list) {
     sportData.master.top3_raisons_pratiques_logistiques.raisons.forEach(item => {
@@ -1371,11 +1683,6 @@ function initFold10() {
       }),
     });
   }
-
-  gsap.from(fold.querySelector('.character'), {
-    opacity: 0, y: 50, duration: 0.95, ease: 'power2.out',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
-  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1720,36 +2027,45 @@ function initFold15() {
    ═══════════════════════════════════════════════════════════════ */
 function initDebate() {
   [
-    { id: 'fold-16', left: 'louis', right: 'bruna' },
-    { id: 'fold-17', left: 'chloe', right: 'thomas' },
-  ].forEach(({ id, left, right }) => {
+    { id: 'fold-16', leftName: 'louis', rightName: 'bruna' },
+    { id: 'fold-17', leftName: 'chloe', rightName: 'thomas' },
+  ].forEach(({ id, leftName, rightName }) => {
     const fold = document.getElementById(id);
     if (!fold) return;
 
-    const scene = fold.querySelector('.debate-scene');
-    if (!scene) return;
-
+    /* Créer les conteneurs d'avatars (vides — CharSystem les remplit) */
     const la = document.createElement('div');
     la.className = 'debate-avatar debate-avatar--left';
-    la.innerHTML = avatarSVG(left, 70);
+    fold.appendChild(la);
 
     const ra = document.createElement('div');
     ra.className = 'debate-avatar debate-avatar--right';
-    ra.innerHTML = avatarSVG(right, 70);
-
-    fold.appendChild(la);
     fold.appendChild(ra);
 
     const bubbles = fold.querySelectorAll('.debate-bubble');
-    gsap.set([la, ra], { opacity: 0, y: 30, scale: 0.75 });
-    gsap.set(bubbles, { opacity: 0, y: 24 });
+    gsap.set(bubbles, { autoAlpha: 0, y: 20 });
+
+    function arrive() {
+      CharSystem.summon(leftName, la, 70, () => {
+        gsap.from(la, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+      });
+      gsap.delayedCall(0.18, () => {
+        CharSystem.summon(rightName, ra, 70, () => {
+          gsap.from(ra, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+        });
+      });
+      gsap.to(bubbles, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.4, delay: 0.5, ease: 'power2.out' });
+    }
+
+    function depart() {
+      gsap.to(bubbles, { autoAlpha: 0, duration: 0.2 });
+      CharSystem.dismiss(leftName, la);
+      gsap.delayedCall(0.12, () => CharSystem.dismiss(rightName, ra));
+    }
 
     ScrollTrigger.create({
-      trigger: fold, start: 'top 62%', once: true,
-      onEnter: () => {
-        gsap.to([la, ra], { opacity: 1, y: 0, scale: 1, duration: 0.75, stagger: 0.18, ease: 'back.out(2)' });
-        gsap.to(bubbles, { opacity: 1, y: 0, duration: 0.65, stagger: 0.45, delay: 0.3, ease: 'power2.out' });
-      },
+      trigger: fold, start: 'top 62%', end: 'bottom top',
+      onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
     });
   });
 }
@@ -1801,6 +2117,7 @@ function initFold18() {
    ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   injectStats();
+  CharSystem.init();    // ← barre créée en premier
   initScrollProgress();
   initSeriesLabel();
 
