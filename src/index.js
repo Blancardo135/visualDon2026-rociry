@@ -1294,6 +1294,14 @@ function initFold5() {
   const avatarEl = fold.querySelector('.character__avatar');
   const quiz = fold.querySelector('.quiz-block');
 
+  /* Bulle de Thomas — injectée dynamiquement sous l'avatar */
+  const bubble = document.createElement('div');
+  bubble.className = 'character__bubble character__bubble--thomas-quiz';
+  bubble.setAttribute('aria-live', 'polite');
+  const charEl = fold.querySelector('.character');
+  if (charEl) charEl.appendChild(bubble);
+  gsap.set(bubble, { autoAlpha: 0, y: 6 });
+
   if (quiz) gsap.set(quiz, { autoAlpha: 0, y: 40 });
 
   function arrive() {
@@ -1303,6 +1311,7 @@ function initFold5() {
   }
   function depart() {
     if (quiz) gsap.to(quiz, { autoAlpha: 0, duration: 0.2 });
+    gsap.to(bubble, { autoAlpha: 0, duration: 0.15 });
     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
   }
 
@@ -1311,11 +1320,26 @@ function initFold5() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* ── Quiz logic (inchangé) ── */
+  /* ── Quiz logic ── */
   const slider = document.getElementById('quiz-slider');
   const output = fold.querySelector('.quiz-block__output');
   const btn = fold.querySelector('.quiz-block__submit');
   const correct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
+  const TOLERANCE = 8; /* ±8% accepté */
+
+  /* Affiche un message dans la bulle de Thomas */
+  function showBubble(text, color) {
+    bubble.textContent = text;
+    bubble.style.borderColor = color + '55';
+    gsap.fromTo(bubble,
+      { autoAlpha: 0, y: 8 },
+      { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' }
+    );
+  }
+
+  function hideBubble() {
+    gsap.to(bubble, { autoAlpha: 0, y: 4, duration: 0.2 });
+  }
 
   if (slider && output) {
     output.textContent = slider.value + '%';
@@ -1324,29 +1348,36 @@ function initFold5() {
       const diff = Math.abs(parseFloat(slider.value) - correct);
       const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
       output.style.color = `hsl(${hue}, 80%, 42%)`;
+      /* Effacer la bulle quand on bouge le slider */
+      hideBubble();
     });
   }
 
   if (btn) {
     btn.addEventListener('click', () => {
-      const diff = Math.abs(parseFloat(slider.value) - correct);
-      if (diff <= 8) {
-        gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 1.1, ease: 'power2.inOut' });
+      const val = parseFloat(slider.value);
+      const diff = Math.abs(val - correct);
+
+      if (diff <= TOLERANCE) {
+        /* Bonne réponse : Thomas célèbre */
+        showBubble('🎉 Exactement ! Bien joué !', C.thomas);
+        gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 0.7, ease: 'power2.inOut' });
       } else {
+        /* Mauvaise réponse : shake du quiz + bulle Thomas */
         gsap.timeline()
           .to(quiz, { x: -14, duration: 0.07 })
           .to(quiz, { x: 14, duration: 0.07 })
           .to(quiz, { x: -10, duration: 0.07 })
           .to(quiz, { x: 10, duration: 0.07 })
           .to(quiz, { x: 0, duration: 0.07 });
-        let hint = fold.querySelector('.quiz-block__hint');
-        if (!hint) {
-          hint = document.createElement('p');
-          hint.className = 'quiz-block__hint';
-          quiz.appendChild(hint);
+
+        if (diff > 30) {
+          showBubble('Raté… tu es loin ! Réessaie.', C.accent);
+        } else if (diff > 15) {
+          showBubble('Pas tout à fait… encore un effort !', C.gold);
+        } else {
+          showBubble('Tu brûles ! Encore un peu…', C.thomas);
         }
-        hint.textContent = diff > 22 ? 'Pas tout à fait… essaie encore !' : 'Tu y es presque !';
-        gsap.fromTo(hint, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3 });
       }
     });
   }
