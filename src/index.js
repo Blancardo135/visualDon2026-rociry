@@ -1129,124 +1129,155 @@ function initFold3() {
   const fold = document.getElementById('fold-3');
   if (!fold) return;
 
+  // Fold-4 reste caché
   const fold4 = document.getElementById('fold-4');
   if (fold4) fold4.style.display = 'none';
 
+  // ── 1. Récupérer les éléments existants avant de restructurer ──
+  const charEl = fold.querySelector('.character');
   const avatarEl = fold.querySelector('.character__avatar');
-  const bubble = fold.querySelector('.character__bubble');
+  const bubbleEl = fold.querySelector('.character__bubble');
+  const bigStat = fold.querySelector('.big-stat');
   const bigNum = fold.querySelector('.big-stat__number');
 
-  /* Injecter les raisons */
-  let reasonsEl = fold.querySelector('.fold3-reasons');
-  if (!reasonsEl) {
-    reasonsEl = document.createElement('div');
-    reasonsEl.className = 'fold3-reasons';
-    reasonsEl.innerHTML = `<p class="fold3-reasons__title">Pourquoi ?</p><ul class="fold3-reasons__list"></ul>`;
-    fold.appendChild(reasonsEl);
-    sportData.gymnasiens.top3_raisons_arret.forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'fold3-reasons__item';
-      li.innerHTML = `<span class="fold3-reasons__rank">${item.rang}</span>${item.raison}`;
-      reasonsEl.querySelector('.fold3-reasons__list').appendChild(li);
-    });
-  }
-
-  /* État initial */
-  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: 20 });
-  gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
-  gsap.set(avatarEl, { autoAlpha: 0 });
-  gsap.set(reasonsEl, { autoAlpha: 0, x: 80 });
-
-  /* Pré-remplir l'avatar avec Louis */
   avatarEl.innerHTML = avatarSVG('louis', 130);
+  gsap.set(avatarEl, { autoAlpha: 0 });
+  gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
+  gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
 
+  // ── 2. Construire la piste horizontale ─────────────────────────
+  const track = document.createElement('div');
+  track.className = 'fold3-track';
+
+  // Panel 1 : contenu existant (Louis + big stat)
+  const panel1 = document.createElement('div');
+  panel1.className = 'fold3-panel';
+  panel1.appendChild(charEl);
+  panel1.appendChild(bigStat);
+  track.appendChild(panel1);
+
+  // Panels 2-4 : raisons
+  const reasonCards = [];
+  sportData.gymnasiens.top3_raisons_arret.forEach((item, i) => {
+    const panel = document.createElement('div');
+    panel.className = 'fold3-panel fold3-panel--reason';
+
+    const card = document.createElement('div');
+    card.className = 'fold3-reason-card';
+    card.innerHTML = `
+      <span class="fold3-reason__rank">${item.rang}</span>
+      <p class="fold3-reason__text">${item.raison}</p>`;
+
+    gsap.set(card, { x: 80, autoAlpha: 0 });
+    panel.appendChild(card);
+    track.appendChild(panel);
+    reasonCards.push(card);
+  });
+
+  fold.appendChild(track);
+
+  // ── 3. Timeline : track glisse + raisons apparaissent ──────────
+  const PANELS = 4; // 1 intro + 3 raisons
+
+  const tl = gsap.timeline();
+  // Track glisse de 0 → -(3 * 100vw)
+  tl.to(track, { x: () => -(track.scrollWidth - window.innerWidth), ease: 'none', duration: 3 });
+  // Chaque raison entre depuis la droite à son moment dans la timeline
+  reasonCards.forEach((card, i) => {
+    tl.to(card, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' }, 0.75 + i * 0.95);
+  });
+
+  // ── 4. ScrollTrigger : pin + scrub ─────────────────────────────
   let activeFlier = null;
 
-  function arrive() {
-    CharSystem.dim('louis');
-
-    /* Masquer cellule source dans la grille */
-    const louWrap = louisGridCell?.querySelector('div');
-    if (louWrap) gsap.set(louWrap, { autoAlpha: 0 });
-
-    /* Lire les rectangles au bon moment */
-    requestAnimationFrame(() => {
-      const srcRect = louisGridCell?.getBoundingClientRect();
-      const dstRect = avatarEl.getBoundingClientRect();
-
-      const canAnimate = srcRect && srcRect.width > 0
-        && dstRect.width > 0
-        && Math.abs(srcRect.top - dstRect.top) > 20;
-
-      if (canAnimate) {
-        /* Flier part de la cellule grille, descend vers avatarEl */
-        const flier = document.createElement('div');
-        flier.className = 'char-flier';
-        flier.innerHTML = avatarSVG('louis', STICK_SIZE);
-        document.body.appendChild(flier);
-        activeFlier = flier;
-
-        gsap.set(flier, {
-          left: srcRect.left + srcRect.width / 2,
-          top: srcRect.top + srcRect.height / 2,
-          xPercent: -50, yPercent: -50,
-          width: STICK_SIZE,
-          autoAlpha: 1,
-          zIndex: 9999,
-        });
-
-        gsap.to(flier, {
-          left: dstRect.left + dstRect.width / 2,
-          top: dstRect.top + dstRect.height / 2,
-          width: 130,
-          duration: 0.8,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            flier.remove();
-            activeFlier = null;
-            gsap.set(avatarEl, { autoAlpha: 1 });
-            CharSystem.undim('louis');
-            showContent();
-          },
-        });
-      } else {
-        /* Fallback direct */
-        gsap.set(avatarEl, { autoAlpha: 1 });
-        CharSystem.undim('louis');
-        showContent();
-      }
-    });
-  }
-
-  function depart() {
-    if (activeFlier) { activeFlier.remove(); activeFlier = null; }
-    gsap.to([bubble, bigNum, reasonsEl, avatarEl], { autoAlpha: 0, duration: 0.25 });
-    gsap.delayedCall(0.2, () => {
-      CharSystem.dismiss('louis', avatarEl);
-      /* Remettre un avatar vide pour la prochaine entrée */
-      gsap.delayedCall(0.1, () => {
-        avatarEl.innerHTML = avatarSVG('louis', 130);
-        gsap.set(avatarEl, { autoAlpha: 0 });
-      });
-    });
-    /* Restaurer la cellule grille */
-    const louWrap = louisGridCell?.querySelector('div');
-    if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
-    louisGridCell = null;
-  }
-
-  function showContent() {
-    if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-    gsap.to(bigNum, { scale: 1, autoAlpha: 1, duration: 1.0, delay: 0.1, ease: 'elastic.out(1.1, 0.5)' });
-    gsap.to(reasonsEl, { autoAlpha: 1, x: 0, duration: 0.7, delay: 0.4, ease: 'power3.out' });
-    gsap.from(reasonsEl.querySelectorAll('.fold3-reasons__item'), {
-      x: 60, autoAlpha: 0, duration: 0.5, stagger: 0.12, delay: 0.5, ease: 'power2.out',
-    });
-  }
-
   ScrollTrigger.create({
-    trigger: fold, start: 'top 62%', end: 'bottom top',
-    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+    trigger: fold,
+    start: 'top top',
+    end: () => `+=${(PANELS - 1) * window.innerHeight}`,
+    pin: true,
+    scrub: 1.2,
+    animation: tl,
+
+    onEnter: () => {
+      CharSystem.dim('louis');
+
+      requestAnimationFrame(() => {
+        const srcRect = louisGridCell?.getBoundingClientRect();
+        const dstRect = avatarEl.getBoundingClientRect();
+        const canFly = srcRect && srcRect.width > 0 && dstRect.width > 0;
+
+        if (canFly) {
+          const louWrap = louisGridCell?.querySelector('div');
+          if (louWrap) gsap.set(louWrap, { autoAlpha: 0 });
+
+          const flier = document.createElement('div');
+          flier.className = 'char-flier';
+          flier.innerHTML = avatarSVG('louis', STICK_SIZE);
+          document.body.appendChild(flier);
+          activeFlier = flier;
+
+          gsap.set(flier, {
+            left: srcRect.left + srcRect.width / 2,
+            top: srcRect.top + srcRect.height / 2,
+            xPercent: -50, yPercent: -50,
+            width: STICK_SIZE, autoAlpha: 1, zIndex: 9999,
+          });
+
+          gsap.to(flier, {
+            left: dstRect.left + dstRect.width / 2,
+            top: dstRect.top + dstRect.height / 2,
+            width: 130, duration: 0.8, ease: 'power2.inOut',
+            onComplete: () => {
+              flier.remove(); activeFlier = null;
+              gsap.set(avatarEl, { autoAlpha: 1 });
+              CharSystem.undim('louis');
+              gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+              gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.8, ease: 'elastic.out(1.1,0.5)' });
+            },
+          });
+
+        } else {
+          // Fallback : apparition directe
+          gsap.set(avatarEl, { autoAlpha: 1 });
+          CharSystem.undim('louis');
+          gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5 });
+          gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.8 });
+        }
+      });
+    },
+
+    onLeave: () => {
+      if (activeFlier) { activeFlier.remove(); activeFlier = null; }
+      const louWrap = louisGridCell?.querySelector('div');
+      if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
+      louisGridCell = null;
+      CharSystem.dismiss('louis', avatarEl);
+      // Préparer la prochaine entrée
+      gsap.delayedCall(0.35, () => {
+        gsap.set(avatarEl, { autoAlpha: 0 });
+        gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
+        gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
+        avatarEl.innerHTML = avatarSVG('louis', 130);
+      });
+    },
+
+    onEnterBack: () => {
+      CharSystem.dim('louis');
+      gsap.set(avatarEl, { autoAlpha: 1 });
+      gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.4 });
+      gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.6 });
+      gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
+    },
+
+    onLeaveBack: () => {
+      if (activeFlier) { activeFlier.remove(); activeFlier = null; }
+      gsap.set([avatarEl, bubbleEl, bigNum], { autoAlpha: 0 });
+      gsap.set(bubbleEl, { x: 20 });
+      gsap.set(bigNum, { scale: 0.4 });
+      CharSystem.undim('louis');
+      const louWrap = louisGridCell?.querySelector('div');
+      if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
+    },
   });
 }
 
