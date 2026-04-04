@@ -449,106 +449,180 @@ function stickmanSVG({ color = '#C8C4BB', pose = 'stand', isHero = false, size =
 /* ═══════════════════════════════════════════════════════════════
    GRILLE DE STICKMEN ANIMÉS
    ═══════════════════════════════════════════════════════════════ */
+/* Compteur global pour les clipPath IDs uniques */
+let _pictoClipId = 0;
+
+/* Stickman à moitié coloré (gauche = couleur, droite = gris) */
+function stickmanHalfSVG(color, size = 34) {
+  const id = 'half-clip-' + (++_pictoClipId);
+  const w = size;
+  const h = Math.round(size * 62 / 40);
+  const sw = 3.0;
+  const hw = 3.4;
+  const r = 7;
+  const p = {
+    to: 'M20 17 L19 30', al: 'M19 21 L28 26', ar: 'M19 21 L11 24',
+    ll: 'M19 30 L12 43 L10 56', lr: 'M19 30 L26 42 L31 54'
+  };
+  const lc = 'round'; const lj = 'round';
+
+  const body = `
+    <circle cx="20" cy="8" r="${r}" fill="none" stroke="COLOR" stroke-width="${hw}"/>
+    <circle cx="17" cy="7" r="1" fill="COLOR" opacity=".75"/>
+    <circle cx="23" cy="7" r="1" fill="COLOR" opacity=".75"/>
+    <path d="M17 11 Q20 13 23 11" stroke="COLOR" stroke-width="1.3" fill="none" stroke-linecap="${lc}" opacity=".6"/>
+    <path d="${p.to}" stroke="COLOR" stroke-width="${sw}" stroke-linecap="${lc}" fill="none"/>
+    <path d="${p.al}" stroke="COLOR" stroke-width="${sw - .4}" stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.ar}" stroke="COLOR" stroke-width="${sw - .4}" stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.ll}" stroke="COLOR" stroke-width="${sw}" stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>
+    <path d="${p.lr}" stroke="COLOR" stroke-width="${sw}" stroke-linecap="${lc}" stroke-linejoin="${lj}" fill="none"/>`;
+
+  return `<svg width="${w}" height="${h}" viewBox="0 0 40 62"
+    xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible">
+    <defs>
+      <clipPath id="${id}"><rect x="0" y="0" width="20" height="62"/></clipPath>
+    </defs>
+    <!-- Base grise -->
+    <g>${body.replace(/COLOR/g, C.muted)}</g>
+    <!-- Moitié gauche colorée -->
+    <g clip-path="url(#${id})">${body.replace(/COLOR/g, color)}</g>
+  </svg>`;
+}
+
 function buildPictoGrid(container, {
   total = 10,
   active = 5,
   color = '#888',
   heroIndex = -1,
+  heroName = null,
   label = '',
   pct = null,
 } = {}) {
   container.innerHTML = '';
 
+  /* ── Label seul au-dessus ── */
   if (label) {
     const lbl = document.createElement('p');
-    lbl.className = 'picto-grid__label';
-    lbl.innerHTML = `<span>${label}</span>${pct !== null ? `<strong>${pct}%</strong>` : ''}`;
+    lbl.className = 'picto-grid__label-text';
+    lbl.textContent = label;
     container.appendChild(lbl);
   }
 
+  /* ── Ligne stickmen + % alignés sur le même axe ── */
+  const row = document.createElement('div');
+  row.className = 'picto-grid__row';
+
   const wrap = document.createElement('div');
-  wrap.className = 'picto-grid';
-  container.appendChild(wrap);
+  wrap.className = 'picto-grid picto-grid--row';
+  row.appendChild(wrap);
+
+  if (pct !== null) {
+    const pctEl = document.createElement('strong');
+    pctEl.className = 'picto-grid__pct';
+    pctEl.textContent = pct + '%';
+    row.appendChild(pctEl);
+  }
+
+  container.appendChild(row);
+
+  const STICK = 34;
+
+  /* Détecter le stickman "demi" : quand pct n'est pas multiple de 10 */
+  const exactActive = pct !== null ? pct / 10 : active;
+  const fullActive = Math.floor(exactActive);
+  const hasHalf = (exactActive - fullActive) >= 0.3 && fullActive < total;
+  const halfIdx = hasHalf ? fullActive : -1; /* index du stickman demi-coloré */
+  /* active recalculé : on inclut le demi dans le décompte */
+  const effectiveActive = hasHalf ? fullActive : active;
 
   const items = [];
   for (let i = 0; i < total; i++) {
-    const isActive = i < active;
+    const isHalf = i === halfIdx;
+    const isActive = !isHalf && i < effectiveActive;
     const isHero = i === heroIndex;
     const col = isActive ? color : C.muted;
-    const initPose = isHero ? 'hero' : (isActive ? 'walk-a' : 'stand');
 
     const span = document.createElement('span');
-    span.className = 'picto-grid__item' + (isActive ? ' picto-grid__item--active' : '');
-    span.innerHTML = stickmanSVG({ color: col, pose: initPose, isHero, size: 36 });
-    gsap.set(span, { opacity: 0, y: 22, scale: 0.65 });
+    span.className = 'picto-grid__item' + (isActive || isHalf ? ' picto-grid__item--active' : '');
+
+    if (isHero && heroName) {
+      span.innerHTML = avatarSVG(heroName, STICK);
+    } else if (isHalf) {
+      span.innerHTML = stickmanHalfSVG(color, STICK);
+    } else {
+      span.innerHTML = stickmanSVG({
+        color: col,
+        pose: isActive ? 'walk-a' : 'stand',
+        isHero: false,
+        size: STICK,
+      });
+    }
+
+    gsap.set(span, { opacity: 0, y: 18, scale: 0.7 });
     wrap.appendChild(span);
-    items.push({ span, col, isActive, isHero, idx: i });
+    items.push({ span, col, isActive, isHalf, isHero, idx: i });
   }
 
   ScrollTrigger.create({
     trigger: container,
-    start: 'top 80%',
+    start: 'top 82%',
     once: true,
     onEnter: () => {
       gsap.to(wrap.querySelectorAll('.picto-grid__item'), {
         opacity: 1, y: 0, scale: 1,
-        duration: 0.42,
-        stagger: { each: 0.055, from: 'start' },
-        ease: 'power3.out',
+        duration: 0.4,
+        stagger: { each: 0.05, from: 'start' },
+        ease: 'power2.out',
         onComplete: startWalk,
       });
     },
   });
 
   function startWalk() {
-    items.forEach(({ span, col, isActive, isHero, idx }) => {
+    items.forEach(({ span, col, isActive, isHalf, isHero, idx }) => {
 
-      /* actifs : alternance walk-a / walk-b désynchronisée */
+      /* Actifs non-héros : marche désynchronisée */
       if (isActive && !isHero) {
         const speed = 0.46 + (idx % 4) * 0.06;
         const delay = idx * 0.09;
         let phase = idx % 2;
-
         function step() {
           phase = (phase + 1) % 2;
           span.innerHTML = stickmanSVG({
             color: col,
             pose: phase === 0 ? 'walk-a' : 'walk-b',
-            isHero: false, size: 36,
+            isHero: false, size: STICK,
           });
           gsap.to(span, {
-            y: phase === 0 ? -3.5 : 0,
-            duration: speed,
-            ease: 'sine.inOut',
-            onComplete: step,
+            y: phase === 0 ? -3 : 0,
+            duration: speed, ease: 'sine.inOut', onComplete: step,
           });
         }
         gsap.delayedCall(delay, step);
       }
 
-      /* inactifs : léger balancement */
-      if (!isActive) {
+      /* Demi-stickman : balancement léger, garde son apparence */
+      if (isHalf) {
+        gsap.to(span, {
+          y: -1, duration: 2.2,
+          repeat: -1, yoyo: true, ease: 'sine.inOut',
+        });
+      }
+
+      /* Inactifs : balancement lent */
+      if (!isActive && !isHalf) {
         gsap.to(span, {
           y: -1.5, duration: 1.8 + idx * 0.13,
           repeat: -1, yoyo: true, ease: 'sine.inOut', delay: idx * 0.18,
         });
       }
 
-      /* héros : bras levés en alternance */
-      if (isHero) {
-        let up = true;
-        function heroStep() {
-          up = !up;
-          span.innerHTML = stickmanSVG({
-            color: col, pose: up ? 'hero' : 'stand', isHero: true, size: 36,
-          });
-          gsap.to(span, {
-            y: up ? -6 : 0, scale: up ? 1.08 : 1,
-            duration: 0.7, ease: 'sine.inOut',
-            onComplete: () => gsap.delayedCall(0.45, heroStep),
-          });
-        }
-        gsap.delayedCall(0.5, heroStep);
+      /* Héros Thomas : petit bob vertical */
+      if (isHero && heroName) {
+        gsap.to(span, {
+          y: -4, duration: 0.7,
+          repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.3,
+        });
       }
     });
   }
@@ -1445,8 +1519,13 @@ function initFold7() {
     const div = document.createElement('div');
     div.className = 'reason-picto-block';
     buildPictoGrid(div, {
-      total: 10, active: Math.round(item.pct / 10),
-      color: C.thomas, heroIndex: 0, label: item.raison, pct: item.pct,
+      total: 10,
+      active: Math.round(item.pct / 10),
+      color: C.thomas,
+      heroIndex: 0,
+      heroName: 'thomas',   /* avatarSVG thomas à l'échelle des stickmen */
+      label: item.raison,
+      pct: item.pct,
     });
     container.appendChild(div);
   });

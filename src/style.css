@@ -1568,3 +1568,67 @@ ul {
   line-height: 1.4;
   font-style: italic;
 }
+
+.picto-grid--row {
+  flex-wrap: nowrap;
+  max-width: none;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.picto-grid__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: .8rem;
+  margin-bottom: .5rem;
+  color: var(--text-muted);
+  width: 100%;
+  gap: .5rem;
+}
+
+.picto-grid__label strong {
+  font-family: var(--f-d);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.fold--dark .picto-grid__label {
+  color: var(--text-dim);
+}
+
+.fold--dark .picto-grid__label strong {
+  color: white;
+}
+
+/* Header ligne : label à gauche, % en grand à droite */
+
+/* ── Picto grid : label + ligne alignée ── */
+.picto-grid__label-text {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: .3rem;
+  display: block;
+}
+
+/* Conteneur : stickmen + % sur le même axe horizontal */
+.picto-grid__row {
+  display: flex;
+  align-items: center;
+  /* alignement vertical centré */
+  gap: .9rem;
+}
+
+.picto-grid__pct {
+  font-family: var(--f-d);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--thomas);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 4.5ch;
+  text-align: right;
+  line-height: 1;
+}
