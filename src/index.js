@@ -1532,51 +1532,17 @@ function initFold7() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 8 — Déclin bachelor
+   FOLD 8 — 100 stickmen, 58% verts / 42% rouges, Thomas intégré
+   Phase 1 : apparition mélangée  →  Phase 2 : regroupement
    ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   FOLD 8 — Foule bachelor : 42% ont arrêté le sport
-   Thomas est parmi les actifs (green), la majorité rouge = abandon
-   ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   FOLD 8 — Foule bachelor : 42% ont arrêté le sport
-   Thomas parmi les actifs (vert), rouges = abandon
-   Même pattern d'apparition que fold 2
-   ═══════════════════════════════════════════════════════════════ */
-/* Positions finales groupées pour les foules (fold 8) */
-function crowdFinalPositions(total, activeN, W, H) {
-  const pos = [];
-  const aCols = Math.ceil(Math.sqrt(activeN * 1.6));
-  const aRows = Math.ceil(activeN / aCols);
-  const cW = (W * 0.60) / aCols;
-  const cH = (H - 30) / aRows;
-  for (let i = 0; i < activeN; i++) {
-    pos.push({
-      x: 10 + (i % aCols) * cW + (Math.random() - .5) * cW * .35,
-      y: 18 + Math.floor(i / aCols) * cH + (Math.random() - .5) * cH * .35,
-    });
-  }
-  const iN = total - activeN;
-  const iCols = 3;
-  const iW = (W * 0.35) / iCols;
-  const iH = (H - 30) / Math.ceil(iN / iCols);
-  for (let i = 0; i < iN; i++) {
-    pos.push({
-      x: W * 0.63 + (i % iCols) * iW + (Math.random() - .5) * iW * .5,
-      y: 18 + Math.floor(i / iCols) * iH + (Math.random() - .5) * iH * .4,
-    });
-  }
-  return pos;
-}
-
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
 
   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
-  const dropoutPct = Math.round(100 - practPct); // ~42
+  const dropoutPct = Math.round(100 - practPct); // 42
 
-  /* ── Compteur animé ── */
+  /* ── Compteur animé dans le texte ── */
   const el = document.getElementById('bachelor-dropout-pct');
   if (el) {
     const obj = { val: 0 };
@@ -1589,204 +1555,199 @@ function initFold8() {
     });
   }
 
-  /* ── Foule ── */
   const pictoC = document.getElementById('bachelor-dropout-pictogram');
   if (!pictoC) return;
 
-  const CROWD = 28;
-  const stoppedN = Math.round((dropoutPct / 100) * CROWD); // ~12 rouges
-  const activeN = CROWD - stoppedN;                       // ~16 verts
-  const thomasIdx = activeN - 1;
+  /* ── Constantes grille 20×5 ── */
+  const COLS = 20;
+  const ROWS = 5;
+  const TOTAL = 100;
+  const SZ = 22;          // taille stickman
+  const GAP = 3;
+  const greenN = TOTAL - dropoutPct;  // 58
+  const redN = dropoutPct;          // 42
+  const thomasIdx = greenN - 1;        // dernier vert = Thomas
 
-  /* Conteneur absolu — même setup que fold 2 */
+  /* ── Construire la grille ── */
   pictoC.innerHTML = '';
   pictoC.style.cssText = [
-    'position:relative',
-    'width:100%',
-    'max-width:360px',
-    'height:250px',
-    'overflow:visible',   // les stickmen peuvent dépasser
-    'flex-shrink:0',
+    'display:grid',
+    `grid-template-columns:repeat(${COLS}, ${SZ}px)`,
+    `gap:${GAP}px`,
+    'width:fit-content',
+    'max-width:100%',
+    'margin:0 auto',
+    'overflow:visible',
   ].join(';');
 
-  const W = 340;
-  const men = [];
-
-  /* Calculer les positions cibles en premier */
-  const targets = crowdFinalPositions(CROWD, activeN, W, 215);
-
-  for (let i = 0; i < CROWD; i++) {
-    const isActive = i < activeN;
+  /* Ordre final : verts en premier (indices 0..greenN-1), rouges ensuite */
+  const items = [];
+  for (let i = 0; i < TOTAL; i++) {
+    const isGreen = i < greenN;
     const isThomas = i === thomasIdx;
-    const col = isActive ? C.thomas : C.accent;
-    const sz = isThomas ? 42 : 26;
+    const col = isGreen ? C.thomas : C.accent;
 
-    const div = document.createElement('div');
-    div.style.cssText = `position:absolute;line-height:0;${isThomas ? 'z-index:4;' : ''}`;
+    const cell = document.createElement('div');
+    cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
 
-    /* Anneau pulsant pour Thomas */
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'line-height:0;';
+
     if (isThomas) {
-      const ring = document.createElement('div');
-      ring.className = 'crowd-hero-ring';
-      ring.style.cssText = [
-        'position:absolute',
-        'top:50%;left:50%',
-        `transform:translate(-50%,-58%)`,
-        `width:${sz + 12}px`,
-        `height:${Math.round(sz * 1.55) + 12}px`,
-        'border-radius:50%',
-        `border:2.5px solid ${C.thomas}`,
-        'pointer-events:none',
-        'opacity:.6',
-      ].join(';');
-      div.appendChild(ring);
+      wrap.innerHTML = avatarSVG('thomas', SZ);
+    } else {
+      wrap.innerHTML = stickmanSVG({
+        color: col,
+        pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
+        isHero: false, size: SZ,
+      });
     }
 
-    const svgWrap = document.createElement('div');
-    svgWrap.style.cssText = 'position:relative;';
-    svgWrap.innerHTML = stickmanSVG({
-      color: col,
-      pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
-      isHero: false,
-      size: sz,
-    });
-    div.appendChild(svgWrap);
+    /* Position initiale : éparpillée aléatoirement dans la grille */
+    gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
 
-    /* Tag Thomas */
-    if (isThomas) {
-      const tag = document.createElement('span');
-      tag.textContent = 'Thomas';
-      tag.style.cssText = [
-        'display:block',
-        'text-align:center',
-        'font-family:var(--f-d)',
-        'font-size:8px',
-        'font-weight:800',
-        `color:${C.thomas}`,
-        'letter-spacing:.08em',
-        'margin-top:1px',
-        'white-space:nowrap',
-      ].join(';');
-      div.appendChild(tag);
-    }
-
-    pictoC.appendChild(div);
-
-    /* ── Position initiale : target + décalage bas + invisible
-         (reste dans le conteneur → overflow:visible le montre dès qu'il monte) */
-    gsap.set(div, {
-      x: targets[i].x,
-      y: targets[i].y + 80 + Math.random() * 30,
-      opacity: 0,
-      scale: 0.5,
-    });
-
-    men.push({ div, svgWrap, isActive, isThomas, col, sz, idx: i });
+    cell.appendChild(wrap);
+    pictoC.appendChild(cell);
+    items.push({ wrap, col, isGreen, isThomas, idx: i });
   }
 
-  /* ── Apparition en vague depuis le bas ── */
+  /* ── ScrollTrigger : phase mélange → regroupement ── */
   ScrollTrigger.create({
     trigger: fold,
-    start: 'top 66%',
+    start: 'top 68%',
     once: true,
     onEnter: () => {
 
-      men.forEach(({ div }, i) => {
-        gsap.to(div, {
-          y: targets[i].y,
-          opacity: 1,
-          scale: 1,
-          duration: 0.8 + Math.random() * 0.4,
-          delay: i * 0.038,
-          ease: 'power3.out',
-        });
+      /* ── Phase 1 : tous apparaissent mélangés (couleurs déjà bonnes) ──
+         On les fait entrer en vague douce depuis le bas */
+      gsap.to(items.map(it => it.wrap), {
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.6,
+        stagger: { each: 0.012, from: 'random', grid: [ROWS, COLS] },
+        ease: 'power2.out',
       });
 
-      /* ── Marche après installation ── */
-      gsap.delayedCall(1.8, () => {
-        men.forEach(({ div, svgWrap, isActive, isThomas, col, sz, idx }) => {
-
-          /* Actifs qui continuent → marchent */
-          if (isActive && !isThomas) {
-            const speed = 0.44 + (idx % 5) * 0.055;
-            const delay = idx * 0.07;
-            let phase = idx % 2;
-
-            function step() {
-              phase = (phase + 1) % 2;
-              svgWrap.innerHTML = stickmanSVG({
-                color: col,
-                pose: phase === 0 ? 'walk-a' : 'walk-b',
-                isHero: false,
-                size: sz,
-              });
-              gsap.to(div, {
-                y: `+=${phase === 0 ? -3.5 : 3.5}`,
-                duration: speed,
-                ease: 'sine.inOut',
-                onComplete: step,
-              });
-            }
-            gsap.delayedCall(delay, step);
-          }
-
-          /* Thomas → petit saut enthousiaste */
-          if (isThomas) {
-            gsap.to(div, {
-              y: '-=5',
-              duration: 0.6,
-              repeat: -1,
-              yoyo: true,
-              ease: 'sine.inOut',
-              delay: 0.3,
-            });
-          }
-
-          /* Arrêtés → pose stand + balancement lent */
-          if (!isActive) {
-            svgWrap.innerHTML = stickmanSVG({
-              color: col, pose: 'stand', isHero: false, size: sz,
-            });
-            gsap.to(div, {
-              y: '-=2',
-              duration: 2.2 + idx * 0.09,
-              repeat: -1,
-              yoyo: true,
-              ease: 'sine.inOut',
-              delay: idx * 0.12,
-            });
-          }
-
-        });
+      /* ── Phase 2 (après 2s) : regroupement visuel ──
+         Les cellules sont déjà dans le bon ordre DOM (verts puis rouges).
+         On fait un crossfade doux : scale down + y légère, puis retour.
+         Pas de flash, pas de disparition brutale. */
+      gsap.delayedCall(2.2, () => {
+        const tl = gsap.timeline({ onComplete: () => animateF8(items) });
+        tl.to(items.map(it => it.wrap), {
+          scale: 0.75, y: 6,
+          duration: 0.5, ease: 'power1.inOut',
+        })
+          .to(items.map(it => it.wrap), {
+            scale: 1, y: 0,
+            duration: 0.7,
+            stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
+            ease: 'power2.out',
+          });
       });
     },
   });
 
+  /* ── Animations de marche en continu ── */
+  function animateF8(items) {
+    items.forEach(({ wrap, col, isGreen, isThomas, idx }) => {
+      if (isThomas) {
+        gsap.to(wrap, { y: -3, duration: 0.65, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2 });
+        return;
+      }
+      if (isGreen) {
+        const speed = 0.42 + (idx % 6) * 0.04;
+        const delay = (idx % 13) * 0.06;
+        let phase = idx % 2;
+        function step() {
+          phase = (phase + 1) % 2;
+          wrap.innerHTML = stickmanSVG({ color: col, pose: phase === 0 ? 'walk-a' : 'walk-b', isHero: false, size: SZ });
+          gsap.to(wrap, { y: phase === 0 ? -3 : 0, duration: speed, ease: 'sine.inOut', onComplete: step });
+        }
+        gsap.delayedCall(delay, step);
+      } else {
+        /* Rouges : pose stand + balancement */
+        wrap.innerHTML = stickmanSVG({ color: col, pose: 'stand', isHero: false, size: SZ });
+        gsap.to(wrap, { y: -1.5, duration: 2 + (idx % 7) * 0.15, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: (idx % 9) * 0.1 });
+      }
+    });
+  }
+
   gsap.from(fold.querySelector('.fold__statement'), {
-    opacity: 0, y: 36, duration: 0.9, ease: 'power2.out',
+    opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════
    FOLD 9 — Bar chart raisons inactivité
+   Thomas présente, toutes les barres en rouge (42% qui arrêtent)
    ═══════════════════════════════════════════════════════════════ */
 function initFold9() {
   const fold = document.getElementById('fold-9');
   if (!fold) return;
 
-  const container = document.getElementById('inactivite-bar-chart');
+  /* ── Thomas arrive de la barre ── */
+  /* On crée un conteneur avatar + bulle dans le fold */
+  /* Conteneur principal : Thomas à gauche, barres à droite, alignés en bas */
+  const layout = document.createElement('div');
+  layout.className = 'fold9-layout';
+
+  const charWrap = document.createElement('div');
+  charWrap.className = 'fold9-character';
+  const avatarEl = document.createElement('div');
+  avatarEl.className = 'character__avatar';
+  const bubble = document.createElement('div');
+  bubble.className = 'character__bubble';
+  bubble.textContent = "Voici pourquoi tant d'étudiants arrêtent le sport…";
+  charWrap.appendChild(avatarEl);
+  charWrap.appendChild(bubble);
+
+  /* Déplacer le bar-chart dans le layout */
+  const barSection = document.createElement('div');
+  barSection.className = 'bar-chart';
+  const barsContainer = document.getElementById('inactivite-bar-chart');
+  barSection.appendChild(barsContainer);
+
+  layout.appendChild(charWrap);
+  layout.appendChild(barSection);
+
+  /* Insérer le layout après le titre */
+  const title = fold.querySelector('.fold__title');
+  if (title && title.nextSibling) {
+    fold.insertBefore(layout, title.nextSibling);
+  } else {
+    fold.appendChild(layout);
+  }
+
+  gsap.set(bubble, { autoAlpha: 0, x: -16 });
+
+  function arrive() {
+    CharSystem.summon('thomas', avatarEl, 110, () => {
+      gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+    });
+  }
+  function depart() {
+    gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
+    gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+  }
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+  });
+
+  /* ── Barres toutes en rouge ── */
+  const container = barsContainer;
   if (!container) return;
 
   const data = sportData.inactivite_globale.top5_raisons_inactivite_2025;
   const maxPct = Math.max(...data.map(d => d.pct_2025));
-  const colors = [C.accent, C.louis, C.thomas, C.bruna, C.chloe];
 
   data.forEach((item, i) => {
     const bar = document.createElement('div');
     bar.className = 'bar-chart__bar';
     bar.innerHTML = `
-      <div class="bar-chart__fill" style="background:${colors[i]}">
+      <div class="bar-chart__fill" style="background:${C.accent}">
         <span class="bar-chart__value">${item.pct_2025}%</span>
       </div>
       <p class="bar-chart__label">${item.raison}</p>`;
@@ -1797,7 +1758,7 @@ function initFold9() {
     gsap.set(fill, { height: '0%' });
     ScrollTrigger.create({
       trigger: container, start: 'top 78%', once: true,
-      onEnter: () => gsap.to(fill, { height: `${h}%`, duration: 1.4, delay: i * 0.1, ease: 'power3.out' }),
+      onEnter: () => gsap.to(fill, { height: `${h}%`, duration: 1.4, delay: i * 0.12, ease: 'power3.out' }),
     });
   });
 

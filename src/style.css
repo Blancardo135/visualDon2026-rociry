@@ -1632,3 +1632,106 @@ ul {
   text-align: right;
   line-height: 1;
 }
+
+/* ── Fold 9 : Thomas + barres côte à côte, alignés ── */
+#fold-9 {
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: var(--px);
+  padding-right: var(--px);
+}
+
+#fold-9 .fold__title {
+  align-self: center;
+}
+
+.fold9-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  /* Thomas et barres alignés sur le même axe bas */
+  gap: 2.5rem;
+  width: 100%;
+  max-width: var(--max);
+  align-self: center;
+}
+
+.fold9-character {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding-bottom: 2px;
+  /* même baseline que les barres */
+}
+
+.fold9-character .character__bubble {
+  max-width: 200px;
+  font-size: .82rem;
+  border-radius: 16px 16px 16px 4px;
+}
+
+/* ── Fold 9 : chart avec axe X commun ──────────────────────── */
+
+/* Conteneur global du chart : deux rangées — barres / labels */
+#fold-9 .bar-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  /* toutes les barres collées en bas */
+  justify-content: center;
+  gap: clamp(10px, 2.5vw, 28px);
+  height: 320px;
+  padding-bottom: 0;
+  border-bottom: 2px solid var(--border);
+  /* axe X visible */
+  position: relative;
+}
+
+/* Chaque colonne : juste la barre, sans label */
+#fold-9 .bar-chart__bar {
+  flex: 1;
+  max-width: 140px;
+  min-width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  /* barre pousse vers le bas */
+  height: 100%;
+  gap: 0;
+}
+
+/* La barre elle-même */
+#fold-9 .bar-chart__fill {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 4px;
+}
+
+/* Label : en dehors du flux des barres → row séparée via pseudo */
+#fold-9 .bar-chart__label {
+  position: absolute;
+  bottom: -3.5rem;
+  /* sous la ligne d'axe */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .68rem;
+  line-height: 1.3;
+  text-align: center;
+  width: 100px;
+  color: var(--text-muted);
+}
+
+/* Rendre chaque bar-chart__bar relative pour positionner le label */
+#fold-9 .bar-chart__bar {
+  position: relative;
+}
+
+/* Donner de la hauteur au fold pour loger les labels sous l'axe */
+#fold-9 {
+  padding-bottom: calc(var(--py) + 3rem);
+}
