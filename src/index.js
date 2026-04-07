@@ -34,9 +34,17 @@ function injectStats() {
   document.querySelectorAll('[data-stat]').forEach(el => {
     const val = resolvePath(sportData, el.dataset.stat);
     if (val === undefined) return;
-    el.textContent = typeof val === 'number'
-      ? (Number.isInteger(val) ? val + '%' : val.toFixed(1) + '%')
-      : val;
+    /* Vérifier si un % suit déjà dans le DOM pour éviter le double %% */
+    const nextNode = el.nextSibling;
+    const hasTrailingPct = nextNode?.nodeType === 3 && nextNode.textContent.trimStart().startsWith('%');
+    if (typeof val === 'number') {
+      /* Si % déjà présent après le span, injecter juste le chiffre */
+      el.textContent = hasTrailingPct
+        ? (Number.isInteger(val) ? String(val) : val.toFixed(1))
+        : (Number.isInteger(val) ? val + '%' : val.toFixed(1) + '%');
+    } else {
+      el.textContent = val;
+    }
   });
 }
 
@@ -1782,7 +1790,16 @@ function initFold10() {
 
   function arrive() {
     CharSystem.summon('bruna', avatarEl, 130, () => {
-      if (bubble) gsap.to(bubble, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+      if (bubble) gsap.to(bubble, {
+        autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out',
+        onComplete: () => {
+          /* Animer les raisons une fois la bulle visible */
+          const lis = list?.querySelectorAll('li');
+          if (lis?.length) {
+            gsap.to(lis, { opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out' });
+          }
+        }
+      });
     });
   }
   function depart() {
@@ -1795,58 +1812,95 @@ function initFold10() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* Liste raisons (inchangé) */
+  /* Raisons logistiques master — pré-injectées, animées à l'arrivée de Bruna */
   const list = document.getElementById('master-reasons-list');
   if (list) {
-    sportData.master.top3_raisons_pratiques_logistiques.raisons.forEach(item => {
+    list.innerHTML = '';
+    /* Utiliser les motivations positives (top 3) — cohérent avec "grâce à" */
+    const raisons = (sportData.master.top5_impacts_positifs_etudes?.raisons ?? []).slice(0, 3);
+    raisons.forEach(item => {
       const li = document.createElement('li');
       li.textContent = item.raison;
-      gsap.set(li, { opacity: 0, x: -22 });
       list.appendChild(li);
     });
-    ScrollTrigger.create({
-      trigger: list, start: 'top 82%', once: true,
-      onEnter: () => gsap.to(list.querySelectorAll('li'), {
-        opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out',
-      }),
-    });
+    /* Cacher initialement — animé dans arrive() */
+    gsap.set(list.querySelectorAll('li'), { opacity: 0, x: -18 });
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 11 — Impacts positifs (jauges horizontales)
+   FOLD 11 — Slide depuis la droite + pin jusqu'à affichage complet
    ═══════════════════════════════════════════════════════════════ */
 function initFold11() {
   const fold = document.getElementById('fold-11');
-  if (!fold) return;
+  const fold10 = document.getElementById('fold-10');
+  if (!fold || !fold10) return;
 
+  const avatarEl = fold.querySelector('.character__avatar');
+  const bubble = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
-  if (!container) return;
 
-  const fillColors = [C.bruna, '#A78BFA', '#7C3AED', '#6D28D9', '#5B21B6'];
-
-  sportData.master.top5_impacts_positifs_etudes.raisons.forEach((item, i) => {
-    const row = document.createElement('div');
-    row.className = 'hbar-chart__row';
-    row.innerHTML = `
-      <span class="hbar-chart__label">${item.raison}</span>
-      <div class="hbar-chart__track"><div class="hbar-chart__fill" style="background:${fillColors[i]}"></div></div>
-      <span class="hbar-chart__value" style="color:${fillColors[i]}">${item.tres_important_pct}%</span>`;
-    container.appendChild(row);
-
-    const fill = row.querySelector('.hbar-chart__fill');
-    gsap.set(fill, { width: '0%' });
-    ScrollTrigger.create({
-      trigger: container, start: 'top 78%', once: true,
-      onEnter: () => gsap.to(fill, {
-        width: `${item.tres_important_pct}%`, duration: 1.3, delay: i * 0.13, ease: 'power3.out',
-      }),
+  /* ── Barres ── */
+  if (container) {
+    sportData.master.top5_impacts_positifs_etudes.raisons.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'hbar-chart__row';
+      row.innerHTML = `
+        <span class="hbar-chart__label">${item.raison}</span>
+        <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
+        <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
+      container.appendChild(row);
+      gsap.set(row.querySelector('.hbar-chart__fill'), { width: '0%' });
     });
-  });
+  }
 
-  gsap.from(fold.querySelector('.fold__subtitle'), {
-    opacity: 0, y: 22, duration: 0.7, ease: 'power2.out',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
+  if (avatarEl) gsap.set(avatarEl, { autoAlpha: 0 });
+  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+
+  /* fold-11 overlay fixed hors écran à droite */
+  gsap.set(fold, { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, xPercent: 100 });
+
+  /* Timeline : phase 1 = slide (scrub), phase 2 = pin pour lire les barres */
+  const tl = gsap.timeline({ paused: true });
+
+  /* 0 → 0.4 : fold-11 glisse de droite */
+  tl.to(fold, { xPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0);
+
+  /* 0.4 → 0.5 : Bruna apparaît */
+  tl.call(() => {
+    if (avatarEl) CharSystem.summon('bruna', avatarEl, 110, () => {
+      if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power2.out' });
+    });
+  }, [], 0.4);
+
+  /* 0.5 → 1 : barres se remplissent */
+  if (container) {
+    container.querySelectorAll('.hbar-chart__fill').forEach((fill, i) => {
+      const pct = sportData.master.top5_impacts_positifs_etudes.raisons[i]?.tres_important_pct ?? 0;
+      tl.to(fill, { width: `${pct}%`, duration: 0.35, ease: 'power2.out' }, 0.55 + i * 0.09);
+    });
+  }
+
+  ScrollTrigger.create({
+    trigger: fold10,
+    start: 'bottom bottom',
+    end: '+=220%',       /* scroll long : slide + lecture des barres + exit */
+    pin: true,
+    scrub: 1.2,
+    animation: tl,
+
+    onLeave: () => {
+      /* Masquer fold-11 — il ne doit plus apparaître dans le flux */
+      gsap.set(fold, { autoAlpha: 0 });
+    },
+
+    onLeaveBack: () => {
+      gsap.set(fold, { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, xPercent: 100 });
+      if (bubble) gsap.set(bubble, { autoAlpha: 0 });
+      if (avatarEl) gsap.set(avatarEl, { autoAlpha: 0 });
+      CharSystem.dismiss('bruna', avatarEl);
+      if (container) container.querySelectorAll('.hbar-chart__fill').forEach(f => gsap.set(f, { width: '0%' }));
+    },
   });
 }
 
