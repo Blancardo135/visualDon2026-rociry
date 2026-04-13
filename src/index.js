@@ -642,17 +642,13 @@ function buildPictoGrid(container, {
 
 /* ═══════════════════════════════════════════════════════════════
    CHARSYSTEM — barre fixe + vols entre barre et folds
-   - Avatars illustrés dans la barre (avatarSVG 72px)
-   - Persistance : summon/dismiss ne rebondissent pas si le perso
-     est déjà présent dans le fold entrant
    ═══════════════════════════════════════════════════════════════ */
 const CharSystem = (() => {
   const ORDER = ['louis', 'chloe', 'thomas', 'bruna'];
   let bar = null;
-  const slots = {};          // { av, slot }
-  const active = new Set();   // noms des persos actuellement "sortis" de la barre
+  const slots = {};
+  const active = new Set();
 
-  /* ── Vol animé fr → tr ───────────────────────────────────── */
   function fly(html, fr, tr, ws, we, delay, cb) {
     if (!fr || !tr) { cb?.(); return; }
     const el = document.createElement('div');
@@ -677,7 +673,6 @@ const CharSystem = (() => {
   return {
     ORDER,
 
-    /* ── Initialisation ─────────────────────────────────────── */
     init() {
       bar = document.createElement('div');
       bar.className = 'char-bar';
@@ -689,7 +684,6 @@ const CharSystem = (() => {
 
         const av = document.createElement('div');
         av.className = 'char-bar__av';
-        // Vrai personnage illustré, taille 72px
         av.innerHTML = avatarSVG(name, 44);
 
         const nm = document.createElement('span');
@@ -710,7 +704,6 @@ const CharSystem = (() => {
     },
 
     hide() {
-      // Ne masquer que si aucun perso n'est actif sur le prochain fold
       gsap.to(bar, { yPercent: -110, autoAlpha: 0, duration: 0.45, ease: 'power2.in' });
     },
 
@@ -718,7 +711,6 @@ const CharSystem = (() => {
       return slots[name]?.av?.getBoundingClientRect?.() ?? null;
     },
 
-    /* Slot dim : perso parti, on garde juste une silhouette ghost */
     dim(name) {
       const av = slots[name]?.av;
       if (av) gsap.to(av, { opacity: 0.18, scale: 0.8, duration: 0.3 });
@@ -729,15 +721,11 @@ const CharSystem = (() => {
       if (av) gsap.to(av, { opacity: 1, scale: 1, duration: 0.35 });
     },
 
-    /* ── Summon : barre → targetEl ──────────────────────────── */
-    /* Si le perso est déjà sorti (active), on ne refait pas le vol,
-       on met juste à jour l'avatar et on signale done */
     summon(name, targetEl, size, onDone) {
       if (!targetEl) return;
       size = size ?? 130;
 
       if (active.has(name)) {
-        // Déjà sorti — juste mettre à jour le contenu et continuer
         if (!targetEl.innerHTML) targetEl.innerHTML = avatarSVG(name, size);
         onDone?.();
         return;
@@ -754,14 +742,10 @@ const CharSystem = (() => {
       });
     },
 
-    /* ── Dismiss : targetEl → barre ─────────────────────────── */
-    /* Si le perso va être summoné juste après (fold suivant),
-       passer skipReturn: true pour éviter le rebond */
     dismiss(name, fromEl, { skipReturn = false, delay = 0 } = {}) {
-      if (!active.has(name)) return; // pas sorti, rien à faire
+      if (!active.has(name)) return;
 
       if (skipReturn) {
-        // Perso reste "actif" — juste vider le conteneur local
         if (fromEl) fromEl.innerHTML = '';
         return;
       }
@@ -784,8 +768,6 @@ const CharSystem = (() => {
       });
     },
 
-    /* ── Transition douce entre deux folds pour le même perso ── */
-    /* Appeler au lieu de dismiss+summon quand le perso enchaîne */
     transfer(name, fromEl, toEl, size, onDone) {
       if (!fromEl || !toEl) return;
       size = size ?? 130;
@@ -799,7 +781,6 @@ const CharSystem = (() => {
       });
     },
 
-    /* ── Renvoyer tout le monde (utilisé rarement) ──────────── */
     dismissAll(sourceMap) {
       ORDER.forEach(name => {
         const el = sourceMap?.[name];
@@ -807,22 +788,17 @@ const CharSystem = (() => {
       });
     },
 
-    /* ── Fold 1 → tous volent vers la barre ─────────────────── */
     flyAllToBar(sources) {
-      /* Crossfade simultané : persos s'estompent + barre monte,
-         le tout en une seule timeline parallèle. */
       const tl = gsap.timeline();
 
-      /* Persos → opacité 0 + légère remontée */
       ORDER.forEach(name => {
         const srcEl = sources[name];
         const charEl = srcEl?.closest('.character') ?? srcEl;
         if (charEl) tl.to(charEl, { autoAlpha: 0, y: -14, duration: 0.55, ease: 'power2.inOut' }, 0);
         active.delete(name);
-        this.undim(name);  // slots déjà à fond dans la barre
+        this.undim(name);
       });
 
-      /* Barre glisse depuis le haut en même temps */
       gsap.set(bar, { yPercent: -100, autoAlpha: 0 });
       tl.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, ease: 'power2.out' }, 0);
     },
@@ -878,18 +854,15 @@ function initFold1() {
   const charEls = fold.querySelectorAll('.character');
   const subtitle = fold.querySelector('.fold__subtitle');
 
-  /* Injecter les avatars */
   charEls.forEach(el => {
     const name = el.dataset.name;
     const av = el.querySelector('.character__avatar');
     if (av && name) av.innerHTML = avatarSVG(name, 130);
   });
 
-  /* Tout cacher */
   gsap.set(charEls, { autoAlpha: 0, y: 55 });
   if (subtitle) gsap.set(subtitle, { autoAlpha: 0, y: 18 });
 
-  /* Timeline scrub : 1 personnage par segment de scroll */
   const tl = gsap.timeline();
   charEls.forEach((el, i) => {
     tl.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
@@ -905,7 +878,6 @@ function initFold1() {
     animation: tl,
 
     onLeave: () => {
-      /* Crossfade direct — aucun délai, tout en simultané */
       const sources = {};
       charEls.forEach(el => {
         const name = el.dataset.name;
@@ -916,7 +888,6 @@ function initFold1() {
     },
 
     onEnterBack: () => {
-      /* Barre remonte + persos réapparaissent — crossfade simultané */
       const tl = gsap.timeline();
       tl.to(bar, { yPercent: -100, autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, 0);
       charEls.forEach(el => {
@@ -932,7 +903,6 @@ function initFold1() {
     },
   });
 
-  /* Bulles respirent */
   fold.querySelectorAll('.character__bubble').forEach((b, i) => {
     gsap.fromTo(b, { y: 0 }, {
       y: -4, duration: 2.4 + i * 0.5,
@@ -942,22 +912,7 @@ function initFold1() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 2 — Foule animée Gymnase & Apprentissage
-   ═══════════════════════════════════════════════════════════════ */
-
-/*
-  Logique foule :
-  - 30 stickmen par bloc (W×H = 340×240)
-  - 66.7% colorés (actifs), 33.3% gris (inactifs)
-  - Phase 1 : tous déambulent aléatoirement ~2s
-  - Phase 2 : regroupement → actifs à gauche, inactifs à droite
-  - Phase 3 : marche sur place continue
-  - 1 protagoniste (Louis/Chloé) légèrement plus grand avec son prénom
-*/
-
-/* ═══════════════════════════════════════════════════════════════
    FOLD 2 — Gymnase & Apprentissage
-   100 stickmen grille 20×5, Louis/Chloé intégrés
    ═══════════════════════════════════════════════════════════════ */
 
 const GRID_COLS = 20;
@@ -966,9 +921,8 @@ const GRID_TOTAL = 100;
 const STICK_SIZE = 22;
 const STICK_GAP = 3;
 
-/* Animation de marche pour la grille */
 function animateGrid(items) {
-  const loops = []; // stocker les delayedCall pour pouvoir les tuer
+  const loops = [];
   items.forEach(({ wrap, col, isActive, isHero, idx }) => {
 
     if (!isActive) {
@@ -1005,7 +959,6 @@ function animateGrid(items) {
   return loops;
 }
 
-/* Reset d'une grille pour rejouer l'animation */
 function resetGrid(items, heroName) {
   items.forEach(({ wrap, col, isActive, isHero, idx }) => {
     gsap.killTweensOf(wrap);
@@ -1026,7 +979,6 @@ function initFold2() {
   const fold = document.getElementById('fold-2');
   if (!fold) return;
 
-  /* ── Ticker ── */
   const tickWrap = document.createElement('div'); tickWrap.className = 'ticker-wrap';
   const tick = document.createElement('div'); tick.className = 'ticker';
   tick.innerHTML = ('GYMNASE · APPRENTISSAGE · SPORT & ÉTUDES · ').repeat(6);
@@ -1044,10 +996,9 @@ function initFold2() {
     const pictC = block?.querySelector('.stat-block__pictogram');
     if (!block || !pictC) return;
 
-    const activeN = Math.round((pct / 100) * GRID_TOTAL); // 67
+    const activeN = Math.round((pct / 100) * GRID_TOTAL);
     const heroIdx = activeN - 1;
 
-    /* ── Grille 20×5 ── */
     pictC.innerHTML = '';
     pictC.style.cssText = [
       'display:grid',
@@ -1088,51 +1039,48 @@ function initFold2() {
     let heroFlier = null;
 
     function enter() {
-      /* ── 1. Griser le slot dans la barre ── */
       CharSystem.dim(heroName);
 
-      /* ── 2. Flier de la barre → cellule héros ── */
-      const heroWrap = items[heroIdx].wrap;
-      const heroCellEl = heroWrap.parentElement;
-
-      // Attendre le prochain frame pour que getBoundingClientRect soit à jour
       requestAnimationFrame(() => {
-        const slotRect = CharSystem.slotRect(heroName);
-        const cellRect = heroCellEl?.getBoundingClientRect();
+        const heroWrap = items[heroIdx].wrap;
+        const heroCellEl = heroWrap.parentElement;
 
-        if (slotRect && cellRect && cellRect.width > 0) {
-          /* Cacher la cellule héros pendant le vol */
-          gsap.set(heroWrap, { opacity: 0 });
+        requestAnimationFrame(() => {
+          const slotRect = CharSystem.slotRect(heroName);
+          const cellRect = heroCellEl?.getBoundingClientRect();
 
-          const flier = document.createElement('div');
-          flier.className = 'char-flier';
-          flier.innerHTML = avatarSVG(heroName, 44);
-          document.body.appendChild(flier);
-          heroFlier = flier;
+          if (slotRect && cellRect && cellRect.width > 0) {
+            gsap.set(heroWrap, { opacity: 0 });
 
-          gsap.set(flier, {
-            left: slotRect.left + slotRect.width / 2,
-            top: slotRect.top + slotRect.height / 2,
-            xPercent: -50, yPercent: -50,
-            width: 44, autoAlpha: 1,
-          });
+            const flier = document.createElement('div');
+            flier.className = 'char-flier';
+            flier.innerHTML = avatarSVG(heroName, 44);
+            document.body.appendChild(flier);
+            heroFlier = flier;
 
-          gsap.to(flier, {
-            left: cellRect.left + cellRect.width / 2,
-            top: cellRect.top + cellRect.height / 2,
-            width: STICK_SIZE,
-            duration: 0.9, ease: 'power3.inOut',
-            onComplete: () => {
-              flier.remove();
-              heroFlier = null;
-              heroWrap.innerHTML = avatarSVG(heroName, STICK_SIZE);
-              gsap.set(heroWrap, { opacity: 1, y: 0, scale: 1 });
-            },
-          });
-        }
+            gsap.set(flier, {
+              left: slotRect.left + slotRect.width / 2,
+              top: slotRect.top + slotRect.height / 2,
+              xPercent: -50, yPercent: -50,
+              width: 44, autoAlpha: 1,
+            });
+
+            gsap.to(flier, {
+              left: cellRect.left + cellRect.width / 2,
+              top: cellRect.top + cellRect.height / 2,
+              width: STICK_SIZE,
+              duration: 0.9, ease: 'power3.inOut',
+              onComplete: () => {
+                flier.remove();
+                heroFlier = null;
+                heroWrap.innerHTML = avatarSVG(heroName, STICK_SIZE);
+                gsap.set(heroWrap, { opacity: 1, y: 0, scale: 1 });
+              },
+            });
+          }
+        });
       });
 
-      /* ── 3. Vague d'apparition smooth sur toute la grille ── */
       const nonHero = items.filter(it => !it.isHero).map(it => it.wrap);
       gsap.to(nonHero, {
         opacity: 1, y: 0, scale: 1,
@@ -1143,7 +1091,6 @@ function initFold2() {
         onComplete: () => { gridLoops = animateGrid(items); },
       });
 
-      /* ── 4. Compteur ── */
       const numEl = block.querySelector('.stat-block__number');
       if (numEl) {
         const obj = { val: 0 };
@@ -1155,30 +1102,23 @@ function initFold2() {
     }
 
     function leave() {
-      /* Tuer toutes les animations de marche */
       gridLoops.forEach(t => t?.kill?.());
       gridLoops = [];
 
-      /* Nettoyer le flier s'il vole encore */
       if (heroFlier) { heroFlier.remove(); heroFlier = null; }
 
-      /* Stocker la référence DOM de la cellule Louis pour fold 3 */
       if (heroName === 'louis') {
         louisGridCell = items[heroIdx].wrap.parentElement ?? null;
       }
 
-      /* Remettre le héros dans la barre */
       CharSystem.undim(heroName);
 
-      /* Reset visuel de la grille pour la prochaine entrée */
       gsap.delayedCall(0.3, () => resetGrid(items, heroName));
 
-      /* Reset compteur */
       const numEl = block.querySelector('.stat-block__number');
       if (numEl) numEl.textContent = '0%';
     }
 
-    /* ── ScrollTrigger bidirectionnel (pas once: true) ── */
     ScrollTrigger.create({
       trigger: block,
       start: 'top 72%',
@@ -1190,7 +1130,6 @@ function initFold2() {
     });
   });
 
-  /* Apparition des blocs */
   gsap.from(fold.querySelectorAll('.stat-block'), {
     opacity: 0, x: -40, duration: 0.9, stagger: 0.2, ease: 'power3.out',
     scrollTrigger: { trigger: fold.querySelector('.stats-split'), start: 'top 68%' },
@@ -1198,24 +1137,18 @@ function initFold2() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 3 — Louis : 33% arrêtent
-   Louis vient directement du fold 2 (pas de la barre)
-   Les 3 raisons glissent depuis la droite sur le même écran
-   Fold 4 (écran foncé) est supprimé
+   FOLD 3 — Louis : arrêts
    ═══════════════════════════════════════════════════════════════ */
 
-/* Stocke la position de la cellule Louis dans fold 2 pour la transition */
 let louisGridCell = null;
 
 function initFold3() {
   const fold = document.getElementById('fold-3');
   if (!fold) return;
 
-  // Fold-4 reste caché
   const fold4 = document.getElementById('fold-4');
   if (fold4) fold4.style.display = 'none';
 
-  // ── 1. Récupérer les éléments existants avant de restructurer ──
   const charEl = fold.querySelector('.character');
   const avatarEl = fold.querySelector('.character__avatar');
   const bubbleEl = fold.querySelector('.character__bubble');
@@ -1227,18 +1160,15 @@ function initFold3() {
   gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
   gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
 
-  // ── 2. Construire la piste horizontale ─────────────────────────
   const track = document.createElement('div');
   track.className = 'fold3-track';
 
-  // Panel 1 : contenu existant (Louis + big stat)
   const panel1 = document.createElement('div');
   panel1.className = 'fold3-panel';
   panel1.appendChild(charEl);
   panel1.appendChild(bigStat);
   track.appendChild(panel1);
 
-  // Panels 2-4 : raisons
   const reasonCards = [];
   sportData.gymnasiens.top3_raisons_arret.forEach((item, i) => {
     const panel = document.createElement('div');
@@ -1258,18 +1188,14 @@ function initFold3() {
 
   fold.appendChild(track);
 
-  // ── 3. Timeline : track glisse + raisons apparaissent ──────────
-  const PANELS = 4; // 1 intro + 3 raisons
+  const PANELS = 4;
 
   const tl = gsap.timeline();
-  // Track glisse de 0 → -(3 * 100vw)
   tl.to(track, { x: () => -(track.scrollWidth - window.innerWidth), ease: 'none', duration: 3 });
-  // Chaque raison entre depuis la droite à son moment dans la timeline
   reasonCards.forEach((card, i) => {
     tl.to(card, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' }, 0.75 + i * 0.95);
   });
 
-  // ── 4. ScrollTrigger : pin + scrub ─────────────────────────────
   let activeFlier = null;
 
   ScrollTrigger.create({
@@ -1319,7 +1245,6 @@ function initFold3() {
           });
 
         } else {
-          // Fallback : apparition directe
           gsap.set(avatarEl, { autoAlpha: 1 });
           CharSystem.undim('louis');
           gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5 });
@@ -1334,7 +1259,6 @@ function initFold3() {
       if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
       louisGridCell = null;
       CharSystem.dismiss('louis', avatarEl);
-      // Préparer la prochaine entrée
       gsap.delayedCall(0.35, () => {
         gsap.set(avatarEl, { autoAlpha: 0 });
         gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
@@ -1363,7 +1287,6 @@ function initFold3() {
   });
 }
 
-/* initFold4 désactivé — fold-4 est caché, ses raisons sont dans fold-3 */
 function initFold4() { }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1376,7 +1299,6 @@ function initFold5() {
   const avatarEl = fold.querySelector('.character__avatar');
   const quiz = fold.querySelector('.quiz-block');
 
-  /* Bulle de Thomas — injectée dynamiquement sous l'avatar */
   const bubble = document.createElement('div');
   bubble.className = 'character__bubble character__bubble--thomas-quiz';
   bubble.setAttribute('aria-live', 'polite');
@@ -1402,14 +1324,12 @@ function initFold5() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* ── Quiz logic ── */
   const slider = document.getElementById('quiz-slider');
   const output = fold.querySelector('.quiz-block__output');
   const btn = fold.querySelector('.quiz-block__submit');
   const correct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
-  const TOLERANCE = 8; /* ±8% accepté */
+  const TOLERANCE = 8;
 
-  /* Affiche un message dans la bulle de Thomas */
   function showBubble(text, color) {
     bubble.textContent = text;
     bubble.style.borderColor = color + '55';
@@ -1430,7 +1350,6 @@ function initFold5() {
       const diff = Math.abs(parseFloat(slider.value) - correct);
       const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
       output.style.color = `hsl(${hue}, 80%, 42%)`;
-      /* Effacer la bulle quand on bouge le slider */
       hideBubble();
     });
   }
@@ -1441,11 +1360,9 @@ function initFold5() {
       const diff = Math.abs(val - correct);
 
       if (diff <= TOLERANCE) {
-        /* Bonne réponse : Thomas célèbre */
         showBubble('🎉 Exactement ! Bien joué !', C.thomas);
         gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 0.7, ease: 'power2.inOut' });
       } else {
-        /* Mauvaise réponse : shake du quiz + bulle Thomas */
         gsap.timeline()
           .to(quiz, { x: -14, duration: 0.07 })
           .to(quiz, { x: 14, duration: 0.07 })
@@ -1466,7 +1383,7 @@ function initFold5() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 6 — Révélation EXACT
+   FOLD 6 — Révélation
    ═══════════════════════════════════════════════════════════════ */
 function initFold6() {
   const fold = document.getElementById('fold-6');
@@ -1493,7 +1410,7 @@ function initFold6() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 7 — Raisons de continuer (bachelor, pictogrammes)
+   FOLD 7 — Raisons de continuer (bachelor)
    ═══════════════════════════════════════════════════════════════ */
 function initFold7() {
   const fold = document.getElementById('fold-7');
@@ -1519,7 +1436,6 @@ function initFold7() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* Pictogrammes raisons (inchangé) */
   const container = document.getElementById('bachelor-reasons-pictogram');
   if (!container) return;
 
@@ -1531,7 +1447,7 @@ function initFold7() {
       active: Math.round(item.pct / 10),
       color: C.thomas,
       heroIndex: 0,
-      heroName: 'thomas',   /* avatarSVG thomas à l'échelle des stickmen */
+      heroName: 'thomas',
       label: item.raison,
       pct: item.pct,
     });
@@ -1540,17 +1456,15 @@ function initFold7() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 8 — 100 stickmen, 58% verts / 42% rouges, Thomas intégré
-   Phase 1 : apparition mélangée  →  Phase 2 : regroupement
+   FOLD 8 — 100 stickmen bachelor
    ═══════════════════════════════════════════════════════════════ */
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
 
   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
-  const dropoutPct = Math.round(100 - practPct); // 42
+  const dropoutPct = Math.round(100 - practPct);
 
-  /* ── Compteur animé dans le texte ── */
   const el = document.getElementById('bachelor-dropout-pct');
   if (el) {
     const obj = { val: 0 };
@@ -1566,17 +1480,15 @@ function initFold8() {
   const pictoC = document.getElementById('bachelor-dropout-pictogram');
   if (!pictoC) return;
 
-  /* ── Constantes grille 20×5 ── */
   const COLS = 20;
   const ROWS = 5;
   const TOTAL = 100;
-  const SZ = 22;          // taille stickman
+  const SZ = 22;
   const GAP = 3;
-  const greenN = TOTAL - dropoutPct;  // 58
-  const redN = dropoutPct;          // 42
-  const thomasIdx = greenN - 1;        // dernier vert = Thomas
+  const greenN = TOTAL - dropoutPct;
+  const redN = dropoutPct;
+  const thomasIdx = greenN - 1;
 
-  /* ── Construire la grille ── */
   pictoC.innerHTML = '';
   pictoC.style.cssText = [
     'display:grid',
@@ -1588,7 +1500,6 @@ function initFold8() {
     'overflow:visible',
   ].join(';');
 
-  /* Ordre final : verts en premier (indices 0..greenN-1), rouges ensuite */
   const items = [];
   for (let i = 0; i < TOTAL; i++) {
     const isGreen = i < greenN;
@@ -1611,7 +1522,6 @@ function initFold8() {
       });
     }
 
-    /* Position initiale : éparpillée aléatoirement dans la grille */
     gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
 
     cell.appendChild(wrap);
@@ -1619,15 +1529,12 @@ function initFold8() {
     items.push({ wrap, col, isGreen, isThomas, idx: i });
   }
 
-  /* ── ScrollTrigger : phase mélange → regroupement ── */
   ScrollTrigger.create({
     trigger: fold,
     start: 'top 68%',
     once: true,
     onEnter: () => {
 
-      /* ── Phase 1 : tous apparaissent mélangés (couleurs déjà bonnes) ──
-         On les fait entrer en vague douce depuis le bas */
       gsap.to(items.map(it => it.wrap), {
         opacity: 1, y: 0, scale: 1,
         duration: 0.6,
@@ -1635,10 +1542,6 @@ function initFold8() {
         ease: 'power2.out',
       });
 
-      /* ── Phase 2 (après 2s) : regroupement visuel ──
-         Les cellules sont déjà dans le bon ordre DOM (verts puis rouges).
-         On fait un crossfade doux : scale down + y légère, puis retour.
-         Pas de flash, pas de disparition brutale. */
       gsap.delayedCall(2.2, () => {
         const tl = gsap.timeline({ onComplete: () => animateF8(items) });
         tl.to(items.map(it => it.wrap), {
@@ -1655,7 +1558,6 @@ function initFold8() {
     },
   });
 
-  /* ── Animations de marche en continu ── */
   function animateF8(items) {
     items.forEach(({ wrap, col, isGreen, isThomas, idx }) => {
       if (isThomas) {
@@ -1673,7 +1575,6 @@ function initFold8() {
         }
         gsap.delayedCall(delay, step);
       } else {
-        /* Rouges : pose stand + balancement */
         wrap.innerHTML = stickmanSVG({ color: col, pose: 'stand', isHero: false, size: SZ });
         gsap.to(wrap, { y: -1.5, duration: 2 + (idx % 7) * 0.15, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: (idx % 9) * 0.1 });
       }
@@ -1688,15 +1589,11 @@ function initFold8() {
 
 /* ═══════════════════════════════════════════════════════════════
    FOLD 9 — Bar chart raisons inactivité
-   Thomas présente, toutes les barres en rouge (42% qui arrêtent)
    ═══════════════════════════════════════════════════════════════ */
 function initFold9() {
   const fold = document.getElementById('fold-9');
   if (!fold) return;
 
-  /* ── Thomas arrive de la barre ── */
-  /* On crée un conteneur avatar + bulle dans le fold */
-  /* Conteneur principal : Thomas à gauche, barres à droite, alignés en bas */
   const layout = document.createElement('div');
   layout.className = 'fold9-layout';
 
@@ -1710,7 +1607,6 @@ function initFold9() {
   charWrap.appendChild(avatarEl);
   charWrap.appendChild(bubble);
 
-  /* Déplacer le bar-chart dans le layout */
   const barSection = document.createElement('div');
   barSection.className = 'bar-chart';
   const barsContainer = document.getElementById('inactivite-bar-chart');
@@ -1719,7 +1615,6 @@ function initFold9() {
   layout.appendChild(charWrap);
   layout.appendChild(barSection);
 
-  /* Insérer le layout après le titre */
   const title = fold.querySelector('.fold__title');
   if (title && title.nextSibling) {
     fold.insertBefore(layout, title.nextSibling);
@@ -1744,7 +1639,6 @@ function initFold9() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* ── Barres toutes en rouge ── */
   const container = barsContainer;
   if (!container) return;
 
@@ -1793,7 +1687,6 @@ function initFold10() {
       if (bubble) gsap.to(bubble, {
         autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out',
         onComplete: () => {
-          /* Animer les raisons une fois la bulle visible */
           const lis = list?.querySelectorAll('li');
           if (lis?.length) {
             gsap.to(lis, { opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out' });
@@ -1812,24 +1705,29 @@ function initFold10() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* Raisons logistiques master — pré-injectées, animées à l'arrivée de Bruna */
   const list = document.getElementById('master-reasons-list');
   if (list) {
     list.innerHTML = '';
-    /* Utiliser les motivations positives (top 3) — cohérent avec "grâce à" */
     const raisons = (sportData.master.top5_impacts_positifs_etudes?.raisons ?? []).slice(0, 3);
     raisons.forEach(item => {
       const li = document.createElement('li');
       li.textContent = item.raison;
       list.appendChild(li);
     });
-    /* Cacher initialement — animé dans arrive() */
     gsap.set(list.querySelectorAll('li'), { opacity: 0, x: -18 });
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 11 — Slide depuis la droite + pin jusqu'à affichage complet
+   FOLD 11 — Slide depuis la droite + barres (CORRIGÉ)
+
+   BUGS CORRIGÉS :
+   1. Avatar Bruna invisible : tl.call() n'anime pas autoAlpha dans
+      un contexte scrubé. On injecte l'avatar directement et on
+      l'anime comme un tween GSAP dans la timeline.
+   2. Barres non remplies : positions trop serrées et scroll range
+      insuffisant. Les tweens sont maintenant bien étalés sur la
+      timeline et le range est étendu à +=300%.
    ═══════════════════════════════════════════════════════════════ */
 function initFold11() {
   const fold = document.getElementById('fold-11');
@@ -1840,8 +1738,19 @@ function initFold11() {
   const bubble = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
 
-  /* ── Barres ── */
+  /* ── 1. Pré-injecter l'avatar Bruna directement
+          (on contourne CharSystem pour la visibilité dans le scrub) ── */
+  if (avatarEl) {
+    avatarEl.innerHTML = avatarSVG('bruna', 110);
+    gsap.set(avatarEl, { autoAlpha: 0 });
+  }
+  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+
+  /* ── 2. Construire les barres et stocker refs ── */
+  const fills = [];
+  const pcts = [];
   if (container) {
+    container.innerHTML = ''; // évite les doublons si re-init
     sportData.master.top5_impacts_positifs_etudes.raisons.forEach(item => {
       const row = document.createElement('div');
       row.className = 'hbar-chart__row';
@@ -1850,56 +1759,71 @@ function initFold11() {
         <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
       container.appendChild(row);
-      gsap.set(row.querySelector('.hbar-chart__fill'), { width: '0%' });
+      const fill = row.querySelector('.hbar-chart__fill');
+      gsap.set(fill, { width: '0%' });
+      fills.push(fill);
+      pcts.push(item.tres_important_pct);
     });
   }
 
-  if (avatarEl) gsap.set(avatarEl, { autoAlpha: 0 });
-  if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+  /* ── 3. Panneau fixe hors-écran à droite ── */
+  gsap.set(fold, {
+    position: 'fixed', top: 0, left: 0,
+    width: '100%', height: '100%',
+    zIndex: 10, xPercent: 100, autoAlpha: 1,
+  });
 
-  /* fold-11 overlay fixed hors écran à droite */
-  gsap.set(fold, { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, xPercent: 100 });
+  /* ── 4. Timeline entièrement constituée de tweens (scrub-safe)
+          Toutes les durées sont relatives — c'est leur ratio qui compte.
+          Total ~3.2 s — positionné pour que chaque phase soit lisible.
 
-  /* Timeline : phase 1 = slide (scrub), phase 2 = pin pour lire les barres */
+          0.0 → 1.0  : slide in
+          1.0 → 1.35 : avatar fade in
+          1.2 → 1.55 : bulle fade in
+          1.6 → 3.2  : barres séquentielles (5 × ~0.3 s, espacées de 0.3)
+  ── */
   const tl = gsap.timeline({ paused: true });
 
-  /* 0 → 0.4 : fold-11 glisse de droite */
-  tl.to(fold, { xPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0);
+  // Phase 1 : slide depuis la droite
+  tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
 
-  /* 0.4 → 0.5 : Bruna apparaît */
-  tl.call(() => {
-    if (avatarEl) CharSystem.summon('bruna', avatarEl, 110, () => {
-      if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power2.out' });
-    });
-  }, [], 0.4);
+  // Phase 2 : avatar + bulle
+  tl.to(avatarEl, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.0);
+  tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 1.2);
 
-  /* 0.5 → 1 : barres se remplissent */
-  if (container) {
-    container.querySelectorAll('.hbar-chart__fill').forEach((fill, i) => {
-      const pct = sportData.master.top5_impacts_positifs_etudes.raisons[i]?.tres_important_pct ?? 0;
-      tl.to(fill, { width: `${pct}%`, duration: 0.35, ease: 'power2.out' }, 0.55 + i * 0.09);
-    });
-  }
+  // Phase 3 : barres séquentielles
+  fills.forEach((fill, i) => {
+    tl.to(fill, { width: `${pcts[i]}%`, duration: 0.25, ease: 'power2.out' }, 1.65 + i * 0.32);
+  });
 
+  /* ── 5. ScrollTrigger : pin fold-10 pendant tout le slide ──
+          end = +=300% pour laisser assez de scroll à toutes les phases ── */
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
-    end: '+=220%',       /* scroll long : slide + lecture des barres + exit */
+    end: '+=300%',
     pin: true,
     scrub: 1.2,
     animation: tl,
 
     onLeave: () => {
-      /* Masquer fold-11 — il ne doit plus apparaître dans le flux */
+      // Une fois complètement scrollé, masquer proprement
       gsap.set(fold, { autoAlpha: 0 });
     },
 
     onLeaveBack: () => {
-      gsap.set(fold, { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, xPercent: 100 });
-      if (bubble) gsap.set(bubble, { autoAlpha: 0 });
-      if (avatarEl) gsap.set(avatarEl, { autoAlpha: 0 });
-      CharSystem.dismiss('bruna', avatarEl);
-      if (container) container.querySelectorAll('.hbar-chart__fill').forEach(f => gsap.set(f, { width: '0%' }));
+      // Réinitialiser pour un re-scroll propre
+      gsap.set(fold, {
+        position: 'fixed', top: 0, left: 0,
+        width: '100%', height: '100%',
+        zIndex: 10, xPercent: 100, autoAlpha: 1,
+      });
+      if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+      if (avatarEl) {
+        avatarEl.innerHTML = avatarSVG('bruna', 110);
+        gsap.set(avatarEl, { autoAlpha: 0 });
+      }
+      fills.forEach(f => gsap.set(f, { width: '0%' }));
     },
   });
 }
@@ -1935,14 +1859,12 @@ function initFold12() {
     .scale(W * 14)
     .translate([W / 2, H / 2]);
 
-  // Fond carte
   const defs = svg.append('defs');
   const grad = defs.append('radialGradient').attr('id', 'mapGrad');
   grad.append('stop').attr('offset', '0%').attr('stop-color', '#E2DFD7');
   grad.append('stop').attr('offset', '100%').attr('stop-color', '#D4D0C8');
   svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapGrad)').attr('rx', 16);
 
-  // Labels régions
   [
     { name: 'Léman', lon: 6.55, lat: 46.43 },
     { name: 'Jura', lon: 7.05, lat: 47.15 },
@@ -1960,14 +1882,12 @@ function initFold12() {
     const [px, py] = proj([uni.lon, uni.lat]);
     const g = pg.append('g').attr('transform', `translate(${px},${py})`).style('cursor', 'pointer');
 
-    // Halo pulsant
     const halo = g.append('circle').attr('r', 12).attr('fill', C.accent).attr('opacity', 0.15);
     gsap.to(halo.node(), { r: 22, opacity: 0, duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.38 });
 
     g.append('circle').attr('r', 7).attr('fill', C.accent).attr('stroke', 'white').attr('stroke-width', 2.5);
     g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.8);
 
-    // Label de pourcentage
     g.append('text').attr('y', -14)
       .attr('text-anchor', 'middle')
       .attr('font-family', "'Bricolage Grotesque', sans-serif")
@@ -2058,20 +1978,17 @@ function initFold14() {
     .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + '%'))
     .attr('class', 'chart-axis');
 
-  // Grille horizontale
   g.append('g').attr('class', 'grid')
     .call(d3.axisLeft(y).ticks(5).tickSize(-iW).tickFormat(''))
     .selectAll('line').style('stroke', 'rgba(0,0,0,0.05)').style('stroke-dasharray', '4 4');
   g.select('.grid .domain').remove();
 
-  // Aire
   const area = d3.area()
     .x(d => x(d.annee)).y0(iH).y1(d => y(d.tres_actifs_pct))
     .curve(d3.curveCatmullRom.alpha(0.5));
   g.append('path').datum(data)
     .attr('fill', C.accent).attr('opacity', 0.07).attr('d', area);
 
-  // Ligne
   const line = d3.line()
     .x(d => x(d.annee)).y(d => y(d.tres_actifs_pct))
     .curve(d3.curveCatmullRom.alpha(0.5));
@@ -2100,7 +2017,6 @@ function initFold14() {
     },
   });
 
-  // Personnage qui scroll sur le graphique
   const charWrap = document.createElement('div');
   charWrap.className = 'evolution-character';
   charWrap.innerHTML = avatarSVG('louis', 56);
@@ -2177,7 +2093,6 @@ function initFold15() {
       }),
     });
 
-    // Point final avec label
     const last = lvl.data[lvl.data.length - 1];
     g.append('circle')
       .attr('cx', x(last.a)).attr('cy', y(last.v))
@@ -2187,7 +2102,6 @@ function initFold15() {
       .attr('fill', lvl.color).text(last.v + '%');
   });
 
-  // 4 personnages
   const cr = document.createElement('div');
   cr.className = 'chart-characters-row';
   ['louis', 'chloe', 'thomas', 'bruna'].forEach(n => {
@@ -2215,7 +2129,6 @@ function initDebate() {
     const fold = document.getElementById(id);
     if (!fold) return;
 
-    /* Créer les conteneurs d'avatars (vides — CharSystem les remplit) */
     const la = document.createElement('div');
     la.className = 'debate-avatar debate-avatar--left';
     fold.appendChild(la);
@@ -2285,7 +2198,6 @@ function initFold18() {
     },
   });
 
-  // Flottement individuel
   chars.forEach((c, i) => {
     gsap.to(c, {
       y: -10, duration: 2 + i * 0.3,
@@ -2299,7 +2211,7 @@ function initFold18() {
    ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   injectStats();
-  CharSystem.init();    // ← barre créée en premier
+  CharSystem.init();
   initScrollProgress();
   initSeriesLabel();
 
