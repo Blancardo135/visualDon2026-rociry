@@ -1186,7 +1186,8 @@ ul {
 
 .debate-avatar {
   position: absolute;
-  bottom: 0;
+  top: 50%;
+  transform: translateY(-50%);
   filter: drop-shadow(0 6px 20px rgba(0, 0, 0, .3));
 }
 
@@ -1197,6 +1198,20 @@ ul {
 .debate-avatar--right {
   right: clamp(8px, 4vw, 40px);
 }
+
+/* .debate-avatar {
+  position: absolute;
+  bottom: 0;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, .3));
+}
+
+.debate-avatar--left {
+  left: clamp(8px, 4vw, 40px);
+}
+
+.debate-avatar--right {
+  right: clamp(8px, 4vw, 40px);
+} */
 
 .debate-bubble {
   max-width: 76%;

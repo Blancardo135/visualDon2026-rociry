@@ -2191,7 +2191,8 @@ function initFold14() {
 
   const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
   const x = d3.scaleLinear().domain([2010, 2025]).range([0, iW]);
-  const y = d3.scaleLinear().domain([44, 68]).range([iH, 0]);
+  const y = d3.scaleLinear().domain([0, 100]).range([iH, 0]);
+  // const y = d3.scaleLinear().domain([44, 68]).range([iH, 0]);
 
   g.append('g').attr('transform', `translate(0,${iH})`)
     .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(4))
@@ -2278,7 +2279,8 @@ function initFold15() {
   const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
 
   const x = d3.scaleLinear().domain([2010, 2025]).range([0, iW]);
-  const y = d3.scaleLinear().domain([40, 72]).range([iH, 0]);
+  const y = d3.scaleLinear().domain([0, 100]).range([iH, 0]);
+  // const y = d3.scaleLinear().domain([40, 72]).range([iH, 0]);
 
   g.append('g').attr('transform', `translate(0,${iH})`)
     .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(4))
@@ -2364,11 +2366,11 @@ function initDebate() {
 
     function arrive() {
       CharSystem.summon(leftName, la, 70, () => {
-        gsap.from(la, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+        // gsap.from(la, { y: 10, duration: 0.4, ease: 'back.out(2)' });
       });
       gsap.delayedCall(0.18, () => {
         CharSystem.summon(rightName, ra, 70, () => {
-          gsap.from(ra, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+          // gsap.from(ra, { y: 10, duration: 0.4, ease: 'back.out(2)' });
         });
       });
       gsap.to(bubbles, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.4, delay: 0.5, ease: 'power2.out' });
@@ -2425,6 +2427,17 @@ function initFold18() {
       y: -10, duration: 2 + i * 0.3,
       repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.4,
     });
+  });
+
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%',
+    onEnter: () => {
+      CharSystem.ORDER.forEach(name => CharSystem.dim(name));
+    },
+    onLeaveBack: () => {
+      CharSystem.ORDER.forEach(name => CharSystem.undim(name));
+    },
   });
 }
 
