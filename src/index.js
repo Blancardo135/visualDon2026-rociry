@@ -1827,9 +1827,9 @@ function initFold11() {
     },
   });
 }
-
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 12 — Carte Suisse Romande (D3)
+   FOLD 12 — Carte Suisse Romande avec cantons réels (D3 + GeoJSON)
+   Remplace l'ancienne initFold12 dans index.js
    ═══════════════════════════════════════════════════════════════ */
 function initFold12() {
   const fold = document.getElementById('fold-12');
@@ -1847,48 +1847,256 @@ function initFold12() {
   if (!mapC) return;
 
   const W = mapC.clientWidth || 620;
-  const H = 380;
+  const H = 420;
 
   const svg = d3.select(mapC).append('svg')
     .attr('viewBox', `0 0 ${W} ${H}`)
-    .attr('width', '100%').attr('height', H)
+    .attr('width', '100%')
+    .attr('height', H)
     .attr('class', 'map-svg');
 
+  /* ── Projection Mercator centrée sur la Suisse romande ── */
   const proj = d3.geoMercator()
     .center([6.85, 46.65])
     .scale(W * 14)
     .translate([W / 2, H / 2]);
 
-  const defs = svg.append('defs');
-  const grad = defs.append('radialGradient').attr('id', 'mapGrad');
-  grad.append('stop').attr('offset', '0%').attr('stop-color', '#E2DFD7');
-  grad.append('stop').attr('offset', '100%').attr('stop-color', '#D4D0C8');
-  svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapGrad)').attr('rx', 16);
+  const geoPath = d3.geoPath().projection(proj);
 
-  [
-    { name: 'Léman', lon: 6.55, lat: 46.43 },
-    { name: 'Jura', lon: 7.05, lat: 47.15 },
-    { name: 'Valais', lon: 7.5, lat: 46.22 },
-  ].forEach(r => {
-    const [rx, ry] = proj([r.lon, r.lat]);
-    svg.append('text').attr('x', rx).attr('y', ry)
-      .attr('text-anchor', 'middle').attr('class', 'map-region-label').text(r.name);
+  /* ── Helper : tableau [lon,lat] → GeoJSON Feature ── */
+  function toFeature(coords) {
+    const ring = [...coords, coords[0]]; // ferme l'anneau
+    return {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [ring] }
+    };
+  }
+
+  /* ══════════════════════════════════════════════════════
+     CANTONS — coordonnées géographiques simplifiées
+     Ordre de tracé : du nord au sud
+  ══════════════════════════════════════════════════════ */
+  const CANTONS = [
+    {
+      id: 'JU', label: 'Jura',
+      coords: [
+        [6.98, 47.48], [7.10, 47.50], [7.22, 47.51], [7.38, 47.47],
+        [7.50, 47.40], [7.55, 47.30], [7.48, 47.24], [7.38, 47.20],
+        [7.22, 47.18], [7.08, 47.18], [6.97, 47.22], [6.89, 47.30],
+        [6.87, 47.38], [6.92, 47.44]
+      ]
+    },
+    {
+      id: 'NE', label: 'Neuchâtel',
+      coords: [
+        [6.78, 47.08], [6.84, 47.30], [6.89, 47.30], [6.97, 47.22],
+        [7.08, 47.18], [7.22, 47.18], [7.28, 47.10], [7.24, 47.00],
+        [7.10, 46.92], [6.95, 46.90], [6.85, 46.93], [6.80, 46.99],
+        [6.78, 47.06]
+      ]
+    },
+    {
+      id: 'BE', label: 'Berne',
+      coords: [
+        [7.22, 47.18], [7.38, 47.20], [7.48, 47.24], [7.55, 47.30],
+        [7.62, 47.20], [7.66, 47.08], [7.58, 46.98], [7.48, 46.94],
+        [7.38, 46.96], [7.28, 47.00], [7.24, 47.00], [7.28, 47.10]
+      ]
+    },
+    {
+      id: 'FR', label: 'Fribourg',
+      coords: [
+        [7.24, 47.00], [7.28, 47.00], [7.38, 46.96], [7.48, 46.94],
+        [7.58, 46.98], [7.66, 47.08], [7.70, 46.92], [7.62, 46.78],
+        [7.50, 46.62], [7.30, 46.52], [7.08, 46.50], [6.98, 46.60],
+        [7.00, 46.78], [7.02, 46.92], [7.10, 46.92]
+      ]
+    },
+    {
+      id: 'VD', label: 'Vaud',
+      coords: [
+        [6.78, 47.06], [6.78, 47.08], [6.78, 47.08],
+        [6.65, 47.20], [6.60, 47.15], [6.58, 47.02],
+        [6.58, 46.90], [6.80, 46.99], [6.85, 46.93],
+        [6.95, 46.90], [7.02, 46.92], [7.00, 46.78],
+        [6.98, 46.60], [7.08, 46.50], [7.02, 46.42],
+        [6.92, 46.40], [6.72, 46.36], [6.50, 46.28],
+        [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
+        [6.10, 46.44], [6.22, 46.58], [6.45, 46.70],
+        [6.58, 46.88], [6.58, 46.90]
+      ]
+    },
+    {
+      id: 'GE', label: 'Genève',
+      coords: [
+        [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
+        [6.02, 46.16], [6.05, 46.06], [6.18, 46.02],
+        [6.32, 46.08], [6.36, 46.18]
+      ]
+    },
+    {
+      id: 'VS', label: 'Valais',
+      coords: [
+        [6.08, 46.26], [6.18, 46.20], [6.30, 46.22],
+        [6.50, 46.28], [6.72, 46.36], [6.92, 46.40],
+        [7.02, 46.42], [7.08, 46.50], [7.30, 46.52],
+        [7.50, 46.62], [7.62, 46.78], [7.70, 46.92],
+        [7.85, 46.78], [8.05, 46.55], [8.25, 46.40],
+        [8.42, 46.30], [8.40, 46.10], [8.15, 45.95],
+        [7.85, 45.90], [7.55, 45.95], [7.28, 46.02],
+        [7.00, 46.08], [6.80, 46.05], [6.58, 45.98],
+        [6.35, 46.02], [6.22, 46.05], [6.08, 46.08],
+        [6.02, 46.16]
+      ]
+    }
+  ];
+
+  /* ══════════════════════════════════════════════════════
+     LACS
+  ══════════════════════════════════════════════════════ */
+  const LAKES = [
+    {
+      id: 'leman',
+      coords: [
+        [6.18, 46.38], [6.32, 46.44], [6.50, 46.50],
+        [6.63, 46.52], [6.80, 46.46], [6.92, 46.42],
+        [6.95, 46.36], [6.88, 46.28], [6.62, 46.26],
+        [6.40, 46.26], [6.20, 46.30]
+      ]
+    },
+    {
+      id: 'neuchatel_lac',
+      coords: [
+        [6.84, 47.02], [6.90, 47.04], [7.03, 47.00],
+        [7.08, 46.92], [7.00, 46.86], [6.88, 46.88], [6.82, 46.94]
+      ]
+    },
+    {
+      id: 'murten',
+      coords: [
+        [7.05, 46.94], [7.12, 46.96], [7.18, 46.94],
+        [7.16, 46.90], [7.08, 46.88], [7.04, 46.92]
+      ]
+    }
+  ];
+
+  /* ══════════════════════════════════════════════════════
+     DEFS : fond, ombre, clip
+  ══════════════════════════════════════════════════════ */
+  const defs = svg.append('defs');
+
+  // Fond dégradé subtil
+  const bgGrad = defs.append('linearGradient')
+    .attr('id', 'mapBg12').attr('x1', '0%').attr('y1', '0%')
+    .attr('x2', '100%').attr('y2', '100%');
+  bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#edeae2');
+  bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#e2dfd7');
+
+  // Ombre portée sur l'ensemble de la carte
+  const flt = defs.append('filter').attr('id', 'mapShadow12')
+    .attr('x', '-8%').attr('y', '-8%').attr('width', '116%').attr('height', '116%');
+  flt.append('feDropShadow')
+    .attr('dx', '0').attr('dy', '6').attr('stdDeviation', '12')
+    .attr('flood-color', 'rgba(0,0,0,0.16)');
+
+  // Clip arrondi
+  defs.append('clipPath').attr('id', 'mapClip12')
+    .append('rect').attr('width', W).attr('height', H).attr('rx', 18).attr('ry', 18);
+
+  /* ── Fond ── */
+  svg.append('rect').attr('width', W).attr('height', H)
+    .attr('fill', 'url(#mapBg12)').attr('rx', 18)
+    .attr('filter', 'url(#mapShadow12)');
+
+  /* ── Groupe principal (clipé) ── */
+  const mapGrp = svg.append('g').attr('clip-path', 'url(#mapClip12)');
+
+  // Fond intérieur légèrement plus clair
+  mapGrp.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapBg12)');
+
+  /* ── Cantons ── */
+  const FILL_BASE = '#7aad7a';
+
+  CANTONS.forEach(canton => {
+    mapGrp.append('path')
+      .datum(toFeature(canton.coords))
+      .attr('d', geoPath)
+      .attr('fill', FILL_BASE)
+      .attr('stroke', 'rgba(255,255,255,0.9)')
+      .attr('stroke-width', 1.8)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round');
   });
 
+  /* ── Lacs ── */
+  LAKES.forEach(lake => {
+    mapGrp.append('path')
+      .datum(toFeature(lake.coords))
+      .attr('d', geoPath)
+      .attr('fill', '#b0cde6')
+      .attr('stroke', '#8ab4d4')
+      .attr('stroke-width', 0.8)
+      .attr('opacity', 0.9);
+  });
+
+  /* ── Labels cantons (abréviations) ── */
+  CANTONS.forEach(canton => {
+    const feat = toFeature(canton.coords);
+    const [cx, cy] = geoPath.centroid(feat);
+    if (isNaN(cx)) return;
+    mapGrp.append('text')
+      .attr('x', cx).attr('y', cy)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-family', "'Bricolage Grotesque', sans-serif")
+      .attr('font-size', canton.id === 'VS' ? '12px' : '9px')
+      .attr('font-weight', '800')
+      .attr('fill', 'rgba(255,255,255,0.68)')
+      .attr('letter-spacing', '0.1em')
+      .attr('pointer-events', 'none')
+      .text(canton.id);
+  });
+
+  /* ── Labels lacs ── */
+  const LAC_LABELS = [
+    { text: 'Lac Léman', lon: 6.56, lat: 46.40 },
+    { text: 'Lac de Neuchâtel', lon: 6.93, lat: 46.94 },
+  ];
+  LAC_LABELS.forEach(({ text, lon, lat }) => {
+    const [lx, ly] = proj([lon, lat]);
+    mapGrp.append('text')
+      .attr('x', lx).attr('y', ly)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Plus Jakarta Sans', sans-serif")
+      .attr('font-size', '8px')
+      .attr('font-style', 'italic')
+      .attr('fill', 'rgba(60,100,160,0.7)')
+      .attr('pointer-events', 'none')
+      .text(text);
+  });
+
+  /* ══════════════════════════════════════════════════════
+     POINTS UNIVERSITÉS
+  ══════════════════════════════════════════════════════ */
   const tooltip = document.getElementById('map-tooltip');
   const pg = svg.append('g').attr('class', 'map-points');
 
   unis.forEach((uni, i) => {
     const [px, py] = proj([uni.lon, uni.lat]);
-    const g = pg.append('g').attr('transform', `translate(${px},${py})`).style('cursor', 'pointer');
+    const g = pg.append('g')
+      .attr('transform', `translate(${px},${py})`)
+      .style('cursor', 'pointer');
 
+    // Halo pulsant
     const halo = g.append('circle').attr('r', 12).attr('fill', C.accent).attr('opacity', 0.15);
     gsap.to(halo.node(), { r: 22, opacity: 0, duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.38 });
 
     g.append('circle').attr('r', 7).attr('fill', C.accent).attr('stroke', 'white').attr('stroke-width', 2.5);
-    g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.8);
+    g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.85);
 
-    g.append('text').attr('y', -14)
+    // % au-dessus
+    g.append('text')
+      .attr('y', -14)
       .attr('text-anchor', 'middle')
       .attr('font-family', "'Bricolage Grotesque', sans-serif")
       .attr('font-size', '10px').attr('font-weight', '800')
@@ -1915,19 +2123,33 @@ function initFold12() {
       });
   });
 
+  /* ── Animations au scroll ── */
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%', once: true,
-    onEnter: () => gsap.from(pg.selectAll('g').nodes(), {
-      scale: 0, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2.5)',
-      transformOrigin: 'center center',
-    }),
+    onEnter: () => {
+      gsap.from(mapGrp.selectAll('path').nodes(), {
+        opacity: 0, duration: 0.9,
+        stagger: { each: 0.04, from: 'start' },
+        ease: 'power2.out',
+      });
+      gsap.from(pg.selectAll('g').nodes(), {
+        scale: 0, opacity: 0, duration: 0.6,
+        stagger: 0.1, delay: 0.5,
+        ease: 'back.out(2.5)',
+        transformOrigin: 'center center',
+      });
+    },
   });
 
-  gsap.from([fold.querySelector('.fold__title'), fold.querySelector('.fold__instruction')], {
-    opacity: 0, y: 26, duration: 0.75, stagger: 0.15, ease: 'power2.out',
-    scrollTrigger: { trigger: fold, start: 'top 62%' },
-  });
+  gsap.from(
+    [fold.querySelector('.fold__title'), fold.querySelector('.fold__instruction')],
+    {
+      opacity: 0, y: 26, duration: 0.75, stagger: 0.15, ease: 'power2.out',
+      scrollTrigger: { trigger: fold, start: 'top 62%' },
+    }
+  );
 }
+
 
 /* ═══════════════════════════════════════════════════════════════
    FOLD 13 — Biais

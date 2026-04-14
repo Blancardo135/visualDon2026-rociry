@@ -68,13 +68,17 @@
             <div class="stat-block stat-block--light">
                 <div class="stat-block__pictogram" aria-label="gymnasiens actifs"></div>
                 <span class="stat-block__number" data-stat="gymnasiens.pratiquent_sport_regulier_pct"></span>
-                <p class="stat-block__label">des gymnasiens pratiquent un sport de manière régulière.</p>
+                <p class="stat-block__label">des gymnasiens pratiquent un sport de manière régulière.<br>C'est à dire
+                    plus de 2 fois par semaine, chiffre calculé sur la moyenne des étudiants au gymnase dans notre
+                    étude.</p>
             </div>
 
             <div class="stat-block stat-block--dark">
                 <div class="stat-block__pictogram" aria-label="apprentis actifs"></div>
                 <span class="stat-block__number" data-stat="apprentis.pratiquent_sport_regulier_pct"></span>
-                <p class="stat-block__label">des apprentis pratiquent un sport de manière régulière.</p>
+                <p class="stat-block__label">des apprentis pratiquent un sport de manière régulière.<br>C'est à dire
+                    plus de 2 fois par semaine, chiffre calculé sur la moyenne des apprentis dans notre
+                    étude.</p>
             </div>
 
         </div>
@@ -91,8 +95,7 @@
         <div class="character character--speaking" data-name="louis">
             <div class="character__avatar"></div>
             <div class="character__bubble">
-                Comme <span data-stat="gymnasiens.narretent_sport_pct"></span>% des étudiants, j'arrête le sport au
-                gymnase.
+                <span data-stat="gymnasiens.narretent_sport_pct"></span>% des étudiants arrêtent le sport au gymnase.
             </div>
         </div>
 
@@ -210,7 +213,7 @@
 
         <p class="fold__statement">
             Malgré tout ces bienfaits, ils sont plus de
-            <span id="bachelor-dropout-pct"></span>%,
+            <span id="bachelor-dropout-pct"></span> <span id="bachelor-dropout-pourcent">%</span>,
             au niveau bachelor, à couper toute activité sportive.
         </p>
 
@@ -340,9 +343,9 @@
             <!-- Graphique SVG injecté par JS : evolution_temporelle_2010_2025.tous_etudiants_evolution -->
         </div>
 
-        <div class="chart-axis-label" aria-hidden="true">
+        <!-- <div class="chart-axis-label" aria-hidden="true">
             <span>2010</span><span>2015</span><span>2020</span><span>2025</span>
-        </div>
+        </div> -->
 
         <p class="scroll-hint" aria-hidden="true">Scrollez encore, vous y êtes presque.</p>
 
@@ -362,18 +365,21 @@
             <!-- Graphique 4 courbes injecté par JS -->
         </div>
 
-        <div class="chart-axis-label" aria-hidden="true">
+        <!-- <div class="chart-axis-label" aria-hidden="true">
             <span>2010</span><span>2015</span><span>2020</span><span>2025</span>
-        </div>
+        </div> -->
 
         <div class="chart-legend" id="chart-legend">
-            <span class="legend-item legend-item--master">Master</span>
-            <span class="legend-item legend-item--bachelor">Bachelor</span>
             <span class="legend-item legend-item--gymnase">Gymnase</span>
             <span class="legend-item legend-item--apprentissage">Apprentissage</span>
+            <span class="legend-item legend-item--bachelor">Bachelor</span>
+            <span class="legend-item legend-item--master">Master</span>
+
+
+
         </div>
 
-        <p class="scroll-hint" aria-hidden="true">Bien joué !</p>
+
 
     </div>
 
