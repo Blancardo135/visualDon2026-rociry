@@ -248,13 +248,14 @@ ul {
 .character__bubble::after {
   content: '';
   position: absolute;
-  bottom: -8px;
-  left: 16px;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid white;
+  border-bottom: 8px solid white;
 }
 
 .fold--dark .character__bubble {

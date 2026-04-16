@@ -1643,7 +1643,6 @@ function initFold9() {
   if (!container) return;
 
   const data = sportData.inactivite_globale.top5_raisons_inactivite_2025;
-  const maxPct = Math.max(...data.map(d => d.pct_2025));
 
   data.forEach((item, i) => {
     const bar = document.createElement('div');
@@ -1656,7 +1655,7 @@ function initFold9() {
     container.appendChild(bar);
 
     const fill = bar.querySelector('.bar-chart__fill');
-    const h = (item.pct_2025 / maxPct) * 100;
+    const h = item.pct_2025; // sur 100 directement
     gsap.set(fill, { height: '0%' });
     ScrollTrigger.create({
       trigger: container, start: 'top 78%', once: true,
@@ -1669,7 +1668,7 @@ function initFold9() {
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
 }
-
+  
 /* ═══════════════════════════════════════════════════════════════
    FOLD 10 — Master, Bruna
    ═══════════════════════════════════════════════════════════════ */
