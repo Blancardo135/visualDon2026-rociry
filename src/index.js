@@ -674,50 +674,50 @@ const CharSystem = (() => {
     ORDER,
 
     init() {
-  bar = document.createElement('div');
-  bar.className = 'char-bar';
-  document.body.appendChild(bar);
+      bar = document.createElement('div');
+      bar.className = 'char-bar';
+      document.body.appendChild(bar);
 
-  ORDER.forEach(name => {
-    const slot = document.createElement('div');
-    slot.className = 'char-bar__slot';
+      ORDER.forEach(name => {
+        const slot = document.createElement('div');
+        slot.className = 'char-bar__slot';
 
-    const av = document.createElement('div');
-    av.className = 'char-bar__av';
-    av.innerHTML = avatarSVG(name, 44);
+        const av = document.createElement('div');
+        av.className = 'char-bar__av';
+        av.innerHTML = avatarSVG(name, 44);
 
-    const nm = document.createElement('span');
-    nm.className = 'char-bar__nm';
-    nm.textContent = name[0].toUpperCase() + name.slice(1);
+        const nm = document.createElement('span');
+        nm.className = 'char-bar__nm';
+        nm.textContent = name[0].toUpperCase() + name.slice(1);
 
-    /* ── Bulle de présentation au hover ── */
-    const tooltip = document.createElement('div');
-    tooltip.className = 'char-bar__tooltip';
-    const texts = {
-      louis: 'Étudiant de gymnase en communication.',
-      chloe: 'Étudiante en apprentissage vétérinaire.',
-      thomas: 'Étudiant en Bachelor Ingénierie des médias.',
-      bruna: 'Étudiante en Master de criminologie.',
-    };
-    tooltip.textContent = texts[name] ?? name;
-    gsap.set(tooltip, { autoAlpha: 0, y: 6 });
+        /* ── Bulle de présentation au hover ── */
+        const tooltip = document.createElement('div');
+        tooltip.className = 'char-bar__tooltip';
+        const texts = {
+          louis: 'Étudiant de gymnase en communication.',
+          chloe: 'Étudiante en apprentissage vétérinaire.',
+          thomas: 'Étudiant en Bachelor Ingénierie des médias.',
+          bruna: 'Étudiante en Master de criminologie.',
+        };
+        tooltip.textContent = texts[name] ?? name;
+        gsap.set(tooltip, { autoAlpha: 0, y: 6 });
 
-    slot.addEventListener('mouseenter', () => {
-      gsap.to(tooltip, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power2.out' });
-    });
-    slot.addEventListener('mouseleave', () => {
-      gsap.to(tooltip, { autoAlpha: 0, y: 6, duration: 0.2, ease: 'power2.in' });
-    });
+        slot.addEventListener('mouseenter', () => {
+          gsap.to(tooltip, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+        });
+        slot.addEventListener('mouseleave', () => {
+          gsap.to(tooltip, { autoAlpha: 0, y: 6, duration: 0.2, ease: 'power2.in' });
+        });
 
-    slot.appendChild(av);
-    slot.appendChild(nm);
-    slot.appendChild(tooltip);
-    bar.appendChild(slot);
-    slots[name] = { slot, av };
-  });
+        slot.appendChild(av);
+        slot.appendChild(nm);
+        slot.appendChild(tooltip);
+        bar.appendChild(slot);
+        slots[name] = { slot, av };
+      });
 
-  gsap.set(bar, { yPercent: -110, autoAlpha: 0 });
-},
+      gsap.set(bar, { yPercent: -110, autoAlpha: 0 });
+    },
 
     show(delay = 0) {
       gsap.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, delay, ease: 'power2.out' });
@@ -866,6 +866,7 @@ function initSeriesLabel() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 1 — Intro protagonistes
    ═══════════════════════════════════════════════════════════════ */
+
 function initFold1() {
   const fold = document.getElementById('fold-1');
   if (!fold) return;
@@ -880,46 +881,95 @@ function initFold1() {
     if (av && name) av.innerHTML = avatarSVG(name, 130);
   });
 
+  /* État initial */
   gsap.set(charEls, { autoAlpha: 0, y: 55 });
   if (subtitle) gsap.set(subtitle, { autoAlpha: 0, y: 18 });
+  NAMES.forEach(name => CharSystem.dim(name));
 
-  const tl = gsap.timeline();
+  /* Timeline scrub apparition */
+  const tlIn = gsap.timeline();
   charEls.forEach((el, i) => {
-    tl.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
+    tlIn.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
   });
-  if (subtitle) tl.to(subtitle, { autoAlpha: 1, y: 0, duration: 0.6 }, NAMES.length - 0.2);
+  if (subtitle) tlIn.to(subtitle, { autoAlpha: 1, y: 0, duration: 0.6 }, NAMES.length - 0.2);
+
+  let outPlayed = false;
+
+  function flyToBar() {
+    if (outPlayed) return;
+    outPlayed = true;
+
+    if (subtitle) gsap.to(subtitle, { autoAlpha: 0, duration: 0.25 });
+
+    /* 1. Persos montent et disparaissent */
+    gsap.to(Array.from(charEls), {
+      y: -120,
+      autoAlpha: 0,
+      duration: 0.6,
+      ease: 'power2.in',
+      onComplete: () => {
+
+        /* 2. Barre glisse depuis le haut, VIDE */
+        NAMES.forEach(name => CharSystem.dim(name));
+        gsap.fromTo(
+          document.querySelector('.char-bar'),
+          { yPercent: -110, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 0.45,
+            ease: 'power2.out',
+            onComplete: () => {
+
+              /* 3. Avatars apparaissent un par un dans leurs slots */
+              NAMES.forEach((name, i) => {
+                gsap.delayedCall(i * 0.12, () => CharSystem.undim(name));
+              });
+
+              /* 4. Débloquer le scroll après que tous les avatars soient apparus */
+              gsap.delayedCall(NAMES.length * 0.12 + 0.6, () => {
+                ScrollTrigger.getById('fold1-pin')?.kill();
+                gsap.delayedCall(0.1, () => ScrollTrigger.refresh());
+              });
+            },
+          }
+        );
+      },
+    });
+  }
 
   ScrollTrigger.create({
+    id: 'fold1-pin',
     trigger: fold,
     start: 'top top',
-    end: `+=${NAMES.length * 130}%`,
+    end: '+=200%',
     pin: true,
     scrub: 1.4,
-    animation: tl,
+    animation: tlIn,
 
-    onLeave: () => {
-      const sources = {};
+    onLeave: () => flyToBar(),
+
+    onEnterBack: () => {
+      outPlayed = false;
+
+      /* Cacher la barre */
+      gsap.to(document.querySelector('.char-bar'), {
+        yPercent: -110, autoAlpha: 0, duration: 0.35, ease: 'power2.in',
+      });
+
+      /* Restaurer les persos dans fold-1 */
       charEls.forEach(el => {
         const name = el.dataset.name;
         const av = el.querySelector('.character__avatar');
-        if (name && av) sources[name] = av;
-      });
-      CharSystem.flyAllToBar(sources);
-    },
-
-    onEnterBack: () => {
-      const tl = gsap.timeline();
-      tl.to(bar, { yPercent: -100, autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, 0);
-      charEls.forEach(el => {
-        const av = el.querySelector('.character__avatar');
-        if (av && !av.innerHTML) {
-          const name = el.dataset.name;
-          if (name) av.innerHTML = avatarSVG(name, 130);
+        if (av && name) {
+          av.innerHTML = avatarSVG(name, 130);
+          gsap.set(av, { autoAlpha: 1 });
         }
-        gsap.set(el, { y: -14 });
-        tl.to(el, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0);
+        gsap.set(el, { autoAlpha: 1, y: 0 });
       });
-      if (subtitle) tl.to(subtitle, { autoAlpha: 1, duration: 0.4 }, 0.1);
+
+      if (subtitle) gsap.set(subtitle, { autoAlpha: 1 });
+      NAMES.forEach(name => CharSystem.dim(name));
     },
   });
 
@@ -1374,10 +1424,10 @@ function initFold5() {
   });
 
   /* ── Quiz logic ── */
-  const slider    = document.getElementById('quiz-slider');
-  const output    = fold.querySelector('.quiz-block__output');
-  const btn       = fold.querySelector('.quiz-block__submit');
-  const correct   = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
+  const slider = document.getElementById('quiz-slider');
+  const output = fold.querySelector('.quiz-block__output');
+  const btn = fold.querySelector('.quiz-block__submit');
+  const correct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
   const TOLERANCE = 8;
 
   function showBubble(text, color) {
@@ -1398,7 +1448,7 @@ function initFold5() {
     slider.addEventListener('input', () => {
       output.textContent = slider.value + '%';
       const diff = Math.abs(parseFloat(slider.value) - correct);
-      const hue  = diff < 10 ? '145' : diff < 20 ? '38' : '0';
+      const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
       output.style.color = `hsl(${hue}, 80%, 42%)`;
       hideBubble();
     });
@@ -1406,7 +1456,7 @@ function initFold5() {
 
   if (btn) {
     btn.addEventListener('click', () => {
-      const val  = parseFloat(slider.value);
+      const val = parseFloat(slider.value);
       const diff = Math.abs(val - correct);
 
       if (diff <= TOLERANCE) {
@@ -1424,14 +1474,14 @@ function initFold5() {
         /* ❌ Mauvaise réponse */
         gsap.timeline()
           .to(quiz, { x: -14, duration: 0.07 })
-          .to(quiz, { x:  14, duration: 0.07 })
+          .to(quiz, { x: 14, duration: 0.07 })
           .to(quiz, { x: -10, duration: 0.07 })
-          .to(quiz, { x:  10, duration: 0.07 })
-          .to(quiz, { x:   0, duration: 0.07 });
+          .to(quiz, { x: 10, duration: 0.07 })
+          .to(quiz, { x: 0, duration: 0.07 });
 
-        if (diff > 30)      showBubble('Raté… tu es loin ! Réessaie.', C.accent);
+        if (diff > 30) showBubble('Raté… tu es loin ! Réessaie.', C.accent);
         else if (diff > 15) showBubble('Pas tout à fait… encore un effort !', C.gold);
-        else                showBubble('Tu brûles ! Encore un peu…', C.thomas);
+        else showBubble('Tu brûles ! Encore un peu…', C.thomas);
       }
     });
   }
@@ -1722,7 +1772,7 @@ function initFold9() {
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
 }
-  
+
 /* ═══════════════════════════════════════════════════════════════
    FOLD 10 — Master, Bruna
    ═══════════════════════════════════════════════════════════════ */
