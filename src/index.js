@@ -943,6 +943,7 @@ function initFold1() {
     trigger: fold,
     start: 'top top',
     end: '+=200%',
+    pinSpacing: true,
     pin: true,
     scrub: 1.4,
     animation: tlIn,

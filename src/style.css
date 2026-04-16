@@ -302,6 +302,10 @@ ul {
   overflow: hidden;
 }
 
+#fold-2 .fold__title {
+  display: none;
+}
+
 .ticker-wrap {
   width: 100%;
   background: var(--bg-dark);
