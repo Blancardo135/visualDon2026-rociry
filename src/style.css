@@ -1436,6 +1436,41 @@ ul {
   display: block;
 }
 
+.char-bar__slot {
+  position: relative;
+}
+
+.char-bar__tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: var(--text);
+  font-family: var(--f-b);
+  font-size: .78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: .6rem .9rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  border: 1.5px solid var(--border);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 600;
+}
+
+.char-bar__tooltip::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
 /* Fold-1 : assez de padding pour la barre */
 #fold-1 {
   padding-top: max(var(--py), 102px);

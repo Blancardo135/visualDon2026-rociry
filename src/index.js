@@ -674,30 +674,50 @@ const CharSystem = (() => {
     ORDER,
 
     init() {
-      bar = document.createElement('div');
-      bar.className = 'char-bar';
-      document.body.appendChild(bar);
+  bar = document.createElement('div');
+  bar.className = 'char-bar';
+  document.body.appendChild(bar);
 
-      ORDER.forEach(name => {
-        const slot = document.createElement('div');
-        slot.className = 'char-bar__slot';
+  ORDER.forEach(name => {
+    const slot = document.createElement('div');
+    slot.className = 'char-bar__slot';
 
-        const av = document.createElement('div');
-        av.className = 'char-bar__av';
-        av.innerHTML = avatarSVG(name, 44);
+    const av = document.createElement('div');
+    av.className = 'char-bar__av';
+    av.innerHTML = avatarSVG(name, 44);
 
-        const nm = document.createElement('span');
-        nm.className = 'char-bar__nm';
-        nm.textContent = name[0].toUpperCase() + name.slice(1);
+    const nm = document.createElement('span');
+    nm.className = 'char-bar__nm';
+    nm.textContent = name[0].toUpperCase() + name.slice(1);
 
-        slot.appendChild(av);
-        slot.appendChild(nm);
-        bar.appendChild(slot);
-        slots[name] = { slot, av };
-      });
+    /* ── Bulle de présentation au hover ── */
+    const tooltip = document.createElement('div');
+    tooltip.className = 'char-bar__tooltip';
+    const texts = {
+      louis: 'Étudiant de gymnase en communication.',
+      chloe: 'Étudiante en apprentissage vétérinaire.',
+      thomas: 'Étudiant en Bachelor Ingénierie des médias.',
+      bruna: 'Étudiante en Master de criminologie.',
+    };
+    tooltip.textContent = texts[name] ?? name;
+    gsap.set(tooltip, { autoAlpha: 0, y: 6 });
 
-      gsap.set(bar, { yPercent: -110, autoAlpha: 0 });
-    },
+    slot.addEventListener('mouseenter', () => {
+      gsap.to(tooltip, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+    });
+    slot.addEventListener('mouseleave', () => {
+      gsap.to(tooltip, { autoAlpha: 0, y: 6, duration: 0.2, ease: 'power2.in' });
+    });
+
+    slot.appendChild(av);
+    slot.appendChild(nm);
+    slot.appendChild(tooltip);
+    bar.appendChild(slot);
+    slots[name] = { slot, av };
+  });
+
+  gsap.set(bar, { yPercent: -110, autoAlpha: 0 });
+},
 
     show(delay = 0) {
       gsap.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, delay, ease: 'power2.out' });
