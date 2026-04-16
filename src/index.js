@@ -1308,11 +1308,31 @@ function initFold5() {
 
   if (quiz) gsap.set(quiz, { autoAlpha: 0, y: 40 });
 
+  let quizSolved = false;
+  let lockedAt = null;
+
+  function onScroll() {
+    if (lockedAt === null) return;
+    window.scrollTo({ top: lockedAt, behavior: 'instant' });
+  }
+
+  function lockScroll() {
+    lockedAt = fold.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: lockedAt, behavior: 'instant' });
+    window.addEventListener('scroll', onScroll);
+  }
+
+  function unlockScroll() {
+    lockedAt = null;
+    window.removeEventListener('scroll', onScroll);
+  }
+
   function arrive() {
     CharSystem.summon('thomas', avatarEl, 130, () => {
       if (quiz) gsap.to(quiz, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
     });
   }
+
   function depart() {
     if (quiz) gsap.to(quiz, { autoAlpha: 0, duration: 0.2 });
     gsap.to(bubble, { autoAlpha: 0, duration: 0.15 });
@@ -1324,10 +1344,20 @@ function initFold5() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  const slider = document.getElementById('quiz-slider');
-  const output = fold.querySelector('.quiz-block__output');
-  const btn = fold.querySelector('.quiz-block__submit');
-  const correct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
+  /* Lock quand fold-5 atteint exactement le top du viewport */
+  ScrollTrigger.create({
+    trigger: fold,
+    start: 'top top',
+    onEnter: () => { if (!quizSolved) lockScroll(); },
+    onEnterBack: () => { if (!quizSolved) lockScroll(); },
+    onLeaveBack: () => { unlockScroll(); },
+  });
+
+  /* ── Quiz logic ── */
+  const slider    = document.getElementById('quiz-slider');
+  const output    = fold.querySelector('.quiz-block__output');
+  const btn       = fold.querySelector('.quiz-block__submit');
+  const correct   = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
   const TOLERANCE = 8;
 
   function showBubble(text, color) {
@@ -1348,7 +1378,7 @@ function initFold5() {
     slider.addEventListener('input', () => {
       output.textContent = slider.value + '%';
       const diff = Math.abs(parseFloat(slider.value) - correct);
-      const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
+      const hue  = diff < 10 ? '145' : diff < 20 ? '38' : '0';
       output.style.color = `hsl(${hue}, 80%, 42%)`;
       hideBubble();
     });
@@ -1356,32 +1386,36 @@ function initFold5() {
 
   if (btn) {
     btn.addEventListener('click', () => {
-      const val = parseFloat(slider.value);
+      const val  = parseFloat(slider.value);
       const diff = Math.abs(val - correct);
 
       if (diff <= TOLERANCE) {
+        /* ✅ Bonne réponse — scroll vers fold-6 */
+        quizSolved = true;
+        unlockScroll();
         showBubble('🎉 Exactement ! Bien joué !', C.thomas);
-        gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 0.7, ease: 'power2.inOut' });
+        btn.textContent = '↓ Continue à scroller !';
+        btn.style.pointerEvents = 'none';
+        gsap.delayedCall(0.8, () => {
+          gsap.to(window, { scrollTo: { y: '#fold-6', offsetY: 0 }, duration: 0.9, ease: 'power2.inOut' });
+        });
+
       } else {
+        /* ❌ Mauvaise réponse */
         gsap.timeline()
           .to(quiz, { x: -14, duration: 0.07 })
-          .to(quiz, { x: 14, duration: 0.07 })
+          .to(quiz, { x:  14, duration: 0.07 })
           .to(quiz, { x: -10, duration: 0.07 })
-          .to(quiz, { x: 10, duration: 0.07 })
-          .to(quiz, { x: 0, duration: 0.07 });
+          .to(quiz, { x:  10, duration: 0.07 })
+          .to(quiz, { x:   0, duration: 0.07 });
 
-        if (diff > 30) {
-          showBubble('Raté… tu es loin ! Réessaie.', C.accent);
-        } else if (diff > 15) {
-          showBubble('Pas tout à fait… encore un effort !', C.gold);
-        } else {
-          showBubble('Tu brûles ! Encore un peu…', C.thomas);
-        }
+        if (diff > 30)      showBubble('Raté… tu es loin ! Réessaie.', C.accent);
+        else if (diff > 15) showBubble('Pas tout à fait… encore un effort !', C.gold);
+        else                showBubble('Tu brûles ! Encore un peu…', C.thomas);
       }
     });
   }
 }
-
 /* ═══════════════════════════════════════════════════════════════
    FOLD 6 — Révélation
    ═══════════════════════════════════════════════════════════════ */
