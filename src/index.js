@@ -1168,7 +1168,6 @@ function initFold2() {
    ═══════════════════════════════════════════════════════════════ */
 
 let louisGridCell = null;
-
 function initFold3() {
   const fold = document.getElementById('fold-3');
   if (!fold) return;
@@ -1185,7 +1184,7 @@ function initFold3() {
   avatarEl.innerHTML = avatarSVG('louis', 130);
   gsap.set(avatarEl, { autoAlpha: 0 });
   gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
-  gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
+  gsap.set(bigNum, { autoAlpha: 1, scale: 1 });
 
   const track = document.createElement('div');
   track.className = 'fold3-track';
@@ -1267,15 +1266,13 @@ function initFold3() {
               gsap.set(avatarEl, { autoAlpha: 1 });
               CharSystem.undim('louis');
               gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-              gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.8, ease: 'elastic.out(1.1,0.5)' });
             },
           });
 
         } else {
           gsap.set(avatarEl, { autoAlpha: 1 });
           CharSystem.undim('louis');
-          gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5 });
-          gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.8 });
+          gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
         }
       });
     },
@@ -1289,7 +1286,6 @@ function initFold3() {
       gsap.delayedCall(0.35, () => {
         gsap.set(avatarEl, { autoAlpha: 0 });
         gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
-        gsap.set(bigNum, { autoAlpha: 0, scale: 0.4 });
         avatarEl.innerHTML = avatarSVG('louis', 130);
       });
     },
@@ -1297,22 +1293,22 @@ function initFold3() {
     onEnterBack: () => {
       CharSystem.dim('louis');
       gsap.set(avatarEl, { autoAlpha: 1 });
-      gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.4 });
-      gsap.to(bigNum, { autoAlpha: 1, scale: 1, duration: 0.6 });
+      gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power2.out' });
       gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
     },
 
     onLeaveBack: () => {
       if (activeFlier) { activeFlier.remove(); activeFlier = null; }
-      gsap.set([avatarEl, bubbleEl, bigNum], { autoAlpha: 0 });
+      gsap.set([avatarEl, bubbleEl], { autoAlpha: 0 });
       gsap.set(bubbleEl, { x: 20 });
-      gsap.set(bigNum, { scale: 0.4 });
       CharSystem.undim('louis');
       const louWrap = louisGridCell?.querySelector('div');
       if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
     },
   });
 }
+
+
 
 function initFold4() { }
 
