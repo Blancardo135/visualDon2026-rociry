@@ -106,6 +106,30 @@ ul {
   opacity: 1;
 }
 
+.source-label {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  font-family: var(--f-b);
+  font-size: 9px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 900;
+  pointer-events: none;
+  text-align: right;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+.source-label.visible {
+  opacity: 1;
+}
+
+.source-label {
+  white-space: pre-line;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    FOLDS — base
    ═══════════════════════════════════════════════════════════════ */

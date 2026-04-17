@@ -837,34 +837,61 @@ function initScrollProgress() {
 }
 
 function initSeriesLabel() {
+  /* Label série — bas gauche */
   const label = document.createElement('div');
   label.className = 'series-label';
   document.body.appendChild(label);
 
+  /* Label source — bas droite */
+  const source = document.createElement('div');
+  source.className = 'source-label';
+  document.body.appendChild(source);
+
+const SOURCE = '"Sport et études - HEIG-VD - 26", Ait-Slimane R., Blanchard R. & Demont C., HEIG-VD\n"Enquête sur le sport universitaire suisse", Gebert A., Knäbel A. & Lamprecht M.';
+
   [
-    { id: 'fold-1', text: 'Présentation de nos personnages fictifs' },
-    { id: 'fold-2', text: 'Présentation de nos personnages fictifs' },
-    { id: 'fold-3', text: 'Présentation de nos personnages fictifs' },
-    { id: 'fold-4', text: 'Présentation de nos personnages fictifs' },
-    { id: 'fold-5', text: 'Données issues de notre questionnaire datant de mars 2026,. La question posée était : « Faites-vous actuellement du sport de manière régulière ? ». Avec un total de 47 réponses recueillies, les similitudes observées dans les réponses n’étaient pas recherchées, mais résultent naturellement du nombre de participants ayant répondu. Cet échantillon peut toutefois introduire un certain biais et ne pas refléter l’ensemble de la population de manière exhaustive.' },
-    { id: 'fold-6', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
-    { id: 'fold-7', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
-    { id: 'fold-8', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
-    { id: 'fold-9', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
-    { id: 'fold-10', text: 'Enquête terrain mars 2026 — parmi les répondants en bachelor, 57.9% déclarent pratiquer au moins 1x/semaine.' },
-    { id: 'fold-11', text: 'Enquête terrain mars 2026 — parmi les répondants en bachelor, 57.9% déclarent pratiquer au moins 1x/semaine.' },
-    { id: 'fold-13', text: 'Dans notre questionnaire, nous avons demandé aux participants de quelle manière le sport avait amélioré positivement leur mode de vie. Les aspects présentés ci-dessous sont ceux qui sont ressortis le plus fréquemment dans les réponses. Ces observations sont également corroborées par l’étude “Sport et études 2025 – Enquête auprès des étudiants sur le sport universitaire suisse“.' },
-    { id: 'fold-14', text: 'Dans notre questionnaire, nous nous sommes également intéressés aux personnes ayant dû arrêter leur pratique sportive. Parmi les répondants qui pratiquaient un sport de manière régulière, 42 % ont indiqué avoir cessé leur activité durant leur bachelor.' },
-    { id: 'fold-16', text: 'Épilogue · Débat' },
-  ].forEach(({ id, text }) => {
+    { id: 'fold-1',  serie: 'Série 1 · Introduction',              src: null },
+    { id: 'fold-2',  serie: 'Série 2 · Gymnase & Apprentissage',   src: SOURCE },
+    { id: 'fold-3',  serie: 'Série 2 · Gymnase & Apprentissage',   src: SOURCE },
+    { id: 'fold-5',  serie: 'Quiz interactif',                     src: SOURCE },
+    { id: 'fold-6',  serie: 'Quiz interactif',                     src: SOURCE },
+    { id: 'fold-7',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
+    { id: 'fold-8',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
+    { id: 'fold-9',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
+    { id: 'fold-10', serie: 'Série 4 · Master',                    src: SOURCE },
+    { id: 'fold-11', serie: 'Série 4 · Master',                    src: SOURCE },
+    { id: 'fold-12', serie: 'Série 5 · Par région',                src: SOURCE },
+    { id: 'fold-13', serie: 'Biais',                               src: SOURCE },
+    { id: 'fold-14', serie: 'Série 6 · Évolution temporelle',      src: SOURCE },
+    { id: 'fold-15', serie: 'Série 6 · Évolution temporelle',      src: SOURCE },
+    { id: 'fold-16', serie: 'Épilogue · Débat',                    src: null },
+    { id: 'fold-17', serie: 'Épilogue · Débat',                    src: null },
+    { id: 'fold-18', serie: 'Conclusion',                          src: null },
+  ].forEach(({ id, serie, src }) => {
     const el = document.getElementById(id);
     if (!el) return;
     ScrollTrigger.create({
       trigger: el, start: 'top center', end: 'bottom center',
-      onEnter: () => { label.textContent = text; label.classList.add('visible'); },
-      onLeave: () => label.classList.remove('visible'),
-      onEnterBack: () => { label.textContent = text; label.classList.add('visible'); },
-      onLeaveBack: () => label.classList.remove('visible'),
+      onEnter: () => {
+        label.textContent = serie;
+        label.classList.add('visible');
+        source.textContent = src ?? '';
+        src ? source.classList.add('visible') : source.classList.remove('visible');
+      },
+      onLeave: () => {
+        label.classList.remove('visible');
+        source.classList.remove('visible');
+      },
+      onEnterBack: () => {
+        label.textContent = serie;
+        label.classList.add('visible');
+        source.textContent = src ?? '';
+        src ? source.classList.add('visible') : source.classList.remove('visible');
+      },
+      onLeaveBack: () => {
+        label.classList.remove('visible');
+        source.classList.remove('visible');
+      },
     });
   });
 }
