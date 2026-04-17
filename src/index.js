@@ -866,7 +866,6 @@ function initSeriesLabel() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 1 — Intro protagonistes
    ═══════════════════════════════════════════════════════════════ */
-
 function initFold1() {
   const fold = document.getElementById('fold-1');
   if (!fold) return;
@@ -881,96 +880,53 @@ function initFold1() {
     if (av && name) av.innerHTML = avatarSVG(name, 130);
   });
 
-  /* État initial */
   gsap.set(charEls, { autoAlpha: 0, y: 55 });
   if (subtitle) gsap.set(subtitle, { autoAlpha: 0, y: 18 });
-  NAMES.forEach(name => CharSystem.dim(name));
 
-  /* Timeline scrub apparition */
-  const tlIn = gsap.timeline();
+  const tl = gsap.timeline();
   charEls.forEach((el, i) => {
-    tlIn.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
+    tl.to(el, { autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out' }, i);
   });
-  if (subtitle) tlIn.to(subtitle, { autoAlpha: 1, y: 0, duration: 0.6 }, NAMES.length - 0.2);
-
-  let outPlayed = false;
-
-  function flyToBar() {
-    if (outPlayed) return;
-    outPlayed = true;
-
-    if (subtitle) gsap.to(subtitle, { autoAlpha: 0, duration: 0.25 });
-
-    /* 1. Persos montent et disparaissent */
-    gsap.to(Array.from(charEls), {
-      y: -120,
-      autoAlpha: 0,
-      duration: 0.6,
-      ease: 'power2.in',
-      onComplete: () => {
-
-        /* 2. Barre glisse depuis le haut, VIDE */
-        NAMES.forEach(name => CharSystem.dim(name));
-        gsap.fromTo(
-          document.querySelector('.char-bar'),
-          { yPercent: -110, autoAlpha: 0 },
-          {
-            yPercent: 0,
-            autoAlpha: 1,
-            duration: 0.45,
-            ease: 'power2.out',
-            onComplete: () => {
-
-              /* 3. Avatars apparaissent un par un dans leurs slots */
-              NAMES.forEach((name, i) => {
-                gsap.delayedCall(i * 0.12, () => CharSystem.undim(name));
-              });
-
-              /* 4. Débloquer le scroll après que tous les avatars soient apparus */
-              gsap.delayedCall(NAMES.length * 0.12 + 0.6, () => {
-                ScrollTrigger.getById('fold1-pin')?.kill();
-                gsap.delayedCall(0.1, () => ScrollTrigger.refresh());
-              });
-            },
-          }
-        );
-      },
-    });
-  }
+  if (subtitle) tl.to(subtitle, { autoAlpha: 1, y: 0, duration: 0.6 }, NAMES.length - 0.2);
 
   ScrollTrigger.create({
-    id: 'fold1-pin',
     trigger: fold,
     start: 'top top',
+    // end: `+=${NAMES.length * 130}%`,
     end: '+=200%',
-    pinSpacing: true,
     pin: true,
-    scrub: 1.4,
-    animation: tlIn,
+    scrub: 0.8,
+    animation: tl,
 
-    onLeave: () => flyToBar(),
-
-    onEnterBack: () => {
-      outPlayed = false;
-
-      /* Cacher la barre */
-      gsap.to(document.querySelector('.char-bar'), {
-        yPercent: -110, autoAlpha: 0, duration: 0.35, ease: 'power2.in',
-      });
-
-      /* Restaurer les persos dans fold-1 */
+    onLeave: () => {
+      /* Crossfade simultané persos → barre.
+         PAS de kill(), PAS de refresh() — le pin se relâche naturellement.
+         Sans ça, le spacer GSAP est détruit mid-scroll et le navigateur
+         saute directement dans la zone de fold-3. */
+      const sources = {};
       charEls.forEach(el => {
         const name = el.dataset.name;
         const av = el.querySelector('.character__avatar');
-        if (av && name) {
-          av.innerHTML = avatarSVG(name, 130);
-          gsap.set(av, { autoAlpha: 1 });
-        }
-        gsap.set(el, { autoAlpha: 1, y: 0 });
+        if (name && av) sources[name] = av;
       });
+      CharSystem.flyAllToBar(sources);
+    },
 
-      if (subtitle) gsap.set(subtitle, { autoAlpha: 1 });
-      NAMES.forEach(name => CharSystem.dim(name));
+    onEnterBack: () => {
+      const tl2 = gsap.timeline();
+      tl2.to(document.querySelector('.char-bar'), {
+        yPercent: -110, autoAlpha: 0, duration: 0.5, ease: 'power2.inOut'
+      }, 0);
+      charEls.forEach(el => {
+        const av = el.querySelector('.character__avatar');
+        if (av && !av.innerHTML) {
+          const name = el.dataset.name;
+          if (name) av.innerHTML = avatarSVG(name, 130);
+        }
+        gsap.set(el, { y: -14 });
+        tl2.to(el, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0);
+      });
+      if (subtitle) tl2.to(subtitle, { autoAlpha: 1, duration: 0.4 }, 0.1);
     },
   });
 
