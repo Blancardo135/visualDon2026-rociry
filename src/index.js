@@ -842,13 +842,19 @@ function initSeriesLabel() {
   document.body.appendChild(label);
 
   [
-    { id: 'fold-1', text: 'Série 1 · Introduction' },
-    { id: 'fold-2', text: 'Série 2 · Gymnase & Apprentissage' },
-    { id: 'fold-5', text: 'Quiz interactif' },
-    { id: 'fold-7', text: 'Série 2 · Bachelor' },
-    { id: 'fold-10', text: 'Série 2 · Master' },
-    { id: 'fold-12', text: 'Série 3 · Par région' },
-    { id: 'fold-14', text: 'Série 4 · Évolution temporelle' },
+    { id: 'fold-1', text: 'Présentation de nos personnages fictifs' },
+    { id: 'fold-2', text: 'Présentation de nos personnages fictifs' },
+    { id: 'fold-3', text: 'Présentation de nos personnages fictifs' },
+    { id: 'fold-4', text: 'Présentation de nos personnages fictifs' },
+    { id: 'fold-5', text: 'Données issues de notre questionnaire datant de mars 2026,. La question posée était : « Faites-vous actuellement du sport de manière régulière ? ». Avec un total de 47 réponses recueillies, les similitudes observées dans les réponses n’étaient pas recherchées, mais résultent naturellement du nombre de participants ayant répondu. Cet échantillon peut toutefois introduire un certain biais et ne pas refléter l’ensemble de la population de manière exhaustive.' },
+    { id: 'fold-6', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
+    { id: 'fold-7', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
+    { id: 'fold-8', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
+    { id: 'fold-9', text: 'Calculé à partir des répondants ayant indiqué avoir arrêté entre le gymnase/apprentissage et le bachelor. Source : enquête terrain, mars 2026.' },
+    { id: 'fold-10', text: 'Enquête terrain mars 2026 — parmi les répondants en bachelor, 57.9% déclarent pratiquer au moins 1x/semaine.' },
+    { id: 'fold-11', text: 'Enquête terrain mars 2026 — parmi les répondants en bachelor, 57.9% déclarent pratiquer au moins 1x/semaine.' },
+    { id: 'fold-13', text: 'Dans notre questionnaire, nous avons demandé aux participants de quelle manière le sport avait amélioré positivement leur mode de vie. Les aspects présentés ci-dessous sont ceux qui sont ressortis le plus fréquemment dans les réponses. Ces observations sont également corroborées par l’étude “Sport et études 2025 – Enquête auprès des étudiants sur le sport universitaire suisse“.' },
+    { id: 'fold-14', text: 'Dans notre questionnaire, nous nous sommes également intéressés aux personnes ayant dû arrêter leur pratique sportive. Parmi les répondants qui pratiquaient un sport de manière régulière, 42 % ont indiqué avoir cessé leur activité durant leur bachelor.' },
     { id: 'fold-16', text: 'Épilogue · Débat' },
   ].forEach(({ id, text }) => {
     const el = document.getElementById(id);
