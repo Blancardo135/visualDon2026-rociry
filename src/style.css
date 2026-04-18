@@ -214,6 +214,10 @@ ul {
   color: var(--accent);
   font-size: 1.4em;
   display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
+  min-width: 2ch;
+  text-align: right;
 }
 
 .fold__instruction {
@@ -1250,7 +1254,7 @@ ul {
 }
 
 .debate-bubble--left {
-  background: rgba(255, 255, 255, .07);
+  background: var(--louis-d);
   border: 1px solid rgba(255, 255, 255, .10);
   border-radius: 6px 18px 18px 18px;
   color: var(--text-inv);
@@ -1259,6 +1263,21 @@ ul {
 
 .debate-bubble--right {
   background: var(--bruna);
+  color: white;
+  border-radius: 18px 6px 18px 18px;
+  align-self: flex-end;
+}
+
+.debate-bubble--left2 {
+  background: var(--chloe);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 6px 18px 18px 18px;
+  color: var(--text-inv);
+  align-self: flex-start;
+}
+
+.debate-bubble--right2 {
+  background: var(--thomas);
   color: white;
   border-radius: 18px 6px 18px 18px;
   align-self: flex-end;
@@ -1618,6 +1637,8 @@ ul {
   color: var(--accent);
   font-size: 1.4em;
   display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
 }
 
 
