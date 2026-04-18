@@ -3,6 +3,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import * as d3 from 'd3';
+import * as topojson from 'topojson-client';
+import topoData from 'swiss-maps/2021/ch-combined.json';
 import sportData from '../data/data-sport.json';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -847,26 +849,26 @@ function initSeriesLabel() {
   source.className = 'source-label';
   document.body.appendChild(source);
 
-const SOURCE = '"Sport et études - HEIG-VD - 26", Ait-Slimane R., Blanchard R. & Demont C., HEIG-VD\n"Enquête sur le sport universitaire suisse", Gebert A., Knäbel A. & Lamprecht M.';
+  const SOURCE = '"Sport et études - HEIG-VD - 26", Ait-Slimane R., Blanchard R. & Demont C., HEIG-VD\n"Enquête sur le sport universitaire suisse", Gebert A., Knäbel A. & Lamprecht M.';
 
   [
-    { id: 'fold-1',  serie: 'Série 1 · Introduction',              src: null },
-    { id: 'fold-2',  serie: 'Série 2 · Gymnase & Apprentissage',   src: SOURCE },
-    { id: 'fold-3',  serie: 'Série 2 · Gymnase & Apprentissage',   src: SOURCE },
-    { id: 'fold-5',  serie: 'Quiz interactif',                     src: SOURCE },
-    { id: 'fold-6',  serie: 'Quiz interactif',                     src: SOURCE },
-    { id: 'fold-7',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
-    { id: 'fold-8',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
-    { id: 'fold-9',  serie: 'Série 3 · Bachelor',                  src: SOURCE },
-    { id: 'fold-10', serie: 'Série 4 · Master',                    src: SOURCE },
-    { id: 'fold-11', serie: 'Série 4 · Master',                    src: SOURCE },
-    { id: 'fold-12', serie: 'Série 5 · Par région',                src: SOURCE },
-    { id: 'fold-13', serie: 'Biais',                               src: SOURCE },
-    { id: 'fold-14', serie: 'Série 6 · Évolution temporelle',      src: SOURCE },
-    { id: 'fold-15', serie: 'Série 6 · Évolution temporelle',      src: SOURCE },
-    { id: 'fold-16', serie: 'Épilogue · Débat',                    src: null },
-    { id: 'fold-17', serie: 'Épilogue · Débat',                    src: null },
-    { id: 'fold-18', serie: 'Conclusion',                          src: null },
+    { id: 'fold-1', serie: 'Série 1 · Introduction', src: null },
+    { id: 'fold-2', serie: 'Série 2 · Gymnase & Apprentissage', src: SOURCE },
+    { id: 'fold-3', serie: 'Série 2 · Gymnase & Apprentissage', src: SOURCE },
+    { id: 'fold-5', serie: 'Quiz interactif', src: SOURCE },
+    { id: 'fold-6', serie: 'Quiz interactif', src: SOURCE },
+    { id: 'fold-7', serie: 'Série 3 · Bachelor', src: SOURCE },
+    { id: 'fold-8', serie: 'Série 3 · Bachelor', src: SOURCE },
+    { id: 'fold-9', serie: 'Série 3 · Bachelor', src: SOURCE },
+    { id: 'fold-10', serie: 'Série 4 · Master', src: SOURCE },
+    { id: 'fold-11', serie: 'Série 4 · Master', src: SOURCE },
+    { id: 'fold-12', serie: 'Série 5 · Par région', src: SOURCE },
+    { id: 'fold-13', serie: 'Biais', src: SOURCE },
+    { id: 'fold-14', serie: 'Série 6 · Évolution temporelle', src: SOURCE },
+    { id: 'fold-15', serie: 'Série 6 · Évolution temporelle', src: SOURCE },
+    { id: 'fold-16', serie: 'Épilogue · Débat', src: null },
+    { id: 'fold-17', serie: 'Épilogue · Débat', src: null },
+    { id: 'fold-18', serie: 'Conclusion', src: null },
   ].forEach(({ id, serie, src }) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -1680,6 +1682,84 @@ function initFold8() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 9 — Bar chart raisons inactivité
    ═══════════════════════════════════════════════════════════════ */
+// function initFold9() {
+//   const fold = document.getElementById('fold-9');
+//   if (!fold) return;
+
+//   const layout = document.createElement('div');
+//   layout.className = 'fold9-layout';
+
+//   const charWrap = document.createElement('div');
+//   charWrap.className = 'fold9-character';
+//   const avatarEl = document.createElement('div');
+//   avatarEl.className = 'character__avatar';
+//   const bubble = document.createElement('div');
+//   bubble.className = 'character__bubble';
+//   bubble.textContent = "Voici pourquoi tant d'étudiants arrêtent le sport…";
+//   charWrap.appendChild(avatarEl);
+//   charWrap.appendChild(bubble);
+
+//   const barSection = document.createElement('div');
+//   barSection.className = 'bar-chart';
+//   const barsContainer = document.getElementById('inactivite-bar-chart');
+//   barSection.appendChild(barsContainer);
+
+//   layout.appendChild(charWrap);
+//   layout.appendChild(barSection);
+
+//   const title = fold.querySelector('.fold__title');
+//   if (title && title.nextSibling) {
+//     fold.insertBefore(layout, title.nextSibling);
+//   } else {
+//     fold.appendChild(layout);
+//   }
+
+//   gsap.set(bubble, { autoAlpha: 0, x: -16 });
+
+//   function arrive() {
+//     CharSystem.summon('thomas', avatarEl, 110, () => {
+//       gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+//     });
+//   }
+//   function depart() {
+//     gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
+//     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+//   }
+
+//   ScrollTrigger.create({
+//     trigger: fold, start: 'top 62%', end: 'bottom top',
+//     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+//   });
+
+//   const container = barsContainer;
+//   if (!container) return;
+
+//   const data = sportData.inactivite_globale.top5_raisons_inactivite_2025;
+
+//   data.forEach((item, i) => {
+//     const bar = document.createElement('div');
+//     bar.className = 'bar-chart__bar';
+//     bar.innerHTML = `
+//       <div class="bar-chart__fill" style="background:${C.accent}">
+//         <span class="bar-chart__value">${item.pct_2025}%</span>
+//       </div>
+//       <p class="bar-chart__label">${item.raison}</p>`;
+//     container.appendChild(bar);
+
+//     const fill = bar.querySelector('.bar-chart__fill');
+//     const h = item.pct_2025; // sur 100 directement
+//     gsap.set(fill, { height: '0%' });
+//     ScrollTrigger.create({
+//       trigger: container, start: 'top 78%', once: true,
+//       onEnter: () => gsap.to(fill, { height: `${h}%`, duration: 1.4, delay: i * 0.12, ease: 'power3.out' }),
+//     });
+//   });
+
+//   gsap.from(fold.querySelector('.fold__title'), {
+//     opacity: 0, y: 24, duration: 0.7, ease: 'power2.out',
+//     scrollTrigger: { trigger: fold, start: 'top 62%' },
+//   });
+// }
 function initFold9() {
   const fold = document.getElementById('fold-9');
   if (!fold) return;
@@ -1738,18 +1818,22 @@ function initFold9() {
     const bar = document.createElement('div');
     bar.className = 'bar-chart__bar';
     bar.innerHTML = `
-      <div class="bar-chart__fill" style="background:${C.accent}">
-        <span class="bar-chart__value">${item.pct_2025}%</span>
+      <div class="bar-chart__track">
+        <div class="bar-chart__fill" style="background:${C.accent}">
+          <span class="bar-chart__value">${item.pct_2025}%</span>
+        </div>
       </div>
       <p class="bar-chart__label">${item.raison}</p>`;
     container.appendChild(bar);
 
     const fill = bar.querySelector('.bar-chart__fill');
-    const h = item.pct_2025; // sur 100 directement
     gsap.set(fill, { height: '0%' });
     ScrollTrigger.create({
       trigger: container, start: 'top 78%', once: true,
-      onEnter: () => gsap.to(fill, { height: `${h}%`, duration: 1.4, delay: i * 0.12, ease: 'power3.out' }),
+      onEnter: () => gsap.to(fill, {
+        height: `${item.pct_2025}%`,
+        duration: 1.4, delay: i * 0.12, ease: 'power3.out',
+      }),
     });
   });
 
@@ -1920,20 +2004,342 @@ function initFold11() {
    FOLD 12 — Carte Suisse Romande avec cantons réels (D3 + GeoJSON)
    Remplace l'ancienne initFold12 dans index.js
    ═══════════════════════════════════════════════════════════════ */
+// function initFold12() {
+//   const fold = document.getElementById('fold-12');
+//   if (!fold) return;
+
+//   const unis = [
+//     { name: 'Université de Genève', lon: 6.147, lat: 46.198, tres_actifs: 56.7, part1x: 22 },
+//     { name: 'EPF Lausanne', lon: 6.566, lat: 46.519, tres_actifs: 67.3, part1x: 30 },
+//     { name: 'Université de Lausanne', lon: 6.581, lat: 46.524, tres_actifs: 61.3, part1x: 32 },
+//     { name: 'Université de Neuchâtel', lon: 6.931, lat: 46.994, tres_actifs: 64.7, part1x: 40 },
+//     { name: 'Université de Fribourg', lon: 7.161, lat: 46.806, tres_actifs: 59.8, part1x: 46 },
+//   ];
+
+//   const mapC = document.getElementById('map-switzerland');
+//   if (!mapC) return;
+
+//   const W = mapC.clientWidth || 620;
+//   const H = 420;
+
+//   const svg = d3.select(mapC).append('svg')
+//     .attr('viewBox', `0 0 ${W} ${H}`)
+//     .attr('width', '100%')
+//     .attr('height', H)
+//     .attr('class', 'map-svg');
+
+//   /* ── Projection Mercator centrée sur la Suisse romande ── */
+//   const proj = d3.geoMercator()
+//     .center([6.85, 46.65])
+//     .scale(W * 14)
+//     .translate([W / 2, H / 2]);
+
+//   const geoPath = d3.geoPath().projection(proj);
+
+//   /* ── Helper : tableau [lon,lat] → GeoJSON Feature ── */
+//   function toFeature(coords) {
+//     const ring = [...coords, coords[0]]; // ferme l'anneau
+//     return {
+//       type: 'Feature',
+//       geometry: { type: 'Polygon', coordinates: [ring] }
+//     };
+//   }
+
+//   /* ══════════════════════════════════════════════════════
+//      CANTONS — coordonnées géographiques simplifiées
+//      Ordre de tracé : du nord au sud
+//   ══════════════════════════════════════════════════════ */
+//   const CANTONS = [
+//     {
+//       id: 'JU', label: 'Jura',
+//       coords: [
+//         [6.98, 47.48], [7.10, 47.50], [7.22, 47.51], [7.38, 47.47],
+//         [7.50, 47.40], [7.55, 47.30], [7.48, 47.24], [7.38, 47.20],
+//         [7.22, 47.18], [7.08, 47.18], [6.97, 47.22], [6.89, 47.30],
+//         [6.87, 47.38], [6.92, 47.44]
+//       ]
+//     },
+//     {
+//       id: 'NE', label: 'Neuchâtel',
+//       coords: [
+//         [6.78, 47.08], [6.84, 47.30], [6.89, 47.30], [6.97, 47.22],
+//         [7.08, 47.18], [7.22, 47.18], [7.28, 47.10], [7.24, 47.00],
+//         [7.10, 46.92], [6.95, 46.90], [6.85, 46.93], [6.80, 46.99],
+//         [6.78, 47.06]
+//       ]
+//     },
+//     {
+//       id: 'BE', label: 'Berne',
+//       coords: [
+//         [7.22, 47.18], [7.38, 47.20], [7.48, 47.24], [7.55, 47.30],
+//         [7.62, 47.20], [7.66, 47.08], [7.58, 46.98], [7.48, 46.94],
+//         [7.38, 46.96], [7.28, 47.00], [7.24, 47.00], [7.28, 47.10]
+//       ]
+//     },
+//     {
+//       id: 'FR', label: 'Fribourg',
+//       coords: [
+//         [7.24, 47.00], [7.28, 47.00], [7.38, 46.96], [7.48, 46.94],
+//         [7.58, 46.98], [7.66, 47.08], [7.70, 46.92], [7.62, 46.78],
+//         [7.50, 46.62], [7.30, 46.52], [7.08, 46.50], [6.98, 46.60],
+//         [7.00, 46.78], [7.02, 46.92], [7.10, 46.92]
+//       ]
+//     },
+//     {
+//       id: 'VD', label: 'Vaud',
+//       coords: [
+//         [6.78, 47.06], [6.78, 47.08], [6.78, 47.08],
+//         [6.65, 47.20], [6.60, 47.15], [6.58, 47.02],
+//         [6.58, 46.90], [6.80, 46.99], [6.85, 46.93],
+//         [6.95, 46.90], [7.02, 46.92], [7.00, 46.78],
+//         [6.98, 46.60], [7.08, 46.50], [7.02, 46.42],
+//         [6.92, 46.40], [6.72, 46.36], [6.50, 46.28],
+//         [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
+//         [6.10, 46.44], [6.22, 46.58], [6.45, 46.70],
+//         [6.58, 46.88], [6.58, 46.90]
+//       ]
+//     },
+//     {
+//       id: 'GE', label: 'Genève',
+//       coords: [
+//         [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
+//         [6.02, 46.16], [6.05, 46.06], [6.18, 46.02],
+//         [6.32, 46.08], [6.36, 46.18]
+//       ]
+//     },
+//     {
+//       id: 'VS', label: 'Valais',
+//       coords: [
+//         [6.08, 46.26], [6.18, 46.20], [6.30, 46.22],
+//         [6.50, 46.28], [6.72, 46.36], [6.92, 46.40],
+//         [7.02, 46.42], [7.08, 46.50], [7.30, 46.52],
+//         [7.50, 46.62], [7.62, 46.78], [7.70, 46.92],
+//         [7.85, 46.78], [8.05, 46.55], [8.25, 46.40],
+//         [8.42, 46.30], [8.40, 46.10], [8.15, 45.95],
+//         [7.85, 45.90], [7.55, 45.95], [7.28, 46.02],
+//         [7.00, 46.08], [6.80, 46.05], [6.58, 45.98],
+//         [6.35, 46.02], [6.22, 46.05], [6.08, 46.08],
+//         [6.02, 46.16]
+//       ]
+//     }
+//   ];
+
+//   /* ══════════════════════════════════════════════════════
+//      LACS
+//   ══════════════════════════════════════════════════════ */
+//   const LAKES = [
+//     {
+//       id: 'leman',
+//       coords: [
+//         [6.18, 46.38], [6.32, 46.44], [6.50, 46.50],
+//         [6.63, 46.52], [6.80, 46.46], [6.92, 46.42],
+//         [6.95, 46.36], [6.88, 46.28], [6.62, 46.26],
+//         [6.40, 46.26], [6.20, 46.30]
+//       ]
+//     },
+//     {
+//       id: 'neuchatel_lac',
+//       coords: [
+//         [6.84, 47.02], [6.90, 47.04], [7.03, 47.00],
+//         [7.08, 46.92], [7.00, 46.86], [6.88, 46.88], [6.82, 46.94]
+//       ]
+//     },
+//     {
+//       id: 'murten',
+//       coords: [
+//         [7.05, 46.94], [7.12, 46.96], [7.18, 46.94],
+//         [7.16, 46.90], [7.08, 46.88], [7.04, 46.92]
+//       ]
+//     }
+//   ];
+
+//   /* ══════════════════════════════════════════════════════
+//      DEFS : fond, ombre, clip
+//   ══════════════════════════════════════════════════════ */
+//   const defs = svg.append('defs');
+
+//   // Fond dégradé subtil
+//   const bgGrad = defs.append('linearGradient')
+//     .attr('id', 'mapBg12').attr('x1', '0%').attr('y1', '0%')
+//     .attr('x2', '100%').attr('y2', '100%');
+//   bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#edeae2');
+//   bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#e2dfd7');
+
+//   // Ombre portée sur l'ensemble de la carte
+//   const flt = defs.append('filter').attr('id', 'mapShadow12')
+//     .attr('x', '-8%').attr('y', '-8%').attr('width', '116%').attr('height', '116%');
+//   flt.append('feDropShadow')
+//     .attr('dx', '0').attr('dy', '6').attr('stdDeviation', '12')
+//     .attr('flood-color', 'rgba(0,0,0,0.16)');
+
+//   // Clip arrondi
+//   defs.append('clipPath').attr('id', 'mapClip12')
+//     .append('rect').attr('width', W).attr('height', H).attr('rx', 18).attr('ry', 18);
+
+//   /* ── Fond ── */
+//   svg.append('rect').attr('width', W).attr('height', H)
+//     .attr('fill', 'url(#mapBg12)').attr('rx', 18)
+//     .attr('filter', 'url(#mapShadow12)');
+
+//   /* ── Groupe principal (clipé) ── */
+//   const mapGrp = svg.append('g').attr('clip-path', 'url(#mapClip12)');
+
+//   // Fond intérieur légèrement plus clair
+//   mapGrp.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapBg12)');
+
+//   /* ── Cantons ── */
+//   const FILL_BASE = '#7aad7a';
+
+//   CANTONS.forEach(canton => {
+//     mapGrp.append('path')
+//       .datum(toFeature(canton.coords))
+//       .attr('d', geoPath)
+//       .attr('fill', FILL_BASE)
+//       .attr('stroke', 'rgba(255,255,255,0.9)')
+//       .attr('stroke-width', 1.8)
+//       .attr('stroke-linejoin', 'round')
+//       .attr('stroke-linecap', 'round');
+//   });
+
+//   /* ── Lacs ── */
+//   LAKES.forEach(lake => {
+//     mapGrp.append('path')
+//       .datum(toFeature(lake.coords))
+//       .attr('d', geoPath)
+//       .attr('fill', '#b0cde6')
+//       .attr('stroke', '#8ab4d4')
+//       .attr('stroke-width', 0.8)
+//       .attr('opacity', 0.9);
+//   });
+
+//   /* ── Labels cantons (abréviations) ── */
+//   CANTONS.forEach(canton => {
+//     const feat = toFeature(canton.coords);
+//     const [cx, cy] = geoPath.centroid(feat);
+//     if (isNaN(cx)) return;
+//     mapGrp.append('text')
+//       .attr('x', cx).attr('y', cy)
+//       .attr('text-anchor', 'middle')
+//       .attr('dominant-baseline', 'middle')
+//       .attr('font-family', "'Bricolage Grotesque', sans-serif")
+//       .attr('font-size', canton.id === 'VS' ? '12px' : '9px')
+//       .attr('font-weight', '800')
+//       .attr('fill', 'rgba(255,255,255,0.68)')
+//       .attr('letter-spacing', '0.1em')
+//       .attr('pointer-events', 'none')
+//       .text(canton.id);
+//   });
+
+//   /* ── Labels lacs ── */
+//   const LAC_LABELS = [
+//     { text: 'Lac Léman', lon: 6.56, lat: 46.40 },
+//     { text: 'Lac de Neuchâtel', lon: 6.93, lat: 46.94 },
+//   ];
+//   LAC_LABELS.forEach(({ text, lon, lat }) => {
+//     const [lx, ly] = proj([lon, lat]);
+//     mapGrp.append('text')
+//       .attr('x', lx).attr('y', ly)
+//       .attr('text-anchor', 'middle')
+//       .attr('font-family', "'Plus Jakarta Sans', sans-serif")
+//       .attr('font-size', '8px')
+//       .attr('font-style', 'italic')
+//       .attr('fill', 'rgba(60,100,160,0.7)')
+//       .attr('pointer-events', 'none')
+//       .text(text);
+//   });
+
+//   /* ══════════════════════════════════════════════════════
+//      POINTS UNIVERSITÉS
+//   ══════════════════════════════════════════════════════ */
+//   const tooltip = document.getElementById('map-tooltip');
+//   const pg = svg.append('g').attr('class', 'map-points');
+
+//   unis.forEach((uni, i) => {
+//     const [px, py] = proj([uni.lon, uni.lat]);
+//     const g = pg.append('g')
+//       .attr('transform', `translate(${px},${py})`)
+//       .style('cursor', 'pointer');
+
+//     // Halo pulsant
+//     const halo = g.append('circle').attr('r', 12).attr('fill', C.accent).attr('opacity', 0.15);
+//     gsap.to(halo.node(), { r: 22, opacity: 0, duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.38 });
+
+//     g.append('circle').attr('r', 7).attr('fill', C.accent).attr('stroke', 'white').attr('stroke-width', 2.5);
+//     g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.85);
+
+//     // % au-dessus
+//     g.append('text')
+//       .attr('y', -14)
+//       .attr('text-anchor', 'middle')
+//       .attr('font-family', "'Bricolage Grotesque', sans-serif")
+//       .attr('font-size', '10px').attr('font-weight', '800')
+//       .attr('fill', C.accent)
+//       .text(uni.tres_actifs + '%');
+
+//     g.on('mouseenter', (event) => {
+//       if (!tooltip) return;
+//       tooltip.hidden = false;
+//       tooltip.querySelector('.map-tooltip__name').textContent = uni.name;
+//       tooltip.querySelector('.map-tooltip__tres-actifs').textContent = `Très actifs : ${uni.tres_actifs}%`;
+//       tooltip.querySelector('.map-tooltip__participation').textContent = `Sport univ 1×/sem : ${uni.part1x}%`;
+//       gsap.fromTo(tooltip, { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.22, ease: 'power2.out' });
+//     })
+//       .on('mousemove', (event) => {
+//         if (!tooltip) return;
+//         const rect = mapC.getBoundingClientRect();
+//         tooltip.style.left = `${event.clientX - rect.left + 20}px`;
+//         tooltip.style.top = `${event.clientY - rect.top - 14}px`;
+//       })
+//       .on('mouseleave', () => {
+//         if (!tooltip) return;
+//         gsap.to(tooltip, { opacity: 0, scale: 0.88, duration: 0.18, onComplete: () => { tooltip.hidden = true; } });
+//       });
+//   });
+
+//   /* ── Animations au scroll ── */
+//   ScrollTrigger.create({
+//     trigger: fold, start: 'top 62%', once: true,
+//     onEnter: () => {
+//       gsap.from(mapGrp.selectAll('path').nodes(), {
+//         opacity: 0, duration: 0.9,
+//         stagger: { each: 0.04, from: 'start' },
+//         ease: 'power2.out',
+//       });
+//       gsap.from(pg.selectAll('g').nodes(), {
+//         scale: 0, opacity: 0, duration: 0.6,
+//         stagger: 0.1, delay: 0.5,
+//         ease: 'back.out(2.5)',
+//         transformOrigin: 'center center',
+//       });
+//     },
+//   });
+
+//   gsap.from(
+//     [fold.querySelector('.fold__title'), fold.querySelector('.fold__instruction')],
+//     {
+//       opacity: 0, y: 26, duration: 0.75, stagger: 0.15, ease: 'power2.out',
+//       scrollTrigger: { trigger: fold, start: 'top 62%' },
+//     }
+//   );
+// }
 function initFold12() {
   const fold = document.getElementById('fold-12');
   if (!fold) return;
 
   const unis = [
-    { name: 'Université de Genève', lon: 6.147, lat: 46.198, tres_actifs: 56.7, part1x: 22 },
-    { name: 'EPF Lausanne', lon: 6.566, lat: 46.519, tres_actifs: 67.3, part1x: 30 },
-    { name: 'Université de Lausanne', lon: 6.581, lat: 46.524, tres_actifs: 61.3, part1x: 32 },
-    { name: 'Université de Neuchâtel', lon: 6.931, lat: 46.994, tres_actifs: 64.7, part1x: 40 },
-    { name: 'Université de Fribourg', lon: 7.161, lat: 46.806, tres_actifs: 59.8, part1x: 46 },
+    { name: 'Univ. Genève', lon: 6.050, lat: 46.180, tres_actifs: 56.7 },
+    { name: 'EPFL', lon: 6.420, lat: 46.580, tres_actifs: 67.3 },
+    { name: 'Univ. Lausanne', lon: 6.720, lat: 46.440, tres_actifs: 61.3 },
+    { name: 'Univ. Neuchâtel', lon: 6.870, lat: 47.050, tres_actifs: 64.7 },
+    { name: 'Univ. Fribourg', lon: 7.220, lat: 46.750, tres_actifs: 59.8 },
   ];
 
   const mapC = document.getElementById('map-switzerland');
   if (!mapC) return;
+
+  /* Cacher le tooltip */
+  const tooltip = document.getElementById('map-tooltip');
+  if (tooltip) tooltip.hidden = true;
 
   const W = mapC.clientWidth || 620;
   const H = 420;
@@ -1944,151 +2350,38 @@ function initFold12() {
     .attr('height', H)
     .attr('class', 'map-svg');
 
-  /* ── Projection Mercator centrée sur la Suisse romande ── */
-  const proj = d3.geoMercator()
-    .center([6.85, 46.65])
-    .scale(W * 14)
-    .translate([W / 2, H / 2]);
+  /* ── IDs cantons romands (KTNR swisstopo) ── */
+  const ROMANDY_IDS = new Set([2, 10, 22, 23, 24, 25, 26]);
+  const CANTON_ABBR = { 2: 'BE', 10: 'FR', 22: 'VD', 23: 'VS', 24: 'NE', 25: 'GE', 26: 'JU' };
 
+  const allCantons = topojson.feature(topoData, topoData.objects.cantons);
+  const allLakes = topojson.feature(topoData, topoData.objects.lakes);
+
+  const romandyGeo = {
+    type: 'FeatureCollection',
+    features: allCantons.features.filter(f => ROMANDY_IDS.has(f.id ?? f.properties?.id)),
+  };
+
+  /* ── Projection ── */
+  const proj = d3.geoMercator()
+    .fitExtent([[24, 24], [W - 24, H - 24]], romandyGeo);
   const geoPath = d3.geoPath().projection(proj);
 
-  /* ── Helper : tableau [lon,lat] → GeoJSON Feature ── */
-  function toFeature(coords) {
-    const ring = [...coords, coords[0]]; // ferme l'anneau
-    return {
-      type: 'Feature',
-      geometry: { type: 'Polygon', coordinates: [ring] }
-    };
-  }
-
-  /* ══════════════════════════════════════════════════════
-     CANTONS — coordonnées géographiques simplifiées
-     Ordre de tracé : du nord au sud
-  ══════════════════════════════════════════════════════ */
-  const CANTONS = [
-    {
-      id: 'JU', label: 'Jura',
-      coords: [
-        [6.98, 47.48], [7.10, 47.50], [7.22, 47.51], [7.38, 47.47],
-        [7.50, 47.40], [7.55, 47.30], [7.48, 47.24], [7.38, 47.20],
-        [7.22, 47.18], [7.08, 47.18], [6.97, 47.22], [6.89, 47.30],
-        [6.87, 47.38], [6.92, 47.44]
-      ]
-    },
-    {
-      id: 'NE', label: 'Neuchâtel',
-      coords: [
-        [6.78, 47.08], [6.84, 47.30], [6.89, 47.30], [6.97, 47.22],
-        [7.08, 47.18], [7.22, 47.18], [7.28, 47.10], [7.24, 47.00],
-        [7.10, 46.92], [6.95, 46.90], [6.85, 46.93], [6.80, 46.99],
-        [6.78, 47.06]
-      ]
-    },
-    {
-      id: 'BE', label: 'Berne',
-      coords: [
-        [7.22, 47.18], [7.38, 47.20], [7.48, 47.24], [7.55, 47.30],
-        [7.62, 47.20], [7.66, 47.08], [7.58, 46.98], [7.48, 46.94],
-        [7.38, 46.96], [7.28, 47.00], [7.24, 47.00], [7.28, 47.10]
-      ]
-    },
-    {
-      id: 'FR', label: 'Fribourg',
-      coords: [
-        [7.24, 47.00], [7.28, 47.00], [7.38, 46.96], [7.48, 46.94],
-        [7.58, 46.98], [7.66, 47.08], [7.70, 46.92], [7.62, 46.78],
-        [7.50, 46.62], [7.30, 46.52], [7.08, 46.50], [6.98, 46.60],
-        [7.00, 46.78], [7.02, 46.92], [7.10, 46.92]
-      ]
-    },
-    {
-      id: 'VD', label: 'Vaud',
-      coords: [
-        [6.78, 47.06], [6.78, 47.08], [6.78, 47.08],
-        [6.65, 47.20], [6.60, 47.15], [6.58, 47.02],
-        [6.58, 46.90], [6.80, 46.99], [6.85, 46.93],
-        [6.95, 46.90], [7.02, 46.92], [7.00, 46.78],
-        [6.98, 46.60], [7.08, 46.50], [7.02, 46.42],
-        [6.92, 46.40], [6.72, 46.36], [6.50, 46.28],
-        [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
-        [6.10, 46.44], [6.22, 46.58], [6.45, 46.70],
-        [6.58, 46.88], [6.58, 46.90]
-      ]
-    },
-    {
-      id: 'GE', label: 'Genève',
-      coords: [
-        [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
-        [6.02, 46.16], [6.05, 46.06], [6.18, 46.02],
-        [6.32, 46.08], [6.36, 46.18]
-      ]
-    },
-    {
-      id: 'VS', label: 'Valais',
-      coords: [
-        [6.08, 46.26], [6.18, 46.20], [6.30, 46.22],
-        [6.50, 46.28], [6.72, 46.36], [6.92, 46.40],
-        [7.02, 46.42], [7.08, 46.50], [7.30, 46.52],
-        [7.50, 46.62], [7.62, 46.78], [7.70, 46.92],
-        [7.85, 46.78], [8.05, 46.55], [8.25, 46.40],
-        [8.42, 46.30], [8.40, 46.10], [8.15, 45.95],
-        [7.85, 45.90], [7.55, 45.95], [7.28, 46.02],
-        [7.00, 46.08], [6.80, 46.05], [6.58, 45.98],
-        [6.35, 46.02], [6.22, 46.05], [6.08, 46.08],
-        [6.02, 46.16]
-      ]
-    }
-  ];
-
-  /* ══════════════════════════════════════════════════════
-     LACS
-  ══════════════════════════════════════════════════════ */
-  const LAKES = [
-    {
-      id: 'leman',
-      coords: [
-        [6.18, 46.38], [6.32, 46.44], [6.50, 46.50],
-        [6.63, 46.52], [6.80, 46.46], [6.92, 46.42],
-        [6.95, 46.36], [6.88, 46.28], [6.62, 46.26],
-        [6.40, 46.26], [6.20, 46.30]
-      ]
-    },
-    {
-      id: 'neuchatel_lac',
-      coords: [
-        [6.84, 47.02], [6.90, 47.04], [7.03, 47.00],
-        [7.08, 46.92], [7.00, 46.86], [6.88, 46.88], [6.82, 46.94]
-      ]
-    },
-    {
-      id: 'murten',
-      coords: [
-        [7.05, 46.94], [7.12, 46.96], [7.18, 46.94],
-        [7.16, 46.90], [7.08, 46.88], [7.04, 46.92]
-      ]
-    }
-  ];
-
-  /* ══════════════════════════════════════════════════════
-     DEFS : fond, ombre, clip
-  ══════════════════════════════════════════════════════ */
+  /* ── Defs ── */
   const defs = svg.append('defs');
 
-  // Fond dégradé subtil
   const bgGrad = defs.append('linearGradient')
     .attr('id', 'mapBg12').attr('x1', '0%').attr('y1', '0%')
     .attr('x2', '100%').attr('y2', '100%');
   bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#edeae2');
   bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#e2dfd7');
 
-  // Ombre portée sur l'ensemble de la carte
   const flt = defs.append('filter').attr('id', 'mapShadow12')
     .attr('x', '-8%').attr('y', '-8%').attr('width', '116%').attr('height', '116%');
   flt.append('feDropShadow')
     .attr('dx', '0').attr('dy', '6').attr('stdDeviation', '12')
     .attr('flood-color', 'rgba(0,0,0,0.16)');
 
-  // Clip arrondi
   defs.append('clipPath').attr('id', 'mapClip12')
     .append('rect').attr('width', W).attr('height', H).attr('rx', 18).attr('ry', 18);
 
@@ -2097,122 +2390,115 @@ function initFold12() {
     .attr('fill', 'url(#mapBg12)').attr('rx', 18)
     .attr('filter', 'url(#mapShadow12)');
 
-  /* ── Groupe principal (clipé) ── */
   const mapGrp = svg.append('g').attr('clip-path', 'url(#mapClip12)');
-
-  // Fond intérieur légèrement plus clair
   mapGrp.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapBg12)');
 
   /* ── Cantons ── */
-  const FILL_BASE = '#7aad7a';
-
-  CANTONS.forEach(canton => {
-    mapGrp.append('path')
-      .datum(toFeature(canton.coords))
-      .attr('d', geoPath)
-      .attr('fill', FILL_BASE)
-      .attr('stroke', 'rgba(255,255,255,0.9)')
-      .attr('stroke-width', 1.8)
-      .attr('stroke-linejoin', 'round')
-      .attr('stroke-linecap', 'round');
-  });
+  mapGrp.selectAll('path.canton')
+    .data(romandyGeo.features)
+    .join('path')
+    .attr('class', 'canton')
+    .attr('d', geoPath)
+    .attr('fill', '#7aad7a')
+    .attr('stroke', 'rgba(255,255,255,0.9)')
+    .attr('stroke-width', 1.8)
+    .attr('stroke-linejoin', 'round')
+    .attr('stroke-linecap', 'round');
 
   /* ── Lacs ── */
-  LAKES.forEach(lake => {
-    mapGrp.append('path')
-      .datum(toFeature(lake.coords))
-      .attr('d', geoPath)
-      .attr('fill', '#b0cde6')
-      .attr('stroke', '#8ab4d4')
-      .attr('stroke-width', 0.8)
-      .attr('opacity', 0.9);
-  });
+  const bbox = geoPath.bounds(romandyGeo);
+  const romandyLakes = {
+    type: 'FeatureCollection',
+    features: allLakes.features.filter(f => {
+      const b = geoPath.bounds(f);
+      const cx = (b[0][0] + b[1][0]) / 2;
+      const cy = (b[0][1] + b[1][1]) / 2;
+      return cx > bbox[0][0] && cx < bbox[1][0]
+        && cy > bbox[0][1] && cy < bbox[1][1];
+    }),
+  };
 
-  /* ── Labels cantons (abréviations) ── */
-  CANTONS.forEach(canton => {
-    const feat = toFeature(canton.coords);
-    const [cx, cy] = geoPath.centroid(feat);
+  mapGrp.selectAll('path.lake')
+    .data(romandyLakes.features)
+    .join('path')
+    .attr('class', 'lake')
+    .attr('d', geoPath)
+    .attr('fill', '#b0cde6')
+    .attr('stroke', '#8ab4d4')
+    .attr('stroke-width', 0.8)
+    .attr('opacity', 0.9);
+
+  /* ── Labels cantons ── */
+  romandyGeo.features.forEach(f => {
+    const id = f.id ?? f.properties?.id;
+    const abbr = CANTON_ABBR[id] ?? '';
+    const [cx, cy] = geoPath.centroid(f);
     if (isNaN(cx)) return;
     mapGrp.append('text')
       .attr('x', cx).attr('y', cy)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('font-family', "'Bricolage Grotesque', sans-serif")
-      .attr('font-size', canton.id === 'VS' ? '12px' : '9px')
+      .attr('font-size', abbr === 'VS' ? '12px' : '9px')
       .attr('font-weight', '800')
       .attr('fill', 'rgba(255,255,255,0.68)')
       .attr('letter-spacing', '0.1em')
       .attr('pointer-events', 'none')
-      .text(canton.id);
+      .text(abbr);
   });
 
-  /* ── Labels lacs ── */
-  const LAC_LABELS = [
-    { text: 'Lac Léman', lon: 6.56, lat: 46.40 },
-    { text: 'Lac de Neuchâtel', lon: 6.93, lat: 46.94 },
-  ];
-  LAC_LABELS.forEach(({ text, lon, lat }) => {
-    const [lx, ly] = proj([lon, lat]);
-    mapGrp.append('text')
-      .attr('x', lx).attr('y', ly)
-      .attr('text-anchor', 'middle')
-      .attr('font-family', "'Plus Jakarta Sans', sans-serif")
-      .attr('font-size', '8px')
-      .attr('font-style', 'italic')
-      .attr('fill', 'rgba(60,100,160,0.7)')
-      .attr('pointer-events', 'none')
-      .text(text);
-  });
+  /* ── Bulles proportionnelles ── */
+  const radiusScale = d3.scaleSqrt()
+    .domain([0, 100])
+    .range([0, 38]);
 
-  /* ══════════════════════════════════════════════════════
-     POINTS UNIVERSITÉS
-  ══════════════════════════════════════════════════════ */
-  const tooltip = document.getElementById('map-tooltip');
   const pg = svg.append('g').attr('class', 'map-points');
 
   unis.forEach((uni, i) => {
     const [px, py] = proj([uni.lon, uni.lat]);
-    const g = pg.append('g')
-      .attr('transform', `translate(${px},${py})`)
-      .style('cursor', 'pointer');
+    const r = radiusScale(uni.tres_actifs);
+    const g = pg.append('g').attr('transform', `translate(${px},${py})`);
 
-    // Halo pulsant
-    const halo = g.append('circle').attr('r', 12).attr('fill', C.accent).attr('opacity', 0.15);
-    gsap.to(halo.node(), { r: 22, opacity: 0, duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.38 });
+    /* Halo pulsant */
+    const halo = g.append('circle')
+      .attr('r', r).attr('fill', C.accent).attr('opacity', 0.12);
+    gsap.to(halo.node(), {
+      r: r + 10, opacity: 0,
+      duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.35,
+    });
 
-    g.append('circle').attr('r', 7).attr('fill', C.accent).attr('stroke', 'white').attr('stroke-width', 2.5);
-    g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.85);
-
-    // % au-dessus
-    g.append('text')
-      .attr('y', -14)
-      .attr('text-anchor', 'middle')
-      .attr('font-family', "'Bricolage Grotesque', sans-serif")
-      .attr('font-size', '10px').attr('font-weight', '800')
+    /* Cercle principal */
+    g.append('circle')
+      .attr('r', r)
       .attr('fill', C.accent)
+      .attr('opacity', 0.85)
+      .attr('stroke', 'white')
+      .attr('stroke-width', 2.5);
+
+    /* Pourcentage centré — taille proportionnelle au cercle */
+    g.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-family', "'Bricolage Grotesque', sans-serif")
+      .attr('font-size', `${Math.max(10, r * 0.55)}px`)
+      .attr('font-weight', '800')
+      .attr('fill', 'white')
+      .attr('pointer-events', 'none')
       .text(uni.tres_actifs + '%');
 
-    g.on('mouseenter', (event) => {
-      if (!tooltip) return;
-      tooltip.hidden = false;
-      tooltip.querySelector('.map-tooltip__name').textContent = uni.name;
-      tooltip.querySelector('.map-tooltip__tres-actifs').textContent = `Très actifs : ${uni.tres_actifs}%`;
-      tooltip.querySelector('.map-tooltip__participation').textContent = `Sport univ 1×/sem : ${uni.part1x}%`;
-      gsap.fromTo(tooltip, { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.22, ease: 'power2.out' });
-    })
-      .on('mousemove', (event) => {
-        if (!tooltip) return;
-        const rect = mapC.getBoundingClientRect();
-        tooltip.style.left = `${event.clientX - rect.left + 20}px`;
-        tooltip.style.top = `${event.clientY - rect.top - 14}px`;
-      })
-      .on('mouseleave', () => {
-        if (!tooltip) return;
-        gsap.to(tooltip, { opacity: 0, scale: 0.88, duration: 0.18, onComplete: () => { tooltip.hidden = true; } });
-      });
+    /* Nom en dessous du cercle */
+    g.append('text')
+      .attr('y', r + 13)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Bricolage Grotesque', sans-serif")
+      .attr('font-size', '8.5px')
+      .attr('font-weight', '700')
+      .attr('fill', '#1a1a1a')
+      .attr('pointer-events', 'none')
+      .text(uni.name);
   });
 
-  /* ── Animations au scroll ── */
+  /* ── Animations scroll ── */
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%', once: true,
     onEnter: () => {
@@ -2222,9 +2508,9 @@ function initFold12() {
         ease: 'power2.out',
       });
       gsap.from(pg.selectAll('g').nodes(), {
-        scale: 0, opacity: 0, duration: 0.6,
-        stagger: 0.1, delay: 0.5,
-        ease: 'back.out(2.5)',
+        scale: 0, opacity: 0, duration: 0.7,
+        stagger: 0.12, delay: 0.6,
+        ease: 'back.out(1.8)',
         transformOrigin: 'center center',
       });
     },
