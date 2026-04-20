@@ -838,6 +838,7 @@ function initScrollProgress() {
   });
 }
 
+
 function initSeriesLabel() {
   /* Label série — bas gauche */
   const label = document.createElement('div');
@@ -1146,9 +1147,9 @@ function initFold2() {
       const nonHero = items.filter(it => !it.isHero).map(it => it.wrap);
       gsap.to(nonHero, {
         opacity: 1, y: 0, scale: 1,
-        duration: 0.55,
-        stagger: { each: 0.007, from: 'start', grid: [GRID_ROWS, GRID_COLS] },
-        ease: 'power2.out',
+        duration: 0.45,
+        stagger: { each: 0.012, from: 'end', grid: [GRID_ROWS, GRID_COLS] },
+        ease: 'back.out(1.4)',
         delay: 0.1,
         onComplete: () => { gridLoops = animateGrid(items); },
       });
@@ -1832,7 +1833,7 @@ function initFold9() {
       trigger: container, start: 'top 78%', once: true,
       onEnter: () => gsap.to(fill, {
         height: `${item.pct_2025}%`,
-        duration: 1.4, delay: i * 0.12, ease: 'power3.out',
+        duration: 1.2, delay: i * 0.15, ease: 'elastic.out(1, 0.55)',
       }),
     });
   });
@@ -2626,6 +2627,18 @@ function initFold14() {
     scrollTrigger: { trigger: fold, start: 'top center', end: 'bottom center', scrub: 1.2 },
   });
 
+  // Marche animée en boucle
+  let walkPhase = 0;
+  function louisWalk() {
+    walkPhase = (walkPhase + 1) % 2;
+    charWrap.innerHTML = avatarSVG('louis', 56);
+    gsap.fromTo(charWrap,
+      { y: 0 },
+      { y: walkPhase === 0 ? -3 : 0, duration: 0.4, ease: 'sine.inOut', onComplete: louisWalk }
+    );
+  }
+  louisWalk();
+
   gsap.from(fold.querySelector('.fold__subtitle'), {
     opacity: 0, y: 20, duration: 0.7, ease: 'power2.out',
     scrollTrigger: { trigger: fold, start: 'top 62%' },
@@ -2819,6 +2832,7 @@ function initFold18() {
 /* ═══════════════════════════════════════════════════════════════
    INIT GLOBAL
    ═══════════════════════════════════════════════════════════════ */
+   
 document.addEventListener('DOMContentLoaded', () => {
   injectStats();
   CharSystem.init();
