@@ -667,7 +667,7 @@ const CharSystem = (() => {
       left: tr.left + tr.width / 2,
       top: tr.top + tr.height / 2,
       width: we,
-      duration: 0.65, delay, ease: 'power3.inOut',
+      duration: 0.75, delay, ease: 'power1.inOut',
       onComplete: () => { el.remove(); cb?.(); },
     });
   }
@@ -1129,9 +1129,9 @@ function initFold2() {
 
             gsap.to(flier, {
               left: cellRect.left + cellRect.width / 2,
-              top: cellRect.top + cellRect.height / 2,
+              top: cellRect.top,
               width: STICK_SIZE,
-              duration: 0.9, ease: 'power3.inOut',
+              duration: 0.9, ease: 'power1.inOut',
               onComplete: () => {
                 flier.remove();
                 heroFlier = null;
