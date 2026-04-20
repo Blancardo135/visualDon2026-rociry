@@ -133,6 +133,17 @@ ul {
 /* ═══════════════════════════════════════════════════════════════
    FOLDS — base
    ═══════════════════════════════════════════════════════════════ */
+/* ── SCROLL SNAP ── */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.fold {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 .fold {
   position: relative;
   min-height: 100vh;
@@ -232,6 +243,8 @@ ul {
 .fold--dark .fold__instruction {
   color: var(--text-dim);
 }
+
+
 
 /* ═══════════════════════════════════════════════════════════════
    PERSONNAGES
