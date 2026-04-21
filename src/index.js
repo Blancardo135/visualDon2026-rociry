@@ -388,6 +388,7 @@ function avatarSVG(name, displaySize = 120) {
     <ellipse cx="55" cy="195" rx="30" ry="6" fill="rgba(0,0,0,0.08)"/>
     ${specific}
   </svg>`;
+
 }
 
 /* ═══════════════════════════════════════════════════════════════
