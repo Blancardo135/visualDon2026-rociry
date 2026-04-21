@@ -1530,9 +1530,6 @@ function initFold5() {
     output.textContent = slider.value + '%';
     slider.addEventListener('input', () => {
       output.textContent = slider.value + '%';
-      const diff = Math.abs(parseFloat(slider.value) - correct);
-      const hue = diff < 10 ? '145' : diff < 20 ? '38' : '0';
-      output.style.color = `hsl(${hue}, 80%, 42%)`;
       hideBubble();
     });
   }
@@ -1543,7 +1540,7 @@ function initFold5() {
       const diff = Math.abs(val - correct);
 
       if (diff <= TOLERANCE) {
-        /* ✅ Bonne réponse — scroll vers fold-6 */
+
         quizSolved = true;
         unlockScroll();
         showBubble('🎉 Exactement ! Bien joué !', C.thomas);
@@ -2494,7 +2491,7 @@ function initFold12() {
     .join('path')
     .attr('class', 'canton')
     .attr('d', geoPath)
-    .attr('fill', '#7aad7a')
+    .attr('fill', '#867c28')
     .attr('stroke', 'rgba(255,255,255,0.9)')
     .attr('stroke-width', 1.8)
     .attr('stroke-linejoin', 'round')
