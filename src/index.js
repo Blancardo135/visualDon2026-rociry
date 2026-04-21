@@ -1411,7 +1411,7 @@ function initFold3() {
       CharSystem.dim('louis');
       gsap.set(avatarEl, { autoAlpha: 1 });
       // gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-      gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
+      // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
     },
 
     onLeave: () => {
@@ -1428,12 +1428,13 @@ function initFold3() {
       CharSystem.dim('louis');
       gsap.set(avatarEl, { autoAlpha: 1 });
       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-      gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
+      // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
     },
 
     onLeaveBack: () => {
-      gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
       CharSystem.undim('louis');
+      gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
+
     },
   });
 }
@@ -1481,6 +1482,7 @@ function initFold5() {
   }
 
   function arrive() {
+    CharSystem.undim('louis');
     CharSystem.summon('thomas', avatarEl, 130, () => {
       if (quiz) gsap.to(quiz, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
     });
@@ -1606,13 +1608,16 @@ function initFold7() {
   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -20 });
 
   function arrive() {
+    CharSystem.dim('thomas');
     CharSystem.summon('thomas', avatarEl, 130, () => {
+      CharSystem.dim('thomas');
       if (bubble) gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
     });
   }
   function depart() {
     if (bubble) gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+    gsap.delayedCall(0.9, () => CharSystem.dim('thomas'));
   }
 
   ScrollTrigger.create({
@@ -1642,6 +1647,134 @@ function initFold7() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 8 — 100 stickmen bachelor
    ═══════════════════════════════════════════════════════════════ */
+// function initFold8() {
+//   const fold = document.getElementById('fold-8');
+//   if (!fold) return;
+
+//   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
+//   const dropoutPct = Math.round(100 - practPct);
+
+//   const el = document.getElementById('bachelor-dropout-pct');
+//   if (el) {
+//     const obj = { val: 0 };
+//     ScrollTrigger.create({
+//       trigger: fold, start: 'top 74%', once: true,
+//       onEnter: () => gsap.to(obj, {
+//         val: dropoutPct, duration: 1.8, ease: 'power2.out',
+//         onUpdate: () => { el.textContent = Math.round(obj.val); },
+//       }),
+//     });
+//   }
+
+//   const pictoC = document.getElementById('bachelor-dropout-pictogram');
+//   if (!pictoC) return;
+
+//   const COLS = 20;
+//   const ROWS = 5;
+//   const TOTAL = 100;
+//   const SZ = 22;
+//   const GAP = 3;
+//   const greenN = TOTAL - dropoutPct;
+//   const redN = dropoutPct;
+//   const thomasIdx = greenN - 1;
+
+//   pictoC.innerHTML = '';
+//   pictoC.style.cssText = [
+//     'display:grid',
+//     `grid-template-columns:repeat(${COLS}, ${SZ}px)`,
+//     `gap:${GAP}px`,
+//     'width:fit-content',
+//     'max-width:100%',
+//     'margin:0 auto',
+//     'overflow:visible',
+//   ].join(';');
+
+//   const items = [];
+//   for (let i = 0; i < TOTAL; i++) {
+//     const isGreen = i < greenN;
+//     const isThomas = i === thomasIdx;
+//     const col = isGreen ? C.thomas : C.accent;
+
+//     const cell = document.createElement('div');
+//     cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
+
+//     const wrap = document.createElement('div');
+//     wrap.style.cssText = 'line-height:0;';
+
+//     if (isThomas) {
+//       wrap.innerHTML = avatarSVG('thomas', SZ);
+//     } else {
+//       wrap.innerHTML = stickmanSVG({
+//         color: col,
+//         pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
+//         isHero: false, size: SZ,
+//       });
+//     }
+
+//     gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
+
+//     cell.appendChild(wrap);
+//     pictoC.appendChild(cell);
+//     items.push({ wrap, col, isGreen, isThomas, idx: i });
+//   }
+
+//   ScrollTrigger.create({
+//     trigger: fold,
+//     start: 'top 68%',
+//     once: true,
+//     onEnter: () => {
+
+//       gsap.to(items.map(it => it.wrap), {
+//         opacity: 1, y: 0, scale: 1,
+//         duration: 0.6,
+//         stagger: { each: 0.012, from: 'random', grid: [ROWS, COLS] },
+//         ease: 'power2.out',
+//       });
+
+//       gsap.delayedCall(2.2, () => {
+//         const tl = gsap.timeline({ onComplete: () => animateF8(items) });
+//         tl.to(items.map(it => it.wrap), {
+//           scale: 0.75, y: 6,
+//           duration: 0.5, ease: 'power1.inOut',
+//         })
+//           .to(items.map(it => it.wrap), {
+//             scale: 1, y: 0,
+//             duration: 0.7,
+//             stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
+//             ease: 'power2.out',
+//           });
+//       });
+//     },
+//   });
+
+//   function animateF8(items) {
+//     items.forEach(({ wrap, col, isGreen, isThomas, idx }) => {
+//       if (isThomas) {
+//         gsap.to(wrap, { y: -3, duration: 0.65, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2 });
+//         return;
+//       }
+//       if (isGreen) {
+//         const speed = 0.42 + (idx % 6) * 0.04;
+//         const delay = (idx % 13) * 0.06;
+//         let phase = idx % 2;
+//         function step() {
+//           phase = (phase + 1) % 2;
+//           wrap.innerHTML = stickmanSVG({ color: col, pose: phase === 0 ? 'walk-a' : 'walk-b', isHero: false, size: SZ });
+//           gsap.to(wrap, { y: phase === 0 ? -3 : 0, duration: speed, ease: 'sine.inOut', onComplete: step });
+//         }
+//         gsap.delayedCall(delay, step);
+//       } else {
+//         wrap.innerHTML = stickmanSVG({ color: col, pose: 'stand', isHero: false, size: SZ });
+//         gsap.to(wrap, { y: -1.5, duration: 2 + (idx % 7) * 0.15, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: (idx % 9) * 0.1 });
+//       }
+//     });
+//   }
+
+//   gsap.from(fold.querySelector('.fold__statement'), {
+//     opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
+//     scrollTrigger: { trigger: fold, start: 'top 62%' },
+//   });
+// }
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
@@ -1664,13 +1797,8 @@ function initFold8() {
   const pictoC = document.getElementById('bachelor-dropout-pictogram');
   if (!pictoC) return;
 
-  const COLS = 20;
-  const ROWS = 5;
-  const TOTAL = 100;
-  const SZ = 22;
-  const GAP = 3;
+  const COLS = 20, ROWS = 5, TOTAL = 100, SZ = 22, GAP = 3;
   const greenN = TOTAL - dropoutPct;
-  const redN = dropoutPct;
   const thomasIdx = greenN - 1;
 
   pictoC.innerHTML = '';
@@ -1707,7 +1835,6 @@ function initFold8() {
     }
 
     gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
-
     cell.appendChild(wrap);
     pictoC.appendChild(cell);
     items.push({ wrap, col, isGreen, isThomas, idx: i });
@@ -1718,7 +1845,6 @@ function initFold8() {
     start: 'top 68%',
     once: true,
     onEnter: () => {
-
       gsap.to(items.map(it => it.wrap), {
         opacity: 1, y: 0, scale: 1,
         duration: 0.6,
@@ -1768,6 +1894,15 @@ function initFold8() {
   gsap.from(fold.querySelector('.fold__statement'), {
     opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
     scrollTrigger: { trigger: fold, start: 'top 62%' },
+  });
+
+  /* ── Dim/undim Thomas dans la barre ── */
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: () => CharSystem.dim('thomas'),
+    onLeave: () => CharSystem.undim('thomas'),
+    onEnterBack: () => CharSystem.dim('thomas'),
+    onLeaveBack: () => CharSystem.undim('thomas'),
   });
 }
 
@@ -1887,6 +2022,7 @@ function initFold9() {
   gsap.set(bubble, { autoAlpha: 0, x: -16 });
 
   function arrive() {
+    CharSystem.dim('thomas');
     CharSystem.summon('thomas', avatarEl, 110, () => {
       gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
     });
@@ -1894,6 +2030,7 @@ function initFold9() {
   function depart() {
     gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
+    // gsap.delayedCall(0.9, () => CharSystem.dim('thomas'));
   }
 
   ScrollTrigger.create({
@@ -1948,6 +2085,7 @@ function initFold10() {
   if (bubble) gsap.set(bubble, { autoAlpha: 0, y: 20 });
 
   function arrive() {
+    CharSystem.dim('bruna');
     CharSystem.summon('bruna', avatarEl, 130, () => {
       if (bubble) gsap.to(bubble, {
         autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out',
@@ -1963,6 +2101,7 @@ function initFold10() {
   function depart() {
     if (bubble) gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
     gsap.delayedCall(0.12, () => CharSystem.dismiss('bruna', avatarEl));
+    gsap.delayedCall(0.9, () => CharSystem.dim('bruna'));
   }
 
   ScrollTrigger.create({
@@ -2070,6 +2209,8 @@ function initFold11() {
     pin: true,
     scrub: 1.2,
     animation: tl,
+    onEnter: () => CharSystem.dim('bruna'),
+    onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
       // Une fois complètement scrollé, masquer proprement
@@ -2734,6 +2875,14 @@ function initFold14() {
     opacity: 0, y: 20, duration: 0.7, ease: 'power2.out',
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: () => CharSystem.dim('louis'),
+    onLeave: () => CharSystem.undim('louis'),
+    onEnterBack: () => CharSystem.dim('louis'),
+    onLeaveBack: () => CharSystem.undim('louis'),
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2819,6 +2968,14 @@ function initFold15() {
     opacity: 0, y: 20, duration: 0.7, ease: 'power2.out',
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
+
+  ScrollTrigger.create({
+    trigger: fold, start: 'top 62%', end: 'bottom top',
+    onEnter: () => CharSystem.ORDER.forEach(name => CharSystem.dim(name)),
+    onLeave: () => CharSystem.ORDER.forEach(name => CharSystem.undim(name)),
+    onEnterBack: () => CharSystem.ORDER.forEach(name => CharSystem.dim(name)),
+    onLeaveBack: () => CharSystem.ORDER.forEach(name => CharSystem.undim(name)),
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2901,6 +3058,7 @@ function initFold18() {
     },
   });
 
+
   chars.forEach((c, i) => {
     gsap.to(c, {
       y: -10, duration: 2 + i * 0.3,
@@ -2909,9 +3067,24 @@ function initFold18() {
   });
 
 
+  // ScrollTrigger.create({
+  //   trigger: fold, start: 'top 62%',
+  //   onEnter: () => {
+  //     CharSystem.ORDER.forEach(name => CharSystem.dim(name));
+  //   },
+  //   onLeaveBack: () => {
+  //     CharSystem.ORDER.forEach(name => CharSystem.undim(name));
+  //   },
+  // });
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%',
     onEnter: () => {
+      CharSystem.ORDER.forEach(name => CharSystem.dim(name));
+      gsap.delayedCall(1.5, () => {
+        CharSystem.ORDER.forEach(name => CharSystem.dim(name));
+      });
+    },
+    onEnterBack: () => {
       CharSystem.ORDER.forEach(name => CharSystem.dim(name));
     },
     onLeaveBack: () => {
