@@ -841,63 +841,12 @@ function initScrollProgress() {
 
 
 function initSeriesLabel() {
-  /* Label série — bas gauche */
-  const label = document.createElement('div');
-  label.className = 'series-label';
-  document.body.appendChild(label);
-
-  /* Label source — bas droite */
-  const source = document.createElement('div');
-  source.className = 'source-label';
-  document.body.appendChild(source);
-
   const SOURCE = '"Sport et études - HEIG-VD - 26", Ait-Slimane R., Blanchard R. & Demont C., HEIG-VD\n"Enquête sur le sport universitaire suisse", Gebert A., Knäbel A. & Lamprecht M.';
 
-  [
-    { id: 'fold-1', serie: 'Série 1 · Introduction', src: null },
-    { id: 'fold-2', serie: 'Série 2 · Gymnase & Apprentissage', src: SOURCE },
-    { id: 'fold-3', serie: 'Série 2 · Gymnase & Apprentissage', src: SOURCE },
-    { id: 'fold-5', serie: 'Quiz interactif', src: SOURCE },
-    { id: 'fold-6', serie: 'Quiz interactif', src: SOURCE },
-    { id: 'fold-7', serie: 'Série 3 · Bachelor', src: SOURCE },
-    { id: 'fold-8', serie: 'Série 3 · Bachelor', src: SOURCE },
-    { id: 'fold-9', serie: 'Série 3 · Bachelor', src: SOURCE },
-    { id: 'fold-10', serie: 'Série 4 · Master', src: SOURCE },
-    { id: 'fold-11', serie: 'Série 4 · Master', src: SOURCE },
-    { id: 'fold-12', serie: 'Série 5 · Par région', src: SOURCE },
-    { id: 'fold-13', serie: 'Biais', src: SOURCE },
-    { id: 'fold-14', serie: 'Série 6 · Évolution temporelle', src: SOURCE },
-    { id: 'fold-15', serie: 'Série 6 · Évolution temporelle', src: SOURCE },
-    { id: 'fold-16', serie: 'Épilogue · Débat', src: null },
-    { id: 'fold-17', serie: 'Épilogue · Débat', src: null },
-    { id: 'fold-18', serie: 'Conclusion', src: null },
-  ].forEach(({ id, serie, src }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    ScrollTrigger.create({
-      trigger: el, start: 'top center', end: 'bottom center',
-      onEnter: () => {
-        label.textContent = serie;
-        label.classList.add('visible');
-        source.textContent = src ?? '';
-        src ? source.classList.add('visible') : source.classList.remove('visible');
-      },
-      onLeave: () => {
-        label.classList.remove('visible');
-        source.classList.remove('visible');
-      },
-      onEnterBack: () => {
-        label.textContent = serie;
-        label.classList.add('visible');
-        source.textContent = src ?? '';
-        src ? source.classList.add('visible') : source.classList.remove('visible');
-      },
-      onLeaveBack: () => {
-        label.classList.remove('visible');
-        source.classList.remove('visible');
-      },
-    });
-  });
+  const source = document.createElement('div');
+  source.className = 'source-label visible';
+  source.textContent = SOURCE;
+  document.body.appendChild(source);
 }
 
 /* ═══════════════════════════════════════════════════════════════
