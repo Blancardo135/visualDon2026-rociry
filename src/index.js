@@ -1974,6 +1974,7 @@ function initFold9() {
   function arrive() {
     CharSystem.dim('thomas');
     CharSystem.summon('thomas', avatarEl, 110, () => {
+      CharSystem.dim('thomas');
       gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
     });
   }

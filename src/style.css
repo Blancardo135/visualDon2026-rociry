@@ -1009,9 +1009,9 @@ ul {
 
 .map-switzerland {
   width: 100%;
-  border-radius: var(--r);
+  /* border-radius: var(--r); */
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  /* box-shadow: var(--shadow-lg); */
 }
 
 .map-svg {
