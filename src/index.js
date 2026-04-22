@@ -2784,13 +2784,13 @@ function initFold14() {
     .x(d => x(d.annee)).y0(iH).y1(d => y(d.tres_actifs_pct))
     .curve(d3.curveCatmullRom.alpha(0.5));
   g.append('path').datum(data)
-    .attr('fill', C.accent).attr('opacity', 0.07).attr('d', area);
+    .attr('fill', C.louis).attr('opacity', 0.07).attr('d', area);
 
   const line = d3.line()
     .x(d => x(d.annee)).y(d => y(d.tres_actifs_pct))
     .curve(d3.curveCatmullRom.alpha(0.5));
   const path = g.append('path').datum(data)
-    .attr('fill', 'none').attr('stroke', C.accent)
+    .attr('fill', 'none').attr('stroke', C.louis)
     .attr('stroke-width', 3).attr('stroke-linecap', 'round').attr('d', line);
 
   const len = path.node().getTotalLength();
@@ -2803,7 +2803,7 @@ function initFold14() {
       data.forEach((d, i) => {
         const dot = g.append('circle')
           .attr('cx', x(d.annee)).attr('cy', y(d.tres_actifs_pct))
-          .attr('r', 6).attr('fill', C.accent)
+          .attr('r', 6).attr('fill', C.louis)
           .attr('stroke', 'white').attr('stroke-width', 2.5).style('opacity', 0);
         g.append('text').attr('class', 'chart-dot-label')
           .attr('x', x(d.annee)).attr('y', y(d.tres_actifs_pct) - 13)
