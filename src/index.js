@@ -2050,8 +2050,11 @@ function initFold10() {
   }
   function depart() {
     if (bubble) gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
-    gsap.delayedCall(0.12, () => CharSystem.dismiss('bruna', avatarEl));
-    gsap.delayedCall(0.9, () => CharSystem.dim('bruna'));
+    gsap.delayedCall(0.12, () => {
+      CharSystem.dismiss('bruna', avatarEl, { skipReturn: true });
+      avatarEl.innerHTML = '';
+    });
+
   }
 
   ScrollTrigger.create({
@@ -2163,12 +2166,23 @@ function initFold11() {
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
-      // Une fois complètement scrollé, masquer proprement
-      gsap.set(fold, { autoAlpha: 0 });
+      gsap.to(fold, {
+        autoAlpha: 0,
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          gsap.set(fold, { xPercent: 100 });
+          gsap.set(fold10, { autoAlpha: 0 });
+          const fold12 = document.getElementById('fold-12');
+          if (fold12) window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+          gsap.delayedCall(0.1, () => gsap.set(fold10, { autoAlpha: 1 }));
+        }
+      });
+      CharSystem.undim('bruna');
     },
 
+
     onLeaveBack: () => {
-      // Réinitialiser pour un re-scroll propre
       gsap.set(fold, {
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
@@ -2180,8 +2194,10 @@ function initFold11() {
         gsap.set(avatarEl, { autoAlpha: 0 });
       }
       fills.forEach(f => gsap.set(f, { width: '0%' }));
+      CharSystem.dim('bruna');
     },
   });
+
 }
 /* ═══════════════════════════════════════════════════════════════
    FOLD 12 — Carte Suisse Romande avec cantons réels (D3 + GeoJSON)

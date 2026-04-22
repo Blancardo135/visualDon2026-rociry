@@ -966,7 +966,7 @@ ul {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 12 — CARTE
    ═══════════════════════════════════════════════════════════════ */
-#fold-12 {
+/* #fold-12 {
   background: var(--bg);
   gap: 1rem;
 }
@@ -982,8 +982,29 @@ ul {
 .map-container {
   position: relative;
   width: 100%;
-  /* max-width: 620px; */
+  
   max-width: 560px;
+} */
+
+#fold-12 {
+  background: var(--bg);
+  gap: 0.3rem;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+}
+
+#fold-12 .fold__title {
+  margin-bottom: 0.2rem;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+}
+
+#fold-12 .fold__instruction {
+  margin-bottom: 0.3rem;
+  max-width: 700px;
+}
+
+#fold-12 .map-container {
+  max-width: 500px;
 }
 
 .map-switzerland {
@@ -1035,6 +1056,10 @@ ul {
 .map-tooltip__participation {
   font-size: .82rem;
   color: var(--text-muted);
+}
+
+#map-tooltip {
+  display: none !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
