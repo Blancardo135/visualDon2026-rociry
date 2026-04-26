@@ -526,10 +526,11 @@ ul {
 
 .big-stat__label {
   font-size: clamp(.82rem, 1.4vw, .95rem);
-  color: var(--text-muted);
   margin-top: .75rem;
-  max-width: 260px;
+  max-width: 420px;
   line-height: 1.45;
+  text-align: left;
+  color: var(--louis);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -886,23 +887,39 @@ ul {
 /* ═══════════════════════════════════════════════════════════════
    FOLDS 10-11 — MASTER
    ═══════════════════════════════════════════════════════════════ */
-#fold-10 {
+/* #fold-10 {
   background: var(--bg-dark);
   flex-direction: row;
   gap: clamp(2rem, 5vw, 4rem);
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+} */
+#fold-10 {
+  background: var(--bg-dark);
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding-top: 12rem;
 }
 
 #fold-10 .character {
   flex-shrink: 0;
 }
 
+/* #fold-10 .fold__title {
+  width: 100%;
+  color: white;
+  text-align: left;
+} */
+
 #fold-10 .fold__title {
   width: 100%;
   color: white;
   text-align: left;
+  margin-bottom: 0;
 }
 
 #fold-10 .character__bubble {
