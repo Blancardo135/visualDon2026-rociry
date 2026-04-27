@@ -2216,12 +2216,12 @@ function initFold10() {
 
 // }
 function initFold11() {
-  const fold   = document.getElementById('fold-11');
+  const fold = document.getElementById('fold-11');
   const fold10 = document.getElementById('fold-10');
   if (!fold || !fold10) return;
 
-  const avatarEl  = fold.querySelector('.character__avatar');
-  const bubble    = fold.querySelector('.character__bubble');
+  const avatarEl = fold.querySelector('.character__avatar');
+  const bubble = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
 
   if (avatarEl) {
@@ -2230,8 +2230,8 @@ function initFold11() {
   }
   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
 
-  const fills  = [];
-  const pcts   = [];
+  const fills = [];
+  const pcts = [];
   const values = [];
 
   if (container) {
@@ -2244,9 +2244,9 @@ function initFold11() {
         <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
       container.appendChild(row);
-      const fill  = row.querySelector('.hbar-chart__fill');
+      const fill = row.querySelector('.hbar-chart__fill');
       const value = row.querySelector('.hbar-chart__value');
-      gsap.set(fill,  { width: '0%' });
+      gsap.set(fill, { width: '0%' });
       gsap.set(value, { autoAlpha: 0 });
       fills.push(fill);
       values.push(value);
@@ -2275,12 +2275,12 @@ function initFold11() {
 
   /* Phase 2 : avatar + bulle */
   tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
-  tl.to(bubble,   { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
+  tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
 
   /* Phase 3 : barres une par une */
   fills.forEach((fill, i) => {
-    tl.to(fill,      { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
-    tl.to(values[i], { autoAlpha: 1,         duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+    tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+    tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
   });
 
   /* Phase 4 : pause pour lire */
@@ -2288,7 +2288,7 @@ function initFold11() {
 
   /* Phase 5 : transition douce — fond noir → beige, puis fold-11 disparaît */
   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.6, ease: 'power2.inOut' });
-  tl.to(fold,   { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
+  tl.to(fold, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
 
   /* ── ScrollTrigger ── */
   ScrollTrigger.create({
@@ -2299,7 +2299,7 @@ function initFold11() {
     scrub: 1.2,
     animation: tl,
 
-    onEnter:     () => CharSystem.dim('bruna'),
+    onEnter: () => CharSystem.dim('bruna'),
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
@@ -2318,8 +2318,8 @@ function initFold11() {
         avatarEl.innerHTML = avatarSVG('bruna', 110);
         gsap.set(avatarEl, { autoAlpha: 0 });
       }
-      fills.forEach(f  => gsap.set(f,  { width: '0%' }));
-      values.forEach(v => gsap.set(v,  { autoAlpha: 0 }));
+      fills.forEach(f => gsap.set(f, { width: '0%' }));
+      values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
       CharSystem.dim('bruna');
     },
   });
@@ -3075,44 +3075,176 @@ function initFold15() {
    ═══════════════════════════════════════════════════════════════ */
 function initDebate() {
   [
-    { id: 'fold-16', leftName: 'louis', rightName: 'bruna' },
-    { id: 'fold-17', leftName: 'chloe', rightName: 'thomas' },
-  ].forEach(({ id, leftName, rightName }) => {
+    {
+      id: 'fold-16',
+      leftName: 'louis',
+      rightName: 'bruna',
+      sequence: ['left', 'right', 'left'],
+    },
+    {
+      id: 'fold-17',
+      leftName: 'chloe',
+      rightName: 'thomas',
+      sequence: ['right', 'left'],
+    },
+  ].forEach(({ id, leftName, rightName, sequence }) => {
     const fold = document.getElementById(id);
     if (!fold) return;
 
-    const la = document.createElement('div');
-    la.className = 'debate-avatar debate-avatar--left';
-    fold.appendChild(la);
+    /* ── Récupérer les bulles originales et leurs textes ── */
+    const scene = fold.querySelector('.debate-scene');
+    const originalBubbles = [...scene.querySelectorAll('.debate-bubble')];
+    const bubbleData = originalBubbles.map((b, i) => ({
+      text: b.textContent.trim(),
+      className: b.className,
+      side: sequence[i] ?? 'left',
+    }));
 
-    const ra = document.createElement('div');
-    ra.className = 'debate-avatar debate-avatar--right';
-    fold.appendChild(ra);
+    /* ── Vider la scène et reconstruire avec avatar + bulle par ligne ── */
+    scene.innerHTML = '';
 
-    const bubbles = fold.querySelectorAll('.debate-bubble');
-    gsap.set(bubbles, { autoAlpha: 0, y: 20 });
+    const rows = []; /* { rowEl, avatarEl, bubbleEl, side } */
+    const nameMap = { left: leftName, right: rightName };
 
-    function arrive() {
-      CharSystem.summon(leftName, la, 70, () => {
-        // gsap.from(la, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+    bubbleData.forEach(({ text, className, side }) => {
+      const name = nameMap[side] ?? leftName;
+
+      const row = document.createElement('div');
+      row.className = `debate-row debate-row--${side}`;
+
+      const av = document.createElement('div');
+      av.className = 'debate-row__avatar';
+      av.innerHTML = avatarSVG(name, 52);
+
+      const bub = document.createElement('div');
+      bub.className = className; /* conserve debate-bubble--left/right/etc. */
+      bub.textContent = text;
+
+      /* Avatar toujours du côté extérieur de la conversation
+         gauche → avatar | bulle
+         droite → bulle | avatar  (flex-direction: row-reverse en CSS,
+                                    donc l'avatar reste visuellement à droite) */
+      row.appendChild(av);
+      row.appendChild(bub);
+
+      scene.appendChild(row);
+
+      /* Tout caché au départ */
+      gsap.set(row, { autoAlpha: 0 });
+      gsap.set(bub, { scale: 0.6, transformOrigin: side === 'left' ? 'bottom left' : 'bottom right' });
+
+      rows.push({ rowEl: row, avatarEl: av, bubbleEl: bub, side });
+    });
+
+    /* ── Lock scroll ── */
+    let lockedAt = null;
+    let seqDone = false;
+    let seqRunning = false;
+
+    function onScroll() {
+      if (lockedAt === null) return;
+      window.scrollTo({ top: lockedAt, behavior: 'instant' });
+    }
+
+    function onWheel(e) { e.preventDefault(); }
+    function onTouch(e) { e.preventDefault(); }
+
+    function lockScroll() {
+      lockedAt = fold.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: lockedAt, behavior: 'instant' });
+      /* Bloquer le scroll natif ET l'effet élastique */
+      window.addEventListener('scroll', onScroll);
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('touchmove', onTouch, { passive: false });
+    }
+
+    function unlockScroll() {
+      lockedAt = null;
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchmove', onTouch);
+    }
+
+    /* ── Séquence messages ── */
+    let seqTimeline = null;
+
+    function playSequence() {
+      if (seqRunning || seqDone) return;
+      seqRunning = true;
+
+      seqTimeline = gsap.timeline({
+        onComplete: () => {
+          seqDone = true;
+          seqRunning = false;
+          unlockScroll();
+        },
       });
-      gsap.delayedCall(0.18, () => {
-        CharSystem.summon(rightName, ra, 70, () => {
-          // gsap.from(ra, { y: 10, duration: 0.4, ease: 'back.out(2)' });
+
+      /* Délai initial */
+      seqTimeline.to({}, { duration: 0.5 });
+
+      rows.forEach(({ rowEl, bubbleEl }, i) => {
+        /* La ligne apparaît (avatar + bulle ensemble) */
+        seqTimeline.to(rowEl, { autoAlpha: 1, duration: 0.2, ease: 'power2.out' });
+
+        /* La bulle bounce */
+        seqTimeline.to(bubbleEl, {
+          scale: 1,
+          duration: 0.55,
+          ease: 'back.out(2.8)',
+        }, '<');
+
+        /* Pause entre messages */
+        if (i < rows.length - 1) {
+          seqTimeline.to({}, { duration: 0.85 });
+        }
+      });
+
+      /* Petite pause finale avant de délocker */
+      seqTimeline.to({}, { duration: 0.6 });
+    }
+
+    function resetSequence() {
+      if (seqTimeline) { seqTimeline.kill(); seqTimeline = null; }
+      seqDone = false;
+      seqRunning = false;
+      rows.forEach(({ rowEl, bubbleEl, side }) => {
+        gsap.set(rowEl, { autoAlpha: 0 });
+        gsap.set(bubbleEl, {
+          scale: 0.6,
+          transformOrigin: side === 'left' ? 'bottom left' : 'bottom right',
         });
       });
-      gsap.to(bubbles, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.4, delay: 0.5, ease: 'power2.out' });
+    }
+
+    /* ── ScrollTrigger : arrive / depart ── */
+    function arrive() {
+      playSequence();
     }
 
     function depart() {
-      gsap.to(bubbles, { autoAlpha: 0, duration: 0.2 });
-      CharSystem.dismiss(leftName, la);
-      gsap.delayedCall(0.12, () => CharSystem.dismiss(rightName, ra));
+      unlockScroll();
+      resetSequence();
     }
 
+    /* Déclenche la séquence quand la fold est visible */
     ScrollTrigger.create({
-      trigger: fold, start: 'top 62%', end: 'bottom top',
-      onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
+      trigger: fold,
+      start: 'top 62%',
+      end: 'bottom top',
+      onEnter: arrive,
+      onLeave: depart,
+      onEnterBack: arrive,
+      onLeaveBack: depart,
+    });
+
+    /* Lock quand la fold est exactement en haut du viewport */
+    ScrollTrigger.create({
+      trigger: fold,
+      start: 'top top',
+      onEnter: () => { if (!seqDone) lockScroll(); },
+      onEnterBack: () => { seqDone = false; lockScroll(); resetSequence(); gsap.delayedCall(0.1, playSequence); },
+      onLeaveBack: () => { unlockScroll(); },
     });
   });
 }

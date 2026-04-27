@@ -1306,6 +1306,36 @@ ul {
   right: clamp(8px, 4vw, 40px);
 }
 
+/* ── Débat : lignes avatar + bulle ── */
+.debate-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.debate-row--right {
+  flex-direction: row-reverse;
+}
+
+.debate-row__avatar {
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .25));
+}
+
+.debate-row__avatar svg {
+  display: block;
+}
+
+/* La bulle prend le reste de l'espace, max 70% */
+.debate-row .debate-bubble--left,
+.debate-row .debate-bubble--right,
+.debate-row .debate-bubble--left2,
+.debate-row .debate-bubble--right2 {
+  max-width: 70%;
+  flex: 1;
+}
+
 /* .debate-avatar {
   position: absolute;
   bottom: 0;
