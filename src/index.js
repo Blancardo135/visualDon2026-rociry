@@ -2216,12 +2216,12 @@ function initFold10() {
 
 // }
 function initFold11() {
-  const fold = document.getElementById('fold-11');
+  const fold   = document.getElementById('fold-11');
   const fold10 = document.getElementById('fold-10');
   if (!fold || !fold10) return;
 
-  const avatarEl = fold.querySelector('.character__avatar');
-  const bubble = fold.querySelector('.character__bubble');
+  const avatarEl  = fold.querySelector('.character__avatar');
+  const bubble    = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
 
   if (avatarEl) {
@@ -2230,8 +2230,8 @@ function initFold11() {
   }
   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
 
-  const fills = [];
-  const pcts = [];
+  const fills  = [];
+  const pcts   = [];
   const values = [];
 
   if (container) {
@@ -2244,9 +2244,9 @@ function initFold11() {
         <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
       container.appendChild(row);
-      const fill = row.querySelector('.hbar-chart__fill');
+      const fill  = row.querySelector('.hbar-chart__fill');
       const value = row.querySelector('.hbar-chart__value');
-      gsap.set(fill, { width: '0%' });
+      gsap.set(fill,  { width: '0%' });
       gsap.set(value, { autoAlpha: 0 });
       fills.push(fill);
       values.push(value);
@@ -2254,53 +2254,60 @@ function initFold11() {
     });
   }
 
+  /* fold-11 démarre hors écran à droite, en fixed */
   gsap.set(fold, {
     position: 'fixed', top: 0, left: 0,
     width: '100%', height: '100%',
     zIndex: 10, xPercent: 100, autoAlpha: 1,
   });
 
+  /* ── Timeline ──────────────────────────────────────────────
+     Phase 1  (0→1)      : slide depuis la droite
+     Phase 2  (1→1.5)    : avatar + bulle
+     Phase 3  (1.65→4.5) : 5 barres, espacées de 0.7
+     Phase 4  (4.5→6.0)  : pause lecture
+     Phase 5  (6.0→7.4)  : fond de fold-10 → beige, fade out fold-11
+  ────────────────────────────────────────────────────────── */
   const tl = gsap.timeline({ paused: true });
 
+  /* Phase 1 : slide */
   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
-  tl.to(avatarEl, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.0);
-  tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 1.2);
 
+  /* Phase 2 : avatar + bulle */
+  tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
+  tl.to(bubble,   { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
+
+  /* Phase 3 : barres une par une */
   fills.forEach((fill, i) => {
-    tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
-    tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7); // ← même position que la barre
+    tl.to(fill,      { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+    tl.to(values[i], { autoAlpha: 1,         duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
   });
 
+  /* Phase 4 : pause pour lire */
+  tl.to({}, { duration: 1.5 });
 
-  tl.to({}, { duration: 0.5 });
+  /* Phase 5 : transition douce — fond noir → beige, puis fold-11 disparaît */
+  tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.6, ease: 'power2.inOut' });
+  tl.to(fold,   { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
 
+  /* ── ScrollTrigger ── */
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
-    end: '+=500%',
+    end: '+=750%',
     pin: true,
     scrub: 1.2,
     animation: tl,
-    onEnter: () => CharSystem.dim('bruna'),
+
+    onEnter:     () => CharSystem.dim('bruna'),
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
-      gsap.to(fold, {
-        autoAlpha: 0,
-        duration: 0.5,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          gsap.set(fold, { xPercent: 100 });
-          gsap.set(fold10, { autoAlpha: 0 });
-          const fold12 = document.getElementById('fold-12');
-          if (fold12) window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
-          gsap.delayedCall(0.1, () => gsap.set(fold10, { autoAlpha: 1 }));
-        }
-      });
       CharSystem.undim('bruna');
     },
 
     onLeaveBack: () => {
+      gsap.set(fold10, { backgroundColor: '' });
       gsap.set(fold, {
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
@@ -2311,8 +2318,8 @@ function initFold11() {
         avatarEl.innerHTML = avatarSVG('bruna', 110);
         gsap.set(avatarEl, { autoAlpha: 0 });
       }
-      fills.forEach(f => gsap.set(f, { width: '0%' }));
-      values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
+      fills.forEach(f  => gsap.set(f,  { width: '0%' }));
+      values.forEach(v => gsap.set(v,  { autoAlpha: 0 }));
       CharSystem.dim('bruna');
     },
   });
