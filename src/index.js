@@ -1175,6 +1175,7 @@ function initFold2() {
    ═══════════════════════════════════════════════════════════════ */
 
 let louisGridCell = null;
+let redStickWraps = [];
 
 // function initFold3() {
 //   const fold = document.getElementById('fold-3');
@@ -1190,8 +1191,9 @@ let louisGridCell = null;
 //   const bigNum = fold.querySelector('.big-stat__number');
 
 //   avatarEl.innerHTML = avatarSVG('louis', 130);
-//   gsap.set(avatarEl, { autoAlpha: 0 });
-//   gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
+//   gsap.set(avatarEl, { autoAlpha: 1 });
+//   // gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
+//   gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
 //   gsap.set(bigNum, { autoAlpha: 1, scale: 1 });
 
 //   const track = document.createElement('div');
@@ -1230,8 +1232,6 @@ let louisGridCell = null;
 //     tl.to(card, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' }, 0.75 + i * 0.95);
 //   });
 
-//   let activeFlier = null;
-
 //   ScrollTrigger.create({
 //     trigger: fold,
 //     start: 'top top',
@@ -1242,58 +1242,17 @@ let louisGridCell = null;
 
 //     onEnter: () => {
 //       CharSystem.dim('louis');
-
-//       requestAnimationFrame(() => {
-//         const srcRect = louisGridCell?.getBoundingClientRect();
-//         const dstRect = avatarEl.getBoundingClientRect();
-//         const canFly = srcRect && srcRect.width > 0 && dstRect.width > 0;
-
-//         if (canFly) {
-//           const louWrap = louisGridCell?.querySelector('div');
-//           if (louWrap) gsap.set(louWrap, { autoAlpha: 0 });
-
-//           const flier = document.createElement('div');
-//           flier.className = 'char-flier';
-//           flier.innerHTML = avatarSVG('louis', STICK_SIZE);
-//           document.body.appendChild(flier);
-//           activeFlier = flier;
-
-//           gsap.set(flier, {
-//             left: srcRect.left + srcRect.width / 2,
-//             top: srcRect.top + srcRect.height / 2,
-//             xPercent: -50, yPercent: -50,
-//             width: STICK_SIZE, autoAlpha: 1, zIndex: 9999,
-//           });
-
-//           gsap.to(flier, {
-//             left: dstRect.left + dstRect.width / 2,
-//             top: dstRect.top + dstRect.height / 2,
-//             width: 130, duration: 0.8, ease: 'power2.inOut',
-//             onComplete: () => {
-//               flier.remove(); activeFlier = null;
-//               gsap.set(avatarEl, { autoAlpha: 1 });
-//               CharSystem.undim('louis');
-//               gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-//             },
-//           });
-
-//         } else {
-//           gsap.set(avatarEl, { autoAlpha: 1 });
-//           CharSystem.undim('louis');
-//           gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-//         }
-//       });
+//       gsap.set(avatarEl, { autoAlpha: 1 });
+//       // gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+//       // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
 //     },
 
 //     onLeave: () => {
-//       if (activeFlier) { activeFlier.remove(); activeFlier = null; }
-//       const louWrap = louisGridCell?.querySelector('div');
-//       if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
 //       louisGridCell = null;
 //       CharSystem.dismiss('louis', avatarEl);
 //       gsap.delayedCall(0.35, () => {
-//         gsap.set(avatarEl, { autoAlpha: 0 });
-//         gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
+//         gsap.set(avatarEl, { autoAlpha: 1 });
+//         gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
 //         avatarEl.innerHTML = avatarSVG('louis', 130);
 //       });
 //     },
@@ -1301,17 +1260,14 @@ let louisGridCell = null;
 //     onEnterBack: () => {
 //       CharSystem.dim('louis');
 //       gsap.set(avatarEl, { autoAlpha: 1 });
-//       gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power2.out' });
-//       gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
+//       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
+//       // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
 //     },
 
 //     onLeaveBack: () => {
-//       if (activeFlier) { activeFlier.remove(); activeFlier = null; }
-//       gsap.set([avatarEl, bubbleEl], { autoAlpha: 0 });
-//       gsap.set(bubbleEl, { x: 20 });
 //       CharSystem.undim('louis');
-//       const louWrap = louisGridCell?.querySelector('div');
-//       if (louWrap) gsap.to(louWrap, { autoAlpha: 1, duration: 0.3 });
+//       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
+
 //     },
 //   });
 // }
@@ -1330,7 +1286,6 @@ function initFold3() {
 
   avatarEl.innerHTML = avatarSVG('louis', 130);
   gsap.set(avatarEl, { autoAlpha: 1 });
-  // gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
   gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
   gsap.set(bigNum, { autoAlpha: 1, scale: 1 });
 
@@ -1343,6 +1298,12 @@ function initFold3() {
   panel1.appendChild(bigStat);
   track.appendChild(panel1);
 
+  const descriptions = [
+    "Les journées sont remplies et il y a encore le travail à la maison après les cours.",
+    "Des cours tous les jours pendant 8h laissent peu d'énergie pour le sport.",
+    "Les étudiant·e·s n'habitent pas souvent dans la même ville que leur école et le trajet aller-retour peut être conséquent.",
+  ];
+
   const reasonCards = [];
   sportData.gymnasiens.top3_raisons_arret.forEach((item, i) => {
     const panel = document.createElement('div');
@@ -1352,7 +1313,10 @@ function initFold3() {
     card.className = 'fold3-reason-card';
     card.innerHTML = `
       <span class="fold3-reason__rank">${item.rang}</span>
-      <p class="fold3-reason__text">${item.raison}</p>`;
+      <div class="fold3-reason__content">
+        <p class="fold3-reason__text">${item.raison}</p>
+        <p class="fold3-reason__desc">${descriptions[i] ?? ''}</p>
+      </div>`;
 
     gsap.set(card, { x: 80, autoAlpha: 0 });
     panel.appendChild(card);
@@ -1381,8 +1345,6 @@ function initFold3() {
     onEnter: () => {
       CharSystem.dim('louis');
       gsap.set(avatarEl, { autoAlpha: 1 });
-      // gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-      // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
     },
 
     onLeave: () => {
@@ -1399,13 +1361,11 @@ function initFold3() {
       CharSystem.dim('louis');
       gsap.set(avatarEl, { autoAlpha: 1 });
       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-      // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
     },
 
     onLeaveBack: () => {
       CharSystem.undim('louis');
       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-
     },
   });
 }
@@ -1619,134 +1579,8 @@ function initFold7() {
 /* ═══════════════════════════════════════════════════════════════
    FOLD 8 — 100 stickmen bachelor
    ═══════════════════════════════════════════════════════════════ */
-// function initFold8() {
-//   const fold = document.getElementById('fold-8');
-//   if (!fold) return;
 
-//   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
-//   const dropoutPct = Math.round(100 - practPct);
 
-//   const el = document.getElementById('bachelor-dropout-pct');
-//   if (el) {
-//     const obj = { val: 0 };
-//     ScrollTrigger.create({
-//       trigger: fold, start: 'top 74%', once: true,
-//       onEnter: () => gsap.to(obj, {
-//         val: dropoutPct, duration: 1.8, ease: 'power2.out',
-//         onUpdate: () => { el.textContent = Math.round(obj.val); },
-//       }),
-//     });
-//   }
-
-//   const pictoC = document.getElementById('bachelor-dropout-pictogram');
-//   if (!pictoC) return;
-
-//   const COLS = 20;
-//   const ROWS = 5;
-//   const TOTAL = 100;
-//   const SZ = 22;
-//   const GAP = 3;
-//   const greenN = TOTAL - dropoutPct;
-//   const redN = dropoutPct;
-//   const thomasIdx = greenN - 1;
-
-//   pictoC.innerHTML = '';
-//   pictoC.style.cssText = [
-//     'display:grid',
-//     `grid-template-columns:repeat(${COLS}, ${SZ}px)`,
-//     `gap:${GAP}px`,
-//     'width:fit-content',
-//     'max-width:100%',
-//     'margin:0 auto',
-//     'overflow:visible',
-//   ].join(';');
-
-//   const items = [];
-//   for (let i = 0; i < TOTAL; i++) {
-//     const isGreen = i < greenN;
-//     const isThomas = i === thomasIdx;
-//     const col = isGreen ? C.thomas : C.accent;
-
-//     const cell = document.createElement('div');
-//     cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
-
-//     const wrap = document.createElement('div');
-//     wrap.style.cssText = 'line-height:0;';
-
-//     if (isThomas) {
-//       wrap.innerHTML = avatarSVG('thomas', SZ);
-//     } else {
-//       wrap.innerHTML = stickmanSVG({
-//         color: col,
-//         pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
-//         isHero: false, size: SZ,
-//       });
-//     }
-
-//     gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
-
-//     cell.appendChild(wrap);
-//     pictoC.appendChild(cell);
-//     items.push({ wrap, col, isGreen, isThomas, idx: i });
-//   }
-
-//   ScrollTrigger.create({
-//     trigger: fold,
-//     start: 'top 68%',
-//     once: true,
-//     onEnter: () => {
-
-//       gsap.to(items.map(it => it.wrap), {
-//         opacity: 1, y: 0, scale: 1,
-//         duration: 0.6,
-//         stagger: { each: 0.012, from: 'random', grid: [ROWS, COLS] },
-//         ease: 'power2.out',
-//       });
-
-//       gsap.delayedCall(2.2, () => {
-//         const tl = gsap.timeline({ onComplete: () => animateF8(items) });
-//         tl.to(items.map(it => it.wrap), {
-//           scale: 0.75, y: 6,
-//           duration: 0.5, ease: 'power1.inOut',
-//         })
-//           .to(items.map(it => it.wrap), {
-//             scale: 1, y: 0,
-//             duration: 0.7,
-//             stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
-//             ease: 'power2.out',
-//           });
-//       });
-//     },
-//   });
-
-//   function animateF8(items) {
-//     items.forEach(({ wrap, col, isGreen, isThomas, idx }) => {
-//       if (isThomas) {
-//         gsap.to(wrap, { y: -3, duration: 0.65, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2 });
-//         return;
-//       }
-//       if (isGreen) {
-//         const speed = 0.42 + (idx % 6) * 0.04;
-//         const delay = (idx % 13) * 0.06;
-//         let phase = idx % 2;
-//         function step() {
-//           phase = (phase + 1) % 2;
-//           wrap.innerHTML = stickmanSVG({ color: col, pose: phase === 0 ? 'walk-a' : 'walk-b', isHero: false, size: SZ });
-//           gsap.to(wrap, { y: phase === 0 ? -3 : 0, duration: speed, ease: 'sine.inOut', onComplete: step });
-//         }
-//         gsap.delayedCall(delay, step);
-//       } else {
-//         wrap.innerHTML = stickmanSVG({ color: col, pose: 'stand', isHero: false, size: SZ });
-//         gsap.to(wrap, { y: -1.5, duration: 2 + (idx % 7) * 0.15, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: (idx % 9) * 0.1 });
-//       }
-//     });
-//   }
-
-//   gsap.from(fold.querySelector('.fold__statement'), {
-//     opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
-//     scrollTrigger: { trigger: fold, start: 'top 62%' },
-//   });
-// }
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
@@ -1812,6 +1646,32 @@ function initFold8() {
     items.push({ wrap, col, isGreen, isThomas, idx: i });
   }
 
+  // Stocker les rouges pour la transition
+  redStickWraps = items
+    .filter(it => !it.isGreen && !it.isThomas)
+    .map(it => it.wrap);
+
+  let exitTimer = null;
+
+  function launchExit() {
+    redStickWraps.forEach(w => gsap.killTweensOf(w));
+
+    gsap.to([...redStickWraps].reverse(), {
+      x: 600,        // ← vers la droite
+      opacity: 0,
+      duration: 0.8, // ← plus rapide
+      stagger: { each: 0.015, from: 'end' }, // ← part depuis la droite
+      ease: 'power2.in',
+      onComplete: () => {
+        gsap.to(window, {
+          scrollTo: { y: '#fold-9', offsetY: 0 },
+          duration: 0.8,
+          ease: 'power2.inOut',
+        });
+      },
+    });
+  }
+
   ScrollTrigger.create({
     trigger: fold,
     start: 'top 68%',
@@ -1825,17 +1685,22 @@ function initFold8() {
       });
 
       gsap.delayedCall(2.2, () => {
-        const tl = gsap.timeline({ onComplete: () => animateF8(items) });
+        const tl = gsap.timeline({
+          onComplete: () => {
+            animateF8(items);
+            // ← 2.5s après que l'animation d'entrée soit finie, les rouges partent
+            exitTimer = gsap.delayedCall(2.3, launchExit);
+          },
+        });
         tl.to(items.map(it => it.wrap), {
           scale: 0.75, y: 6,
           duration: 0.5, ease: 'power1.inOut',
-        })
-          .to(items.map(it => it.wrap), {
-            scale: 1, y: 0,
-            duration: 0.7,
-            stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
-            ease: 'power2.out',
-          });
+        }).to(items.map(it => it.wrap), {
+          scale: 1, y: 0,
+          duration: 0.7,
+          stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
+          ease: 'power2.out',
+        });
       });
     },
   });
@@ -1868,7 +1733,6 @@ function initFold8() {
     scrollTrigger: { trigger: fold, start: 'top 62%' },
   });
 
-  /* ── Dim/undim Thomas dans la barre ── */
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%', end: 'bottom top',
     onEnter: () => CharSystem.dim('thomas'),
@@ -1878,87 +1742,6 @@ function initFold8() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   FOLD 9 — Bar chart raisons inactivité
-   ═══════════════════════════════════════════════════════════════ */
-// function initFold9() {
-//   const fold = document.getElementById('fold-9');
-//   if (!fold) return;
-
-//   const layout = document.createElement('div');
-//   layout.className = 'fold9-layout';
-
-//   const charWrap = document.createElement('div');
-//   charWrap.className = 'fold9-character';
-//   const avatarEl = document.createElement('div');
-//   avatarEl.className = 'character__avatar';
-//   const bubble = document.createElement('div');
-//   bubble.className = 'character__bubble';
-//   bubble.textContent = "Voici pourquoi tant d'étudiants arrêtent le sport…";
-//   charWrap.appendChild(avatarEl);
-//   charWrap.appendChild(bubble);
-
-//   const barSection = document.createElement('div');
-//   barSection.className = 'bar-chart';
-//   const barsContainer = document.getElementById('inactivite-bar-chart');
-//   barSection.appendChild(barsContainer);
-
-//   layout.appendChild(charWrap);
-//   layout.appendChild(barSection);
-
-//   const title = fold.querySelector('.fold__title');
-//   if (title && title.nextSibling) {
-//     fold.insertBefore(layout, title.nextSibling);
-//   } else {
-//     fold.appendChild(layout);
-//   }
-
-//   gsap.set(bubble, { autoAlpha: 0, x: -16 });
-
-//   function arrive() {
-//     CharSystem.summon('thomas', avatarEl, 110, () => {
-//       gsap.to(bubble, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-//     });
-//   }
-//   function depart() {
-//     gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
-//     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
-//   }
-
-//   ScrollTrigger.create({
-//     trigger: fold, start: 'top 62%', end: 'bottom top',
-//     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
-//   });
-
-//   const container = barsContainer;
-//   if (!container) return;
-
-//   const data = sportData.inactivite_globale.top5_raisons_inactivite_2025;
-
-//   data.forEach((item, i) => {
-//     const bar = document.createElement('div');
-//     bar.className = 'bar-chart__bar';
-//     bar.innerHTML = `
-//       <div class="bar-chart__fill" style="background:${C.accent}">
-//         <span class="bar-chart__value">${item.pct_2025}%</span>
-//       </div>
-//       <p class="bar-chart__label">${item.raison}</p>`;
-//     container.appendChild(bar);
-
-//     const fill = bar.querySelector('.bar-chart__fill');
-//     const h = item.pct_2025; // sur 100 directement
-//     gsap.set(fill, { height: '0%' });
-//     ScrollTrigger.create({
-//       trigger: container, start: 'top 78%', once: true,
-//       onEnter: () => gsap.to(fill, { height: `${h}%`, duration: 1.4, delay: i * 0.12, ease: 'power3.out' }),
-//     });
-//   });
-
-//   gsap.from(fold.querySelector('.fold__title'), {
-//     opacity: 0, y: 24, duration: 0.7, ease: 'power2.out',
-//     scrollTrigger: { trigger: fold, start: 'top 62%' },
-//   });
-// }
 function initFold9() {
   const fold = document.getElementById('fold-9');
   if (!fold) return;
@@ -2003,7 +1786,6 @@ function initFold9() {
   function depart() {
     gsap.to(bubble, { autoAlpha: 0, duration: 0.2 });
     gsap.delayedCall(0.1, () => CharSystem.dismiss('thomas', avatarEl));
-    // gsap.delayedCall(0.9, () => CharSystem.dim('thomas'));
   }
 
   ScrollTrigger.create({
@@ -2015,6 +1797,7 @@ function initFold9() {
   if (!container) return;
 
   const data = sportData.inactivite_globale.top5_raisons_inactivite_2025;
+  const fills = [];
 
   data.forEach((item, i) => {
     const bar = document.createElement('div');
@@ -2030,13 +1813,24 @@ function initFold9() {
 
     const fill = bar.querySelector('.bar-chart__fill');
     gsap.set(fill, { height: '0%' });
-    ScrollTrigger.create({
-      trigger: container, start: 'top 78%', once: true,
-      onEnter: () => gsap.to(fill, {
-        height: `${item.pct_2025}%`,
-        duration: 1.2, delay: i * 0.15, ease: 'elastic.out(1, 0.55)',
-      }),
-    });
+    fills.push({ fill, pct: item.pct_2025 });
+  });
+
+  // Barres se remplissent à l'entrée dans fold-9
+  ScrollTrigger.create({
+    trigger: fold,
+    start: 'top 78%',
+    once: true,
+    onEnter: () => {
+      fills.forEach(({ fill, pct }, i) => {
+        gsap.to(fill, {
+          height: `${pct}%`,
+          duration: 1.2,
+          delay: i * 0.15,
+          ease: 'elastic.out(1, 0.55)',
+        });
+      });
+    },
   });
 
   gsap.from(fold.querySelector('.fold__title'), {

@@ -1755,6 +1755,19 @@ ul {
   line-height: 1.3;
 }
 
+.fold3-reason__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fold3-reason__desc {
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 /* Fold-4 caché */
 #fold-4 {
   display: none !important;
