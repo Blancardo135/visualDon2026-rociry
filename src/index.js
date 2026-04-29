@@ -2518,7 +2518,7 @@ function initFold12() {
     .join('path')
     .attr('class', 'canton')
     .attr('d', geoPath)
-    .attr('fill', '#867c28')
+    .attr('fill', '#d9d1da')
     .attr('stroke', 'rgba(255,255,255,0.9)')
     .attr('stroke-width', 1.8)
     .attr('stroke-linejoin', 'round')
@@ -2580,7 +2580,7 @@ function initFold12() {
 
     /* Halo pulsant */
     const halo = g.append('circle')
-      .attr('r', r).attr('fill', C.accent).attr('opacity', 0.12);
+      .attr('r', r).attr('fill', C.green).attr('opacity', 0.12);
     gsap.to(halo.node(), {
       r: r + 10, opacity: 0,
       duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.35,
@@ -2589,7 +2589,7 @@ function initFold12() {
     /* Cercle principal */
     g.append('circle')
       .attr('r', r)
-      .attr('fill', C.accent)
+      .attr('fill', C.green)
       .attr('opacity', 0.85)
       .attr('stroke', 'white')
       .attr('stroke-width', 2.5);
