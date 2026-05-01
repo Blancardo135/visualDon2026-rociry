@@ -811,20 +811,6 @@ const CharSystem = (() => {
       });
     },
 
-    // flyAllToBar(sources) {
-    //   const tl = gsap.timeline();
-
-    //   ORDER.forEach(name => {
-    //     const srcEl = sources[name];
-    //     const charEl = srcEl?.closest('.character') ?? srcEl;
-    //     if (charEl) tl.to(charEl, { autoAlpha: 0, y: -14, duration: 0.55, ease: 'power2.inOut' }, 0);
-    //     active.delete(name);
-    //     this.undim(name);
-    //   });
-
-    //   gsap.set(bar, { yPercent: -100, autoAlpha: 0 });
-    //   tl.to(bar, { yPercent: 0, autoAlpha: 1, duration: 0.55, ease: 'power2.out' }, 0);
-    // },
     flyAllToBar(sources) {
       const tl = gsap.timeline();
 
@@ -835,7 +821,7 @@ const CharSystem = (() => {
           autoAlpha: 0,
           duration: 0.4,
           ease: 'power2.inOut'
-        }, 0); // ← supprime le y: -14, tous disparaissent en même temps
+        }, 0); 
         active.delete(name);
         this.undim(name);
       });
@@ -846,7 +832,7 @@ const CharSystem = (() => {
         autoAlpha: 1,
         duration: 0.5,
         ease: 'power2.out'
-      }, 0.3); // ← barre apparaît légèrement après la disparition des persos
+      }, 0.3); 
     },
   };
 })();
@@ -936,13 +922,6 @@ function initFold1() {
       if (subtitle) tl2.to(subtitle, { autoAlpha: 1, duration: 0.4 }, 0.1);
     },
   });
-
-  // fold.querySelectorAll('.character__bubble').forEach((b, i) => {
-  //   gsap.fromTo(b, { y: 0 }, {
-  //     y: -4, duration: 2.4 + i * 0.5,
-  //     repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.5,
-  //   });
-  // });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2716,16 +2695,6 @@ function initFold18() {
     });
   });
 
-
-  // ScrollTrigger.create({
-  //   trigger: fold, start: 'top 62%',
-  //   onEnter: () => {
-  //     CharSystem.ORDER.forEach(name => CharSystem.dim(name));
-  //   },
-  //   onLeaveBack: () => {
-  //     CharSystem.ORDER.forEach(name => CharSystem.undim(name));
-  //   },
-  // });
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%',
     onEnter: () => {

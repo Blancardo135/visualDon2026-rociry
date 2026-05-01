@@ -1588,7 +1588,6 @@ ul {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  /* le svg est posé directement en bas de la barre */
 }
 
 .char-bar__av {
