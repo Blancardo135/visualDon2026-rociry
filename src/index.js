@@ -1659,8 +1659,8 @@ function initFold8() {
     gsap.to([...redStickWraps].reverse(), {
       x: 600,        // ← vers la droite
       opacity: 0,
-      duration: 1.5, // ← plus rapide
-      stagger: { each: 0.015, from: 'end' }, // ← part depuis la droite
+      duration: 0.6, // ← plus rapide
+      stagger: { each: 0.010, from: 'end' }, // ← part depuis la droite
       ease: 'power2.in',
       onComplete: () => {
         gsap.to(window, {
@@ -1896,6 +1896,7 @@ function initFold10() {
    FOLD 11 — Slide depuis la droite + barres (CORRIGÉ)
 
    ═══════════════════════════════════════════════════════════════ */
+
 // function initFold11() {
 //   const fold = document.getElementById('fold-11');
 //   const fold10 = document.getElementById('fold-10');
@@ -1905,19 +1906,18 @@ function initFold10() {
 //   const bubble = fold.querySelector('.character__bubble');
 //   const container = document.getElementById('master-impact-chart');
 
-//   /* ── 1. Pré-injecter l'avatar Bruna directement
-//           (on contourne CharSystem pour la visibilité dans le scrub) ── */
 //   if (avatarEl) {
 //     avatarEl.innerHTML = avatarSVG('bruna', 110);
 //     gsap.set(avatarEl, { autoAlpha: 0 });
 //   }
 //   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
 
-//   /* ── 2. Construire les barres et stocker refs ── */
 //   const fills = [];
 //   const pcts = [];
+//   const values = [];
+
 //   if (container) {
-//     container.innerHTML = ''; // évite les doublons si re-init
+//     container.innerHTML = '';
 //     sportData.master.top5_impacts_positifs_etudes.raisons.forEach(item => {
 //       const row = document.createElement('div');
 //       row.className = 'hbar-chart__row';
@@ -1927,72 +1927,75 @@ function initFold10() {
 //         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
 //       container.appendChild(row);
 //       const fill = row.querySelector('.hbar-chart__fill');
+//       const value = row.querySelector('.hbar-chart__value');
 //       gsap.set(fill, { width: '0%' });
+//       gsap.set(value, { autoAlpha: 0 });
 //       fills.push(fill);
+//       values.push(value);
 //       pcts.push(item.tres_important_pct);
 //     });
 //   }
 
-//   /* ── 3. Panneau fixe hors-écran à droite ── */
+//   /* fold-11 démarre hors écran à droite, en fixed */
 //   gsap.set(fold, {
 //     position: 'fixed', top: 0, left: 0,
 //     width: '100%', height: '100%',
 //     zIndex: 10, xPercent: 100, autoAlpha: 1,
 //   });
 
-//   /* ── 4. Timeline entièrement constituée de tweens (scrub-safe)
-//           Toutes les durées sont relatives — c'est leur ratio qui compte.
-//           Total ~3.2 s — positionné pour que chaque phase soit lisible.
-
-//           0.0 → 1.0  : slide in
-//           1.0 → 1.35 : avatar fade in
-//           1.2 → 1.55 : bulle fade in
-//           1.6 → 3.2  : barres séquentielles (5 × ~0.3 s, espacées de 0.3)
-//   ── */
+//   /* ── Timeline ──────────────────────────────────────────────
+//      Phase 1  (0→1)      : slide depuis la droite
+//      Phase 2  (1→1.5)    : avatar + bulle
+//      Phase 3  (1.65→4.5) : 5 barres, espacées de 0.7
+//      Phase 4  (4.5→6.0)  : pause lecture
+//      Phase 5  (6.0→7.4)  : fond de fold-10 → beige, fade out fold-11
+//   ────────────────────────────────────────────────────────── */
 //   const tl = gsap.timeline({ paused: true });
 
-//   // Phase 1 : slide depuis la droite
+//   /* Phase 1 : slide */
 //   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
 
-//   // Phase 2 : avatar + bulle
-//   tl.to(avatarEl, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.0);
-//   tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power2.out' }, 1.2);
+//   /* Phase 2 : avatar + bulle */
+//   tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
+//   tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
 
-//   // Phase 3 : barres séquentielles
+//   /* Phase 3 : barres une par une */
 //   fills.forEach((fill, i) => {
-//     tl.to(fill, { width: `${pcts[i]}%`, duration: 0.25, ease: 'power2.out' }, 1.65 + i * 0.32);
+//     tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+//     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
 //   });
 
-//   /* ── 5. ScrollTrigger : pin fold-10 pendant tout le slide ──
-//           end = +=300% pour laisser assez de scroll à toutes les phases ── */
+//   /* Phase 4 : pause pour lire */
+//   tl.to({}, { duration: 1.5 });
+
+//   /* Phase 5 : transition douce — fond noir → beige, puis fold-11 disparaît */
+//   /* Phase 5 : transition douce */
+//   tl.to(fold10.querySelectorAll('.fold__title, .character, .character__bubble'), {
+//     autoAlpha: 0, duration: 0.3, ease: 'power2.inOut'
+//   });
+//   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
+//   tl.to(fold, { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' }, '<0.2');
+//   // tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.6, ease: 'power2.inOut' });
+//   // tl.to(fold, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
+
+//   /* ── ScrollTrigger ── */
 //   ScrollTrigger.create({
 //     trigger: fold10,
 //     start: 'bottom bottom',
-//     end: '+=300%',
+//     end: '+=750%',
 //     pin: true,
 //     scrub: 1.2,
 //     animation: tl,
+
 //     onEnter: () => CharSystem.dim('bruna'),
 //     onEnterBack: () => CharSystem.dim('bruna'),
 
 //     onLeave: () => {
-//       gsap.to(fold, {
-//         autoAlpha: 0,
-//         duration: 0.5,
-//         ease: 'power2.inOut',
-//         onComplete: () => {
-//           gsap.set(fold, { xPercent: 100 });
-//           gsap.set(fold10, { autoAlpha: 0 });
-//           const fold12 = document.getElementById('fold-12');
-//           if (fold12) window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
-//           gsap.delayedCall(0.1, () => gsap.set(fold10, { autoAlpha: 1 }));
-//         }
-//       });
 //       CharSystem.undim('bruna');
 //     },
 
-
 //     onLeaveBack: () => {
+//       gsap.set(fold10, { backgroundColor: '' });
 //       gsap.set(fold, {
 //         position: 'fixed', top: 0, left: 0,
 //         width: '100%', height: '100%',
@@ -2004,10 +2007,10 @@ function initFold10() {
 //         gsap.set(avatarEl, { autoAlpha: 0 });
 //       }
 //       fills.forEach(f => gsap.set(f, { width: '0%' }));
+//       values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
 //       CharSystem.dim('bruna');
 //     },
 //   });
-
 // }
 function initFold11() {
   const fold = document.getElementById('fold-11');
@@ -2017,6 +2020,7 @@ function initFold11() {
   const avatarEl = fold.querySelector('.character__avatar');
   const bubble = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
+  const fold10Content = fold10.querySelectorAll('.fold__title, .character, .character__bubble');
 
   if (avatarEl) {
     avatarEl.innerHTML = avatarSVG('bruna', 110);
@@ -2048,23 +2052,15 @@ function initFold11() {
     });
   }
 
-  /* fold-11 démarre hors écran à droite, en fixed */
   gsap.set(fold, {
     position: 'fixed', top: 0, left: 0,
     width: '100%', height: '100%',
     zIndex: 10, xPercent: 100, autoAlpha: 1,
   });
 
-  /* ── Timeline ──────────────────────────────────────────────
-     Phase 1  (0→1)      : slide depuis la droite
-     Phase 2  (1→1.5)    : avatar + bulle
-     Phase 3  (1.65→4.5) : 5 barres, espacées de 0.7
-     Phase 4  (4.5→6.0)  : pause lecture
-     Phase 5  (6.0→7.4)  : fond de fold-10 → beige, fade out fold-11
-  ────────────────────────────────────────────────────────── */
   const tl = gsap.timeline({ paused: true });
 
-  /* Phase 1 : slide */
+  /* Phase 1 : slide depuis la droite */
   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
 
   /* Phase 2 : avatar + bulle */
@@ -2078,17 +2074,17 @@ function initFold11() {
   });
 
   /* Phase 4 : pause pour lire */
-  tl.to({}, { duration: 1.5 });
+  tl.to({}, { duration: 0.8 });
 
-  /* Phase 5 : transition douce — fond noir → beige, puis fold-11 disparaît */
-  tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.6, ease: 'power2.inOut' });
-  tl.to(fold, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
+  /* Phase 5 : cache le titre Master + transition fond + disparition fold-11 */
+  tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' });
+  tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
+  tl.to(fold, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '<0.2');
 
-  /* ── ScrollTrigger ── */
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
-    end: '+=750%',
+    end: '+=400%',
     pin: true,
     scrub: 1.2,
     animation: tl,
@@ -2097,11 +2093,19 @@ function initFold11() {
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
+      gsap.set(fold10, { autoAlpha: 0 });
+      const fold12 = document.getElementById('fold-12');
+      if (fold12) window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+      gsap.delayedCall(0.05, () => {
+        gsap.set(fold10, { autoAlpha: 1, backgroundColor: '' });
+        fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
+      });
       CharSystem.undim('bruna');
     },
 
     onLeaveBack: () => {
       gsap.set(fold10, { backgroundColor: '' });
+      fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
       gsap.set(fold, {
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
