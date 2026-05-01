@@ -2196,39 +2196,33 @@ function initFold14() {
   /* ── Mesure longueur réelle jusqu'à x(2020) ── */
   const target2020X = x(2020) + m.left;
   let len2020 = 0;
-  const STEPS = 1000;
-  for (let i = 0; i <= STEPS; i++) {
-    const t = (i / STEPS) * totalLen;
+  for (let i = 0; i <= 1000; i++) {
+    const t = (i / 1000) * totalLen;
     const pt = path.node().getPointAtLength(t);
-    if (pt.x >= target2020X) {
-      len2020 = t;
-      break;
-    }
+    if (pt.x >= target2020X) { len2020 = t; break; }
   }
-  const LINE_DURATION = 1.6;
-  const delay2020 = LINE_DURATION * (len2020 / totalLen);
+  const ratio2020 = len2020 / totalLen; /* ~0.67 */
 
-  /* ── Points + labels ── */
-  ScrollTrigger.create({
-    trigger: container, start: 'top 74%', once: true,
-    onEnter: () => {
-      gsap.to(path.node(), { strokeDashoffset: 0, duration: LINE_DURATION, ease: 'power2.out' });
-      data.forEach((d, i) => {
-        const dot = g.append('circle')
-          .attr('cx', x(d.annee)).attr('cy', y(d.tres_actifs_pct))
-          .attr('r', 6).attr('fill', C.louis)
-          .attr('stroke', 'white').attr('stroke-width', 2.5).style('opacity', 0);
-        g.append('text').attr('class', 'chart-dot-label')
-          .attr('x', x(d.annee)).attr('y', y(d.tres_actifs_pct) - 13)
-          .attr('text-anchor', 'middle').text(`${d.tres_actifs_pct}%`).style('opacity', 0)
-          .call(el => gsap.to(el.node(), { opacity: 1, duration: 0.3, delay: 0.6 + i * 0.5 }));
-        gsap.to(dot.node(), { opacity: 1, duration: 0.35, delay: 0.5 + i * 0.5 });
-      });
-    },
-  });
+  /* ── Points + labels (apparaissent une fois) ── */
+  let dotsDrawn = false;
+  function drawDots() {
+    if (dotsDrawn) return;
+    dotsDrawn = true;
+    data.forEach((d, i) => {
+      const dot = g.append('circle')
+        .attr('cx', x(d.annee)).attr('cy', y(d.tres_actifs_pct))
+        .attr('r', 6).attr('fill', C.louis)
+        .attr('stroke', 'white').attr('stroke-width', 2.5).style('opacity', 0);
+      g.append('text').attr('class', 'chart-dot-label')
+        .attr('x', x(d.annee)).attr('y', y(d.tres_actifs_pct) - 13)
+        .attr('text-anchor', 'middle').text(`${d.tres_actifs_pct}%`).style('opacity', 0)
+        .call(el => gsap.to(el.node(), { opacity: 1, duration: 0.3, delay: i * 0.15 }));
+      gsap.to(dot.node(), { opacity: 1, duration: 0.3, delay: i * 0.15 });
+    });
+  }
 
   /* ══════════════════════════════════════════════════
-     VIRUS COVID — verts
+     VIRUS COVID
   ══════════════════════════════════════════════════ */
   function virusSVG(size = 48, color = C.green) {
     const r = size / 2;
@@ -2303,12 +2297,88 @@ function initFold14() {
   gsap.set(covidText, { opacity: 0, y: 14 });
   fold.appendChild(covidText);
 
-  let covidTriggered = false;
-  let delayedCallRef = null;
+  /* ── Louis ── */
+  const charWrap = document.createElement('div');
+  charWrap.className = 'evolution-character';
+  charWrap.innerHTML = avatarSVG('louis', 56);
+  container.appendChild(charWrap);
 
-  function resetCovid() {
-    covidTriggered = false;
-    if (delayedCallRef) { delayedCallRef.kill(); delayedCallRef = null; }
+  /* Position X de Louis sur 2020 et sur 2025 */
+  const louisX2020 = x(2020) - 28; /* centré sur le point */
+  const louisX2025 = iW * 0.78;
+
+  gsap.set(charWrap, { x: 0 });
+
+  /* Walk loop */
+  let walkPhase = 0;
+  let walkLoop = null;
+
+  function startWalk() {
+    if (walkLoop) return;
+    function step() {
+      walkPhase = (walkPhase + 1) % 2;
+      charWrap.innerHTML = avatarSVG('louis', 56);
+      walkLoop = gsap.fromTo(charWrap,
+        { y: 0 },
+        { y: walkPhase === 0 ? -3 : 0, duration: 0.4, ease: 'sine.inOut', onComplete: step }
+      );
+    }
+    step();
+  }
+
+  function stopWalk() {
+    if (walkLoop) { walkLoop.kill(); walkLoop = null; }
+    gsap.killTweensOf(charWrap, 'y');
+    gsap.set(charWrap, { y: 0 });
+    charWrap.innerHTML = avatarSVG('louis', 56);
+  }
+
+  /* ── États virus ── */
+  let virusActive = false;
+  let virusLoops = [];
+
+  function showVirus() {
+    if (virusActive) return;
+    virusActive = true;
+    virusEls.forEach(({ el, cfg }) => {
+      gsap.to(el, { opacity: 1, duration: 0.5, delay: cfg.delay, ease: 'power2.out' });
+      gsap.to(el, {
+        scale: 1, duration: 0.6, delay: cfg.delay, ease: 'back.out(2)',
+        onComplete: () => {
+          const t1 = gsap.to(el, {
+            rotate: cfg.rotation + 360,
+            duration: 8 + Math.random() * 6,
+            repeat: -1, ease: 'none',
+          });
+          const t2 = gsap.to(el, {
+            y: -6, duration: 1.8 + Math.random(),
+            repeat: -1, yoyo: true, ease: 'sine.inOut',
+            delay: Math.random() * 0.5,
+          });
+          virusLoops.push(t1, t2);
+        },
+      });
+    });
+    gsap.to(covidText, { opacity: 1, y: 0, duration: 0.7, delay: 0.4, ease: 'power2.out' });
+  }
+
+  function hideVirus() {
+    if (!virusActive) return;
+    virusActive = false;
+    virusLoops.forEach(t => t.kill());
+    virusLoops = [];
+    virusEls.forEach(({ el, cfg }) => {
+      gsap.killTweensOf(el);
+      gsap.to(el, { opacity: 0, scale: 0, duration: 0.35, ease: 'power2.in' });
+      el.style.transform = `translate(-50%, -50%) rotate(${cfg.rotation}deg) scale(0)`;
+    });
+    gsap.to(covidText, { opacity: 0, y: 8, duration: 0.3 });
+  }
+
+  function resetVirus() {
+    virusActive = false;
+    virusLoops.forEach(t => t.kill());
+    virusLoops = [];
     virusEls.forEach(({ el, cfg }) => {
       gsap.killTweensOf(el);
       gsap.set(el, { opacity: 0, scale: 0, y: 0 });
@@ -2317,77 +2387,82 @@ function initFold14() {
     gsap.set(covidText, { opacity: 0, y: 14 });
   }
 
+  /* ══════════════════════════════════════════════════
+     MASTER TIMELINE — pilotée par scrub
+     Découpée en 3 phases sur 3 écrans de scroll
+
+     Phase 1 : 0   → 0.40  — ligne + Louis 2010→2020
+     Phase 2 : 0.40 → 0.70 — Louis stoppe, virus, texte
+     Phase 3 : 0.70 → 1.0  — virus out, Louis 2020→2025
+  ══════════════════════════════════════════════════ */
+  const masterTL = gsap.timeline({ paused: true });
+
+  /* Phase 1 : ligne se trace + Louis avance jusqu'à 2020 */
+  masterTL.to(path.node(), {
+    strokeDashoffset: totalLen - len2020,
+    duration: 0.40,
+    ease: 'none',
+  }, 0);
+
+  masterTL.to(charWrap, {
+    x: louisX2020,
+    duration: 0.40,
+    ease: 'none',
+    onStart: startWalk,
+  }, 0);
+
+  /* Phase 2 : Louis s'arrête (x figé), virus apparaissent */
+  masterTL.to(charWrap, {
+    x: louisX2020, /* reste sur place */
+    duration: 0.30,
+    ease: 'none',
+    onStart: () => { stopWalk(); showVirus(); },
+    onReverseComplete: () => { hideVirus(); startWalk(); },
+  }, 0.40);
+
+  /* Phase 2 : fin de tracé de la ligne (reste sur 2020) */
+  masterTL.to(path.node(), {
+    strokeDashoffset: totalLen - len2020,
+    duration: 0.30,
+    ease: 'none',
+  }, 0.40);
+
+  /* Phase 3 : virus out, Louis repart vers 2025, ligne finit */
+  masterTL.to(charWrap, {
+    x: louisX2025,
+    duration: 0.30,
+    ease: 'none',
+    onStart: () => { hideVirus(); startWalk(); },
+    onReverseComplete: () => { stopWalk(); showVirus(); },
+  }, 0.70);
+
+  masterTL.to(path.node(), {
+    strokeDashoffset: 0,
+    duration: 0.30,
+    ease: 'none',
+  }, 0.70);
+
+  /* Dots apparaissent quand la ligne est complète */
+  masterTL.call(drawDots, [], 0.95);
+
+  /* ── ScrollTrigger pinné ── */
   ScrollTrigger.create({
-    trigger: container,
-    start: 'top 74%',
-    onEnter: () => {
-      if (covidTriggered) return;
-      delayedCallRef = gsap.delayedCall(delay2020, () => {
-        covidTriggered = true;
-
-        virusEls.forEach(({ el, cfg }) => {
-          gsap.to(el, {
-            opacity: 1,
-            duration: 0.5,
-            delay: cfg.delay,
-            ease: 'power2.out',
-          });
-          gsap.to(el, {
-            scale: 1,
-            duration: 0.6,
-            delay: cfg.delay,
-            ease: 'back.out(2)',
-            onComplete: () => {
-              gsap.to(el, {
-                rotate: cfg.rotation + 360,
-                duration: 8 + Math.random() * 6,
-                repeat: -1,
-                ease: 'none',
-              });
-              gsap.to(el, {
-                y: -6,
-                duration: 1.8 + Math.random(),
-                repeat: -1,
-                yoyo: true,
-                ease: 'sine.inOut',
-                delay: Math.random() * 0.5,
-              });
-            },
-          });
-        });
-
-        gsap.to(covidText, {
-          opacity: 1, y: 0,
-          duration: 0.7,
-          delay: 0.5,
-          ease: 'power2.out',
-        });
-      });
+    trigger: fold,
+    start: 'top top',
+    end: '+=300%', /* 3 écrans */
+    pin: true,
+    scrub: 1,
+    animation: masterTL,
+    onLeave: () => CharSystem.dim('louis'),
+    onEnterBack: () => CharSystem.dim('louis'),
+    onLeaveBack: () => {
+      CharSystem.undim('louis');
+      resetVirus();
+      stopWalk();
+      gsap.set(charWrap, { x: 0, y: 0 });
+      dotsDrawn = false;
     },
-    onLeaveBack: () => resetCovid(),
   });
-
-  /* ── Louis marchant ── */
-  const charWrap = document.createElement('div');
-  charWrap.className = 'evolution-character';
-  charWrap.innerHTML = avatarSVG('louis', 56);
-  container.appendChild(charWrap);
-
-  gsap.to(charWrap, {
-    x: iW * 0.78, ease: 'none',
-    scrollTrigger: { trigger: fold, start: 'top center', end: 'bottom center', scrub: 0.6 },
-  });
-
-  let walkPhase = 0;
-  function louisWalk() {
-    walkPhase = (walkPhase + 1) % 2;
-    charWrap.innerHTML = avatarSVG('louis', 56);
-    gsap.fromTo(charWrap,
-      { y: 0 },
-      { y: walkPhase === 0 ? -3 : 0, duration: 0.4, ease: 'sine.inOut', onComplete: louisWalk }
-    );
-  }
-  louisWalk();
 
   gsap.from(fold.querySelector('.fold__subtitle'), {
     opacity: 0, y: 20, duration: 0.7, ease: 'power2.out',
