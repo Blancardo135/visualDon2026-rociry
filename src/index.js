@@ -1177,100 +1177,6 @@ function initFold2() {
 let louisGridCell = null;
 let redStickWraps = [];
 
-// function initFold3() {
-//   const fold = document.getElementById('fold-3');
-//   if (!fold) return;
-
-//   const fold4 = document.getElementById('fold-4');
-//   if (fold4) fold4.style.display = 'none';
-
-//   const charEl = fold.querySelector('.character');
-//   const avatarEl = fold.querySelector('.character__avatar');
-//   const bubbleEl = fold.querySelector('.character__bubble');
-//   const bigStat = fold.querySelector('.big-stat');
-//   const bigNum = fold.querySelector('.big-stat__number');
-
-//   avatarEl.innerHTML = avatarSVG('louis', 130);
-//   gsap.set(avatarEl, { autoAlpha: 1 });
-//   // gsap.set(bubbleEl, { autoAlpha: 0, x: 20 });
-//   gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-//   gsap.set(bigNum, { autoAlpha: 1, scale: 1 });
-
-//   const track = document.createElement('div');
-//   track.className = 'fold3-track';
-
-//   const panel1 = document.createElement('div');
-//   panel1.className = 'fold3-panel';
-//   panel1.appendChild(charEl);
-//   panel1.appendChild(bigStat);
-//   track.appendChild(panel1);
-
-//   const reasonCards = [];
-//   sportData.gymnasiens.top3_raisons_arret.forEach((item, i) => {
-//     const panel = document.createElement('div');
-//     panel.className = 'fold3-panel fold3-panel--reason';
-
-//     const card = document.createElement('div');
-//     card.className = 'fold3-reason-card';
-//     card.innerHTML = `
-//       <span class="fold3-reason__rank">${item.rang}</span>
-//       <p class="fold3-reason__text">${item.raison}</p>`;
-
-//     gsap.set(card, { x: 80, autoAlpha: 0 });
-//     panel.appendChild(card);
-//     track.appendChild(panel);
-//     reasonCards.push(card);
-//   });
-
-//   fold.appendChild(track);
-
-//   const PANELS = 4;
-
-//   const tl = gsap.timeline();
-//   tl.to(track, { x: () => -(track.scrollWidth - window.innerWidth), ease: 'none', duration: 3 });
-//   reasonCards.forEach((card, i) => {
-//     tl.to(card, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' }, 0.75 + i * 0.95);
-//   });
-
-//   ScrollTrigger.create({
-//     trigger: fold,
-//     start: 'top top',
-//     end: () => `+=${(PANELS - 1) * window.innerHeight}`,
-//     pin: true,
-//     scrub: 1.2,
-//     animation: tl,
-
-//     onEnter: () => {
-//       CharSystem.dim('louis');
-//       gsap.set(avatarEl, { autoAlpha: 1 });
-//       // gsap.to(bubbleEl, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-//       // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
-//     },
-
-//     onLeave: () => {
-//       louisGridCell = null;
-//       CharSystem.dismiss('louis', avatarEl);
-//       gsap.delayedCall(0.35, () => {
-//         gsap.set(avatarEl, { autoAlpha: 1 });
-//         gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-//         avatarEl.innerHTML = avatarSVG('louis', 130);
-//       });
-//     },
-
-//     onEnterBack: () => {
-//       CharSystem.dim('louis');
-//       gsap.set(avatarEl, { autoAlpha: 1 });
-//       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-//       // gsap.delayedCall(0.2, () => CharSystem.undim('louis'));
-//     },
-
-//     onLeaveBack: () => {
-//       CharSystem.undim('louis');
-//       gsap.set(bubbleEl, { autoAlpha: 1, x: 0 });
-
-//     },
-//   });
-// }
 function initFold3() {
   const fold = document.getElementById('fold-3');
   if (!fold) return;
@@ -1897,121 +1803,6 @@ function initFold10() {
 
    ═══════════════════════════════════════════════════════════════ */
 
-// function initFold11() {
-//   const fold = document.getElementById('fold-11');
-//   const fold10 = document.getElementById('fold-10');
-//   if (!fold || !fold10) return;
-
-//   const avatarEl = fold.querySelector('.character__avatar');
-//   const bubble = fold.querySelector('.character__bubble');
-//   const container = document.getElementById('master-impact-chart');
-
-//   if (avatarEl) {
-//     avatarEl.innerHTML = avatarSVG('bruna', 110);
-//     gsap.set(avatarEl, { autoAlpha: 0 });
-//   }
-//   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
-
-//   const fills = [];
-//   const pcts = [];
-//   const values = [];
-
-//   if (container) {
-//     container.innerHTML = '';
-//     sportData.master.top5_impacts_positifs_etudes.raisons.forEach(item => {
-//       const row = document.createElement('div');
-//       row.className = 'hbar-chart__row';
-//       row.innerHTML = `
-//         <span class="hbar-chart__label">${item.raison}</span>
-//         <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
-//         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
-//       container.appendChild(row);
-//       const fill = row.querySelector('.hbar-chart__fill');
-//       const value = row.querySelector('.hbar-chart__value');
-//       gsap.set(fill, { width: '0%' });
-//       gsap.set(value, { autoAlpha: 0 });
-//       fills.push(fill);
-//       values.push(value);
-//       pcts.push(item.tres_important_pct);
-//     });
-//   }
-
-//   /* fold-11 démarre hors écran à droite, en fixed */
-//   gsap.set(fold, {
-//     position: 'fixed', top: 0, left: 0,
-//     width: '100%', height: '100%',
-//     zIndex: 10, xPercent: 100, autoAlpha: 1,
-//   });
-
-//   /* ── Timeline ──────────────────────────────────────────────
-//      Phase 1  (0→1)      : slide depuis la droite
-//      Phase 2  (1→1.5)    : avatar + bulle
-//      Phase 3  (1.65→4.5) : 5 barres, espacées de 0.7
-//      Phase 4  (4.5→6.0)  : pause lecture
-//      Phase 5  (6.0→7.4)  : fond de fold-10 → beige, fade out fold-11
-//   ────────────────────────────────────────────────────────── */
-//   const tl = gsap.timeline({ paused: true });
-
-//   /* Phase 1 : slide */
-//   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
-
-//   /* Phase 2 : avatar + bulle */
-//   tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
-//   tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
-
-//   /* Phase 3 : barres une par une */
-//   fills.forEach((fill, i) => {
-//     tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
-//     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
-//   });
-
-//   /* Phase 4 : pause pour lire */
-//   tl.to({}, { duration: 1.5 });
-
-//   /* Phase 5 : transition douce — fond noir → beige, puis fold-11 disparaît */
-//   /* Phase 5 : transition douce */
-//   tl.to(fold10.querySelectorAll('.fold__title, .character, .character__bubble'), {
-//     autoAlpha: 0, duration: 0.3, ease: 'power2.inOut'
-//   });
-//   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
-//   tl.to(fold, { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' }, '<0.2');
-//   // tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.6, ease: 'power2.inOut' });
-//   // tl.to(fold, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, '<0.3');
-
-//   /* ── ScrollTrigger ── */
-//   ScrollTrigger.create({
-//     trigger: fold10,
-//     start: 'bottom bottom',
-//     end: '+=750%',
-//     pin: true,
-//     scrub: 1.2,
-//     animation: tl,
-
-//     onEnter: () => CharSystem.dim('bruna'),
-//     onEnterBack: () => CharSystem.dim('bruna'),
-
-//     onLeave: () => {
-//       CharSystem.undim('bruna');
-//     },
-
-//     onLeaveBack: () => {
-//       gsap.set(fold10, { backgroundColor: '' });
-//       gsap.set(fold, {
-//         position: 'fixed', top: 0, left: 0,
-//         width: '100%', height: '100%',
-//         zIndex: 10, xPercent: 100, autoAlpha: 1,
-//       });
-//       if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
-//       if (avatarEl) {
-//         avatarEl.innerHTML = avatarSVG('bruna', 110);
-//         gsap.set(avatarEl, { autoAlpha: 0 });
-//       }
-//       fills.forEach(f => gsap.set(f, { width: '0%' }));
-//       values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
-//       CharSystem.dim('bruna');
-//     },
-//   });
-// }
 function initFold11() {
   const fold = document.getElementById('fold-11');
   const fold10 = document.getElementById('fold-10');
@@ -2127,324 +1918,7 @@ function initFold11() {
    FOLD 12 — Carte Suisse Romande avec cantons réels (D3 + GeoJSON)
    Remplace l'ancienne initFold12 dans index.js
    ═══════════════════════════════════════════════════════════════ */
-// function initFold12() {
-//   const fold = document.getElementById('fold-12');
-//   if (!fold) return;
 
-//   const unis = [
-//     { name: 'Université de Genève', lon: 6.147, lat: 46.198, tres_actifs: 56.7, part1x: 22 },
-//     { name: 'EPF Lausanne', lon: 6.566, lat: 46.519, tres_actifs: 67.3, part1x: 30 },
-//     { name: 'Université de Lausanne', lon: 6.581, lat: 46.524, tres_actifs: 61.3, part1x: 32 },
-//     { name: 'Université de Neuchâtel', lon: 6.931, lat: 46.994, tres_actifs: 64.7, part1x: 40 },
-//     { name: 'Université de Fribourg', lon: 7.161, lat: 46.806, tres_actifs: 59.8, part1x: 46 },
-//   ];
-
-//   const mapC = document.getElementById('map-switzerland');
-//   if (!mapC) return;
-
-//   const W = mapC.clientWidth || 620;
-//   const H = 420;
-
-//   const svg = d3.select(mapC).append('svg')
-//     .attr('viewBox', `0 0 ${W} ${H}`)
-//     .attr('width', '100%')
-//     .attr('height', H)
-//     .attr('class', 'map-svg');
-
-//   /* ── Projection Mercator centrée sur la Suisse romande ── */
-//   const proj = d3.geoMercator()
-//     .center([6.85, 46.65])
-//     .scale(W * 14)
-//     .translate([W / 2, H / 2]);
-
-//   const geoPath = d3.geoPath().projection(proj);
-
-//   /* ── Helper : tableau [lon,lat] → GeoJSON Feature ── */
-//   function toFeature(coords) {
-//     const ring = [...coords, coords[0]]; // ferme l'anneau
-//     return {
-//       type: 'Feature',
-//       geometry: { type: 'Polygon', coordinates: [ring] }
-//     };
-//   }
-
-//   /* ══════════════════════════════════════════════════════
-//      CANTONS — coordonnées géographiques simplifiées
-//      Ordre de tracé : du nord au sud
-//   ══════════════════════════════════════════════════════ */
-//   const CANTONS = [
-//     {
-//       id: 'JU', label: 'Jura',
-//       coords: [
-//         [6.98, 47.48], [7.10, 47.50], [7.22, 47.51], [7.38, 47.47],
-//         [7.50, 47.40], [7.55, 47.30], [7.48, 47.24], [7.38, 47.20],
-//         [7.22, 47.18], [7.08, 47.18], [6.97, 47.22], [6.89, 47.30],
-//         [6.87, 47.38], [6.92, 47.44]
-//       ]
-//     },
-//     {
-//       id: 'NE', label: 'Neuchâtel',
-//       coords: [
-//         [6.78, 47.08], [6.84, 47.30], [6.89, 47.30], [6.97, 47.22],
-//         [7.08, 47.18], [7.22, 47.18], [7.28, 47.10], [7.24, 47.00],
-//         [7.10, 46.92], [6.95, 46.90], [6.85, 46.93], [6.80, 46.99],
-//         [6.78, 47.06]
-//       ]
-//     },
-//     {
-//       id: 'BE', label: 'Berne',
-//       coords: [
-//         [7.22, 47.18], [7.38, 47.20], [7.48, 47.24], [7.55, 47.30],
-//         [7.62, 47.20], [7.66, 47.08], [7.58, 46.98], [7.48, 46.94],
-//         [7.38, 46.96], [7.28, 47.00], [7.24, 47.00], [7.28, 47.10]
-//       ]
-//     },
-//     {
-//       id: 'FR', label: 'Fribourg',
-//       coords: [
-//         [7.24, 47.00], [7.28, 47.00], [7.38, 46.96], [7.48, 46.94],
-//         [7.58, 46.98], [7.66, 47.08], [7.70, 46.92], [7.62, 46.78],
-//         [7.50, 46.62], [7.30, 46.52], [7.08, 46.50], [6.98, 46.60],
-//         [7.00, 46.78], [7.02, 46.92], [7.10, 46.92]
-//       ]
-//     },
-//     {
-//       id: 'VD', label: 'Vaud',
-//       coords: [
-//         [6.78, 47.06], [6.78, 47.08], [6.78, 47.08],
-//         [6.65, 47.20], [6.60, 47.15], [6.58, 47.02],
-//         [6.58, 46.90], [6.80, 46.99], [6.85, 46.93],
-//         [6.95, 46.90], [7.02, 46.92], [7.00, 46.78],
-//         [6.98, 46.60], [7.08, 46.50], [7.02, 46.42],
-//         [6.92, 46.40], [6.72, 46.36], [6.50, 46.28],
-//         [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
-//         [6.10, 46.44], [6.22, 46.58], [6.45, 46.70],
-//         [6.58, 46.88], [6.58, 46.90]
-//       ]
-//     },
-//     {
-//       id: 'GE', label: 'Genève',
-//       coords: [
-//         [6.30, 46.22], [6.18, 46.20], [6.08, 46.26],
-//         [6.02, 46.16], [6.05, 46.06], [6.18, 46.02],
-//         [6.32, 46.08], [6.36, 46.18]
-//       ]
-//     },
-//     {
-//       id: 'VS', label: 'Valais',
-//       coords: [
-//         [6.08, 46.26], [6.18, 46.20], [6.30, 46.22],
-//         [6.50, 46.28], [6.72, 46.36], [6.92, 46.40],
-//         [7.02, 46.42], [7.08, 46.50], [7.30, 46.52],
-//         [7.50, 46.62], [7.62, 46.78], [7.70, 46.92],
-//         [7.85, 46.78], [8.05, 46.55], [8.25, 46.40],
-//         [8.42, 46.30], [8.40, 46.10], [8.15, 45.95],
-//         [7.85, 45.90], [7.55, 45.95], [7.28, 46.02],
-//         [7.00, 46.08], [6.80, 46.05], [6.58, 45.98],
-//         [6.35, 46.02], [6.22, 46.05], [6.08, 46.08],
-//         [6.02, 46.16]
-//       ]
-//     }
-//   ];
-
-//   /* ══════════════════════════════════════════════════════
-//      LACS
-//   ══════════════════════════════════════════════════════ */
-//   const LAKES = [
-//     {
-//       id: 'leman',
-//       coords: [
-//         [6.18, 46.38], [6.32, 46.44], [6.50, 46.50],
-//         [6.63, 46.52], [6.80, 46.46], [6.92, 46.42],
-//         [6.95, 46.36], [6.88, 46.28], [6.62, 46.26],
-//         [6.40, 46.26], [6.20, 46.30]
-//       ]
-//     },
-//     {
-//       id: 'neuchatel_lac',
-//       coords: [
-//         [6.84, 47.02], [6.90, 47.04], [7.03, 47.00],
-//         [7.08, 46.92], [7.00, 46.86], [6.88, 46.88], [6.82, 46.94]
-//       ]
-//     },
-//     {
-//       id: 'murten',
-//       coords: [
-//         [7.05, 46.94], [7.12, 46.96], [7.18, 46.94],
-//         [7.16, 46.90], [7.08, 46.88], [7.04, 46.92]
-//       ]
-//     }
-//   ];
-
-//   /* ══════════════════════════════════════════════════════
-//      DEFS : fond, ombre, clip
-//   ══════════════════════════════════════════════════════ */
-//   const defs = svg.append('defs');
-
-//   // Fond dégradé subtil
-//   const bgGrad = defs.append('linearGradient')
-//     .attr('id', 'mapBg12').attr('x1', '0%').attr('y1', '0%')
-//     .attr('x2', '100%').attr('y2', '100%');
-//   bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#edeae2');
-//   bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#e2dfd7');
-
-//   // Ombre portée sur l'ensemble de la carte
-//   const flt = defs.append('filter').attr('id', 'mapShadow12')
-//     .attr('x', '-8%').attr('y', '-8%').attr('width', '116%').attr('height', '116%');
-//   flt.append('feDropShadow')
-//     .attr('dx', '0').attr('dy', '6').attr('stdDeviation', '12')
-//     .attr('flood-color', 'rgba(0,0,0,0.16)');
-
-//   // Clip arrondi
-//   defs.append('clipPath').attr('id', 'mapClip12')
-//     .append('rect').attr('width', W).attr('height', H).attr('rx', 18).attr('ry', 18);
-
-//   /* ── Fond ── */
-//   svg.append('rect').attr('width', W).attr('height', H)
-//     .attr('fill', 'url(#mapBg12)').attr('rx', 18)
-//     .attr('filter', 'url(#mapShadow12)');
-
-//   /* ── Groupe principal (clipé) ── */
-//   const mapGrp = svg.append('g').attr('clip-path', 'url(#mapClip12)');
-
-//   // Fond intérieur légèrement plus clair
-//   mapGrp.append('rect').attr('width', W).attr('height', H).attr('fill', 'url(#mapBg12)');
-
-//   /* ── Cantons ── */
-//   const FILL_BASE = '#7aad7a';
-
-//   CANTONS.forEach(canton => {
-//     mapGrp.append('path')
-//       .datum(toFeature(canton.coords))
-//       .attr('d', geoPath)
-//       .attr('fill', FILL_BASE)
-//       .attr('stroke', 'rgba(255,255,255,0.9)')
-//       .attr('stroke-width', 1.8)
-//       .attr('stroke-linejoin', 'round')
-//       .attr('stroke-linecap', 'round');
-//   });
-
-//   /* ── Lacs ── */
-//   LAKES.forEach(lake => {
-//     mapGrp.append('path')
-//       .datum(toFeature(lake.coords))
-//       .attr('d', geoPath)
-//       .attr('fill', '#b0cde6')
-//       .attr('stroke', '#8ab4d4')
-//       .attr('stroke-width', 0.8)
-//       .attr('opacity', 0.9);
-//   });
-
-//   /* ── Labels cantons (abréviations) ── */
-//   CANTONS.forEach(canton => {
-//     const feat = toFeature(canton.coords);
-//     const [cx, cy] = geoPath.centroid(feat);
-//     if (isNaN(cx)) return;
-//     mapGrp.append('text')
-//       .attr('x', cx).attr('y', cy)
-//       .attr('text-anchor', 'middle')
-//       .attr('dominant-baseline', 'middle')
-//       .attr('font-family', "'Bricolage Grotesque', sans-serif")
-//       .attr('font-size', canton.id === 'VS' ? '12px' : '9px')
-//       .attr('font-weight', '800')
-//       .attr('fill', 'rgba(255,255,255,0.68)')
-//       .attr('letter-spacing', '0.1em')
-//       .attr('pointer-events', 'none')
-//       .text(canton.id);
-//   });
-
-//   /* ── Labels lacs ── */
-//   const LAC_LABELS = [
-//     { text: 'Lac Léman', lon: 6.56, lat: 46.40 },
-//     { text: 'Lac de Neuchâtel', lon: 6.93, lat: 46.94 },
-//   ];
-//   LAC_LABELS.forEach(({ text, lon, lat }) => {
-//     const [lx, ly] = proj([lon, lat]);
-//     mapGrp.append('text')
-//       .attr('x', lx).attr('y', ly)
-//       .attr('text-anchor', 'middle')
-//       .attr('font-family', "'Plus Jakarta Sans', sans-serif")
-//       .attr('font-size', '8px')
-//       .attr('font-style', 'italic')
-//       .attr('fill', 'rgba(60,100,160,0.7)')
-//       .attr('pointer-events', 'none')
-//       .text(text);
-//   });
-
-//   /* ══════════════════════════════════════════════════════
-//      POINTS UNIVERSITÉS
-//   ══════════════════════════════════════════════════════ */
-//   const tooltip = document.getElementById('map-tooltip');
-//   const pg = svg.append('g').attr('class', 'map-points');
-
-//   unis.forEach((uni, i) => {
-//     const [px, py] = proj([uni.lon, uni.lat]);
-//     const g = pg.append('g')
-//       .attr('transform', `translate(${px},${py})`)
-//       .style('cursor', 'pointer');
-
-//     // Halo pulsant
-//     const halo = g.append('circle').attr('r', 12).attr('fill', C.accent).attr('opacity', 0.15);
-//     gsap.to(halo.node(), { r: 22, opacity: 0, duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.38 });
-
-//     g.append('circle').attr('r', 7).attr('fill', C.accent).attr('stroke', 'white').attr('stroke-width', 2.5);
-//     g.append('circle').attr('r', 2.5).attr('fill', 'white').attr('opacity', 0.85);
-
-//     // % au-dessus
-//     g.append('text')
-//       .attr('y', -14)
-//       .attr('text-anchor', 'middle')
-//       .attr('font-family', "'Bricolage Grotesque', sans-serif")
-//       .attr('font-size', '10px').attr('font-weight', '800')
-//       .attr('fill', C.accent)
-//       .text(uni.tres_actifs + '%');
-
-//     g.on('mouseenter', (event) => {
-//       if (!tooltip) return;
-//       tooltip.hidden = false;
-//       tooltip.querySelector('.map-tooltip__name').textContent = uni.name;
-//       tooltip.querySelector('.map-tooltip__tres-actifs').textContent = `Très actifs : ${uni.tres_actifs}%`;
-//       tooltip.querySelector('.map-tooltip__participation').textContent = `Sport univ 1×/sem : ${uni.part1x}%`;
-//       gsap.fromTo(tooltip, { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.22, ease: 'power2.out' });
-//     })
-//       .on('mousemove', (event) => {
-//         if (!tooltip) return;
-//         const rect = mapC.getBoundingClientRect();
-//         tooltip.style.left = `${event.clientX - rect.left + 20}px`;
-//         tooltip.style.top = `${event.clientY - rect.top - 14}px`;
-//       })
-//       .on('mouseleave', () => {
-//         if (!tooltip) return;
-//         gsap.to(tooltip, { opacity: 0, scale: 0.88, duration: 0.18, onComplete: () => { tooltip.hidden = true; } });
-//       });
-//   });
-
-//   /* ── Animations au scroll ── */
-//   ScrollTrigger.create({
-//     trigger: fold, start: 'top 62%', once: true,
-//     onEnter: () => {
-//       gsap.from(mapGrp.selectAll('path').nodes(), {
-//         opacity: 0, duration: 0.9,
-//         stagger: { each: 0.04, from: 'start' },
-//         ease: 'power2.out',
-//       });
-//       gsap.from(pg.selectAll('g').nodes(), {
-//         scale: 0, opacity: 0, duration: 0.6,
-//         stagger: 0.1, delay: 0.5,
-//         ease: 'back.out(2.5)',
-//         transformOrigin: 'center center',
-//       });
-//     },
-//   });
-
-//   gsap.from(
-//     [fold.querySelector('.fold__title'), fold.querySelector('.fold__instruction')],
-//     {
-//       opacity: 0, y: 26, duration: 0.75, stagger: 0.15, ease: 'power2.out',
-//       scrollTrigger: { trigger: fold, start: 'top 62%' },
-//     }
-//   );
-// }
 function initFold12() {
   const fold = document.getElementById('fold-12');
   if (!fold) return;
@@ -2690,7 +2164,6 @@ function initFold14() {
   const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
   const x = d3.scaleLinear().domain([2010, 2025]).range([0, iW]);
   const y = d3.scaleLinear().domain([0, 100]).range([iH, 0]);
-  // const y = d3.scaleLinear().domain([44, 68]).range([iH, 0]);
 
   g.append('g').attr('transform', `translate(0,${iH})`)
     .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(4))
@@ -2720,6 +2193,7 @@ function initFold14() {
   const len = path.node().getTotalLength();
   path.attr('stroke-dasharray', len).attr('stroke-dashoffset', len);
 
+  /* ── Points + labels ── */
   ScrollTrigger.create({
     trigger: container, start: 'top 74%', once: true,
     onEnter: () => {
@@ -2738,10 +2212,218 @@ function initFold14() {
     },
   });
 
+  /* ══════════════════════════════════════════════════
+     VIRUS COVID — verts, apparaissent sur 2020
+  ══════════════════════════════════════════════════ */
+  function virusSVG(size = 48, color = C.green) {
+    const r = size / 2;
+    const spikes = 8;
+    const spikeLen = size * 0.28;
+    const ballR = size * 0.12;
+    let spikePaths = '';
+    let ballCircles = '';
+
+    for (let i = 0; i < spikes; i++) {
+      const angle = (i / spikes) * Math.PI * 2;
+      const x1 = Math.cos(angle) * r;
+      const y1 = Math.sin(angle) * r;
+      const x2 = Math.cos(angle) * (r + spikeLen);
+      const y2 = Math.sin(angle) * (r + spikeLen);
+      spikePaths += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+        stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
+      ballCircles += `<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${ballR.toFixed(1)}" fill="${color}"/>`;
+    }
+
+    const total = size + spikeLen * 2 + ballR * 2;
+    const half = total / 2;
+
+    return `<svg width="${total}" height="${total}" viewBox="${-half} ${-half} ${total} ${total}"
+      xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible">
+      <circle cx="0" cy="0" r="${r}" fill="${color}" opacity="0.9"/>
+      ${spikePaths}
+      ${ballCircles}
+      <circle cx="${(-r * 0.3).toFixed(1)}" cy="${(-r * 0.3).toFixed(1)}" r="${(r * 0.22).toFixed(1)}"
+        fill="white" opacity="0.25"/>
+    </svg>`;
+  }
+
+  container.style.position = 'relative';
+
+  const covidOverlay = document.createElement('div');
+  covidOverlay.className = 'covid-overlay';
+  container.appendChild(covidOverlay);
+
+  const VIRUS_CONFIGS = [
+    { x: 52, y: 10,  size: 52, delay: 0,    rotation: 15  },
+    { x: 44, y: 55,  size: 38, delay: 0.15, rotation: -20 },
+    { x: 62, y: 40,  size: 44, delay: 0.08, rotation: 30  },
+    { x: 36, y: 20,  size: 30, delay: 0.25, rotation: -10 },
+    { x: 70, y: 15,  size: 36, delay: 0.18, rotation: 45  },
+    { x: 48, y: 75,  size: 28, delay: 0.3,  rotation: -35 },
+    { x: 58, y: 68,  size: 42, delay: 0.22, rotation: 20  },
+  ];
+
+  const virusEls = [];
+  VIRUS_CONFIGS.forEach(cfg => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `
+      position: absolute;
+      left: ${cfg.x}%;
+      top: ${cfg.y}%;
+      transform: translate(-50%, -50%) rotate(${cfg.rotation}deg) scale(0);
+      opacity: 0;
+      will-change: transform, opacity;
+    `;
+    wrap.innerHTML = virusSVG(cfg.size, C.green);
+    covidOverlay.appendChild(wrap);
+    virusEls.push({ el: wrap, cfg });
+  });
+
+  /* Texte hypothèse */
+  const covidText = document.createElement('div');
+  covidText.className = 'covid-hypothesis';
+  covidText.innerHTML = `
+    <span class="covid-hypothesis__icon">🦠</span>
+    <p>
+      <strong>Hypothèse :</strong> le confinement COVID-19 (2020) aurait poussé de nombreux étudiant·e·s
+      à (re)prendre une activité physique, expliquant le pic observé cette année-là.
+    </p>
+  `;
+  gsap.set(covidText, { opacity: 0, y: 14 });
+  fold.appendChild(covidText);
+
+  /* ── Lock scroll ── */
+  let lockedAt = null;
+  let animDone = false;
+
+  function onScroll() {
+    if (lockedAt === null) return;
+    window.scrollTo({ top: lockedAt, behavior: 'instant' });
+  }
+  function onWheel(e) { e.preventDefault(); }
+  function onTouch(e) { e.preventDefault(); }
+
+  function lockScroll() {
+    lockedAt = fold.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: lockedAt, behavior: 'instant' });
+    window.addEventListener('scroll', onScroll);
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('touchmove', onTouch, { passive: false });
+  }
+
+  function unlockScroll() {
+    lockedAt = null;
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('wheel', onWheel);
+    window.removeEventListener('touchmove', onTouch);
+  }
+
+  /* ── Durée totale de l'animation virus ── */
+  /* ligne jusqu'à 2020 + délai max virus + bob = ~4s */
+  const x2020Pct = (x(2020) + m.left) / W;
+  const delay2020 = 2.4 * x2020Pct;
+  const maxVirusDelay = Math.max(...VIRUS_CONFIGS.map(c => c.delay));
+  const TOTAL_ANIM_DURATION = delay2020 + maxVirusDelay + 0.8 + 1.2; /* ligne + virus + texte + lecture */
+
+  let covidTriggered = false;
+
+  /* Lock quand fold arrive en top du viewport */
+  ScrollTrigger.create({
+    trigger: fold,
+    start: 'top top',
+    onEnter: () => {
+      if (!animDone) lockScroll();
+    },
+    onEnterBack: () => {
+      animDone = false;
+      lockScroll();
+      resetCovid();
+    },
+    onLeaveBack: () => {
+      unlockScroll();
+    },
+  });
+
+  function resetCovid() {
+    covidTriggered = false;
+    virusEls.forEach(({ el, cfg }) => {
+      gsap.killTweensOf(el);
+      gsap.set(el, { opacity: 0, scale: 0 });
+      el.style.transform = `translate(-50%, -50%) rotate(${cfg.rotation}deg) scale(0)`;
+    });
+    gsap.set(covidText, { opacity: 0, y: 14 });
+  }
+
+  ScrollTrigger.create({
+    trigger: container,
+    start: 'top 60%',
+    end: 'bottom 40%',
+    onEnter: () => {
+      if (covidTriggered) return;
+
+      gsap.delayedCall(delay2020, () => {
+        covidTriggered = true;
+
+        /* Apparition des virus */
+        virusEls.forEach(({ el, cfg }) => {
+          gsap.to(el, {
+            opacity: 1,
+            duration: 0.5,
+            delay: cfg.delay,
+            ease: 'power2.out',
+          });
+          gsap.to(el, {
+            scale: 1,
+            duration: 0.6,
+            delay: cfg.delay,
+            ease: 'back.out(2)',
+            onComplete: () => {
+              /* Rotation lente en boucle */
+              gsap.to(el, {
+                rotate: cfg.rotation + 360,
+                duration: 8 + Math.random() * 6,
+                repeat: -1,
+                ease: 'none',
+              });
+              /* Bob vertical */
+              gsap.to(el, {
+                y: -6,
+                duration: 1.8 + Math.random(),
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: Math.random() * 0.5,
+              });
+            },
+          });
+        });
+
+        /* Texte hypothèse */
+        gsap.to(covidText, {
+          opacity: 1, y: 0,
+          duration: 0.7,
+          delay: 0.5,
+          ease: 'power2.out',
+        });
+
+        /* Unlock après toute l'animation + temps de lecture */
+        gsap.delayedCall(TOTAL_ANIM_DURATION - delay2020, () => {
+          animDone = true;
+          unlockScroll();
+        });
+      });
+    },
+
+    onLeaveBack: () => {
+      unlockScroll();
+      resetCovid();
+    },
+  });
+
+  /* ── Louis marchant (inchangé) ── */
   const charWrap = document.createElement('div');
   charWrap.className = 'evolution-character';
   charWrap.innerHTML = avatarSVG('louis', 56);
-  container.style.position = 'relative';
   container.appendChild(charWrap);
 
   gsap.to(charWrap, {
@@ -2749,7 +2431,6 @@ function initFold14() {
     scrollTrigger: { trigger: fold, start: 'top center', end: 'bottom center', scrub: 1.2 },
   });
 
-  // Marche animée en boucle
   let walkPhase = 0;
   function louisWalk() {
     walkPhase = (walkPhase + 1) % 2;
