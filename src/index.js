@@ -821,7 +821,7 @@ const CharSystem = (() => {
           autoAlpha: 0,
           duration: 0.4,
           ease: 'power2.inOut'
-        }, 0); 
+        }, 0);
         active.delete(name);
         this.undim(name);
       });
@@ -832,7 +832,7 @@ const CharSystem = (() => {
         autoAlpha: 1,
         duration: 0.5,
         ease: 'power2.out'
-      }, 0.3); 
+      }, 0.3);
     },
   };
 })();
@@ -1466,6 +1466,166 @@ function initFold7() {
    ═══════════════════════════════════════════════════════════════ */
 
 
+// function initFold8() {
+//   const fold = document.getElementById('fold-8');
+//   if (!fold) return;
+
+//   const practPct = sportData.bachelor.pratiquent_sport_regulier.source_quizz.pratiquent_regulier_pct;
+//   const dropoutPct = Math.round(100 - practPct);
+
+//   const el = document.getElementById('bachelor-dropout-pct');
+//   if (el) {
+//     const obj = { val: 0 };
+//     ScrollTrigger.create({
+//       trigger: fold, start: 'top 74%', once: true,
+//       onEnter: () => gsap.to(obj, {
+//         val: dropoutPct, duration: 1.8, ease: 'power2.out',
+//         onUpdate: () => { el.textContent = Math.round(obj.val); },
+//       }),
+//     });
+//   }
+
+//   const pictoC = document.getElementById('bachelor-dropout-pictogram');
+//   if (!pictoC) return;
+
+//   const COLS = 20, ROWS = 5, TOTAL = 100, SZ = 22, GAP = 3;
+//   const greenN = TOTAL - dropoutPct;
+//   const thomasIdx = greenN - 1;
+
+//   pictoC.innerHTML = '';
+//   pictoC.style.cssText = [
+//     'display:grid',
+//     `grid-template-columns:repeat(${COLS}, ${SZ}px)`,
+//     `gap:${GAP}px`,
+//     'width:fit-content',
+//     'max-width:100%',
+//     'margin:0 auto',
+//     'overflow:visible',
+//   ].join(';');
+
+//   const items = [];
+//   for (let i = 0; i < TOTAL; i++) {
+//     const isGreen = i < greenN;
+//     const isThomas = i === thomasIdx;
+//     const col = isGreen ? C.green : C.accent;
+
+//     const cell = document.createElement('div');
+//     cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
+
+//     const wrap = document.createElement('div');
+//     wrap.style.cssText = 'line-height:0;';
+
+//     if (isThomas) {
+//       wrap.innerHTML = avatarSVG('thomas', SZ);
+//     } else {
+//       wrap.innerHTML = stickmanSVG({
+//         color: col,
+//         pose: i % 2 === 0 ? 'walk-a' : 'walk-b',
+//         isHero: false, size: SZ,
+//       });
+//     }
+
+//     gsap.set(wrap, { opacity: 0, y: 12, scale: 0.7 });
+//     cell.appendChild(wrap);
+//     pictoC.appendChild(cell);
+//     items.push({ wrap, col, isGreen, isThomas, idx: i });
+//   }
+
+//   // Stocker les rouges pour la transition
+//   redStickWraps = items
+//     .filter(it => !it.isGreen && !it.isThomas)
+//     .map(it => it.wrap);
+
+//   let exitTimer = null;
+
+//   function launchExit() {
+//     redStickWraps.forEach(w => gsap.killTweensOf(w));
+
+//     gsap.to([...redStickWraps].reverse(), {
+//       x: 600,        // ← vers la droite
+//       opacity: 0,
+//       duration: 0.6, // ← plus rapide
+//       stagger: { each: 0.010, from: 'end' }, // ← part depuis la droite
+//       ease: 'power2.in',
+//       onComplete: () => {
+//         gsap.to(window, {
+//           scrollTo: { y: '#fold-9', offsetY: 0 },
+//           duration: 0.8,
+//           ease: 'power2.inOut',
+//         });
+//       },
+//     });
+//   }
+
+//   ScrollTrigger.create({
+//     trigger: fold,
+//     start: 'top 68%',
+//     once: true,
+//     onEnter: () => {
+//       gsap.to(items.map(it => it.wrap), {
+//         opacity: 1, y: 0, scale: 1,
+//         duration: 0.6,
+//         stagger: { each: 0.012, from: 'random', grid: [ROWS, COLS] },
+//         ease: 'power2.out',
+//       });
+
+//       gsap.delayedCall(2.2, () => {
+//         const tl = gsap.timeline({
+//           onComplete: () => {
+//             animateF8(items);
+//             // ← 2.5s après que l'animation d'entrée soit finie, les rouges partent
+//             exitTimer = gsap.delayedCall(2.3, launchExit);
+//           },
+//         });
+//         tl.to(items.map(it => it.wrap), {
+//           scale: 0.75, y: 6,
+//           duration: 0.5, ease: 'power1.inOut',
+//         }).to(items.map(it => it.wrap), {
+//           scale: 1, y: 0,
+//           duration: 0.7,
+//           stagger: { each: 0.006, from: 'start', grid: [ROWS, COLS] },
+//           ease: 'power2.out',
+//         });
+//       });
+//     },
+//   });
+
+//   function animateF8(items) {
+//     items.forEach(({ wrap, col, isGreen, isThomas, idx }) => {
+//       if (isThomas) {
+//         gsap.to(wrap, { y: -3, duration: 0.65, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2 });
+//         return;
+//       }
+//       if (isGreen) {
+//         const speed = 0.42 + (idx % 6) * 0.04;
+//         const delay = (idx % 13) * 0.06;
+//         let phase = idx % 2;
+//         function step() {
+//           phase = (phase + 1) % 2;
+//           wrap.innerHTML = stickmanSVG({ color: col, pose: phase === 0 ? 'walk-a' : 'walk-b', isHero: false, size: SZ });
+//           gsap.to(wrap, { y: phase === 0 ? -3 : 0, duration: speed, ease: 'sine.inOut', onComplete: step });
+//         }
+//         gsap.delayedCall(delay, step);
+//       } else {
+//         wrap.innerHTML = stickmanSVG({ color: col, pose: 'stand', isHero: false, size: SZ });
+//         gsap.to(wrap, { y: -1.5, duration: 2 + (idx % 7) * 0.15, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: (idx % 9) * 0.1 });
+//       }
+//     });
+//   }
+
+//   gsap.from(fold.querySelector('.fold__statement'), {
+//     opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
+//     scrollTrigger: { trigger: fold, start: 'top 62%' },
+//   });
+
+//   ScrollTrigger.create({
+//     trigger: fold, start: 'top 62%', end: 'bottom top',
+//     onEnter: () => CharSystem.dim('thomas'),
+//     onLeave: () => CharSystem.undim('thomas'),
+//     onEnterBack: () => CharSystem.dim('thomas'),
+//     onLeaveBack: () => CharSystem.undim('thomas'),
+//   });
+// }
 function initFold8() {
   const fold = document.getElementById('fold-8');
   if (!fold) return;
@@ -1531,10 +1691,16 @@ function initFold8() {
     items.push({ wrap, col, isGreen, isThomas, idx: i });
   }
 
-  // Stocker les rouges pour la transition
   redStickWraps = items
     .filter(it => !it.isGreen && !it.isThomas)
     .map(it => it.wrap);
+
+  // Texte hint
+  const scrollHint = document.createElement('div');
+  scrollHint.className = 'fold11-scroll-hint';
+  scrollHint.textContent = '↓ Continuez à scroller';
+  gsap.set(scrollHint, { opacity: 0, y: 10 });
+  fold.appendChild(scrollHint);
 
   let exitTimer = null;
 
@@ -1542,17 +1708,14 @@ function initFold8() {
     redStickWraps.forEach(w => gsap.killTweensOf(w));
 
     gsap.to([...redStickWraps].reverse(), {
-      x: 600,        // ← vers la droite
+      x: 600,
       opacity: 0,
-      duration: 0.6, // ← plus rapide
-      stagger: { each: 0.010, from: 'end' }, // ← part depuis la droite
+      duration: 0.4,
+      stagger: { each: 0.008, from: 'end' },
       ease: 'power2.in',
       onComplete: () => {
-        gsap.to(window, {
-          scrollTo: { y: '#fold-9', offsetY: 0 },
-          duration: 0.8,
-          ease: 'power2.inOut',
-        });
+        // Affiche le hint au lieu du scroll automatique
+        gsap.to(scrollHint, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
       },
     });
   }
@@ -1573,8 +1736,7 @@ function initFold8() {
         const tl = gsap.timeline({
           onComplete: () => {
             animateF8(items);
-            // ← 2.5s après que l'animation d'entrée soit finie, les rouges partent
-            exitTimer = gsap.delayedCall(2.3, launchExit);
+            exitTimer = gsap.delayedCall(1.0, launchExit); // ← part rapidement
           },
         });
         tl.to(items.map(it => it.wrap), {
@@ -1865,7 +2027,7 @@ function initFold11() {
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
-    end: '+=430%', 
+    end: '+=430%',
     pin: true,
     scrub: 1.2,
     animation: tl,
@@ -2274,13 +2436,13 @@ function initFold14() {
   container.appendChild(covidOverlay);
 
   const VIRUS_CONFIGS = [
-    { x: 52, y: 10,  size: 52, delay: 0,    rotation: 15  },
-    { x: 44, y: 55,  size: 38, delay: 0.15, rotation: -20 },
-    { x: 62, y: 40,  size: 44, delay: 0.08, rotation: 30  },
-    { x: 36, y: 20,  size: 30, delay: 0.25, rotation: -10 },
-    { x: 70, y: 15,  size: 36, delay: 0.18, rotation: 45  },
-    { x: 48, y: 75,  size: 28, delay: 0.3,  rotation: -35 },
-    { x: 58, y: 68,  size: 42, delay: 0.22, rotation: 20  },
+    { x: 52, y: 10, size: 52, delay: 0, rotation: 15 },
+    { x: 44, y: 55, size: 38, delay: 0.15, rotation: -20 },
+    { x: 62, y: 40, size: 44, delay: 0.08, rotation: 30 },
+    { x: 36, y: 20, size: 30, delay: 0.25, rotation: -10 },
+    { x: 70, y: 15, size: 36, delay: 0.18, rotation: 45 },
+    { x: 48, y: 75, size: 28, delay: 0.3, rotation: -35 },
+    { x: 58, y: 68, size: 42, delay: 0.22, rotation: 20 },
   ];
 
   const virusEls = [];

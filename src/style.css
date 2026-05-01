@@ -822,6 +822,11 @@ ul {
   gap: 2.5rem;
 }
 
+#fold-8 .fold11-scroll-hint {
+  color: var(--thomas);
+  /* ← brun pour fold-8 */
+}
+
 /* le JS injecte le style inline pour la foule animée */
 .dropout-pictogram {
   position: relative;
@@ -2086,6 +2091,13 @@ body {
 }
 
 @keyframes fold11-bounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
 }
