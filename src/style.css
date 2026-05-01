@@ -10,10 +10,14 @@
 
   --louis: #3473F0;
   --louis-d: #1A56CC;
-  --chloe: #EF3F3F;
-  --chloe-d: #C42020;
-  --thomas: #0DBF80;
-  --thomas-d: #069A65;
+  --chloe: #df3a97;
+  --chloe-d: #8a175e;
+  /* --chloe: #EF3F3F;
+  --chloe-d: #C42020; */
+  /* --thomas: #0DBF80;
+  --thomas-d: #069A65; */
+  --thomas: #bf4e0d;
+  --thomas-d: #9a2d06;
   --bruna: #8B5CF6;
   --bruna-d: #6D35D8;
 
@@ -439,7 +443,7 @@ ul {
 }
 
 .stat-block--dark .stat-block__number {
-  color: var(--accent);
+  color: var(--chloe);
 }
 
 .stat-block__label {
@@ -655,7 +659,8 @@ ul {
   height: 26px;
   border-radius: 50%;
   background: var(--thomas);
-  box-shadow: 0 2px 12px rgba(13, 191, 128, .35);
+  /* box-shadow: 0 2px 12px rgba(13, 191, 128, .35); */
+  box-shadow: 0 2px 12px rgba(191, 78, 13, .35);
   cursor: pointer;
   border: 3px solid white;
   transition: transform .15s;
@@ -704,13 +709,15 @@ ul {
   font-weight: 700;
   cursor: pointer;
   letter-spacing: .04em;
-  box-shadow: 0 4px 20px rgba(13, 191, 128, .30);
+  /* box-shadow: 0 4px 20px rgba(13, 191, 128, .30); */
+  box-shadow: 0 4px 20px rgba(191, 78, 13, .30);
   transition: transform .15s, box-shadow .15s;
 }
 
 .quiz-block__submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(13, 191, 128, .42);
+  /* box-shadow: 0 8px 28px rgba(13, 191, 128, .42); */
+  box-shadow: 0 8px 28px rgba(191, 78, 13, .42);
 }
 
 .quiz-block__submit:active {
@@ -1850,7 +1857,7 @@ ul {
   font-family: var(--f-d);
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--thomas);
+  color: var(--green-hi);
   white-space: nowrap;
   flex-shrink: 0;
   min-width: 4.5ch;

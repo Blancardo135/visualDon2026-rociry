@@ -14,8 +14,8 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
    ═══════════════════════════════════════════════════════════════ */
 const C = {
   louis: '#3473F0',
-  chloe: '#EF3F3F',
-  thomas: '#0DBF80',
+  chloe: '#df3a97',
+  thomas: '#bf4e0d',
   bruna: '#8B5CF6',
   accent: '#FF3340',
   gold: '#F5A623',
@@ -58,8 +58,8 @@ function injectStats() {
 /* Couleurs de peau et cheveux par personnage */
 const CHARS = {
   louis: { skin: '#F5C4A0', hair: '#2C1A0E', accent: C.louis, dark: '#1A56CC' },
-  chloe: { skin: '#F8D4B0', hair: '#1A0A05', accent: C.chloe, dark: '#C42020' },
-  thomas: { skin: '#F0BB8A', hair: '#4A3728', accent: C.thomas, dark: '#069A65' },
+  chloe: { skin: '#F8D4B0', hair: '#1A0A05', accent: C.chloe, dark: '#8a175e' },
+  thomas: { skin: '#F0BB8A', hair: '#4A3728', accent: C.thomas, dark: '#9a2d06' },
   bruna: { skin: '#C8906A', hair: '#110806', accent: C.bruna, dark: '#6D35D8' },
 };
 
@@ -1476,7 +1476,7 @@ function initFold5() {
 
         quizSolved = true;
         unlockScroll();
-        showBubble('🎉 Exactement ! Bien joué !', C.thomas);
+        showBubble('🎉 Exactement ! Bien joué !', C.green);
         btn.textContent = '↓ Continue à scroller !';
         btn.style.pointerEvents = 'none';
         gsap.delayedCall(0.8, () => {
@@ -1566,7 +1566,7 @@ function initFold7() {
     buildPictoGrid(div, {
       total: 10,
       active: Math.round(item.pct / 10),
-      color: C.thomas,
+      color: C.green,
       heroIndex: 0,
       heroName: 'thomas',
       label: item.raison,
@@ -1622,7 +1622,7 @@ function initFold8() {
   for (let i = 0; i < TOTAL; i++) {
     const isGreen = i < greenN;
     const isThomas = i === thomasIdx;
-    const col = isGreen ? C.thomas : C.accent;
+    const col = isGreen ? C.green : C.accent;
 
     const cell = document.createElement('div');
     cell.style.cssText = 'line-height:0;display:flex;align-items:flex-end;justify-content:center;';
@@ -1659,7 +1659,7 @@ function initFold8() {
     gsap.to([...redStickWraps].reverse(), {
       x: 600,        // ← vers la droite
       opacity: 0,
-      duration: 0.8, // ← plus rapide
+      duration: 1.5, // ← plus rapide
       stagger: { each: 0.015, from: 'end' }, // ← part depuis la droite
       ease: 'power2.in',
       onComplete: () => {
