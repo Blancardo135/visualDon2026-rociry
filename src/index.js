@@ -1843,18 +1843,29 @@ function initFold11() {
     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
   });
 
-  /* Phase 4 : pause pour lire */
-  tl.to({}, { duration: 0.8 });
+  /* Phase 4 : pause de lecture — scroll bloqué ici (~1.5 écrans supplémentaires) */
+  tl.to({}, { duration: 0.3 });
 
-  /* Phase 5 : cache le titre Master + transition fond + disparition fold-11 */
-  tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' });
+  /* Phase 5 : indicateur "scroll pour continuer" qui pulse puis disparaît */
+  const scrollHint = document.createElement('div');
+  scrollHint.className = 'fold11-scroll-hint';
+  scrollHint.textContent = '↓ Continuez à scroller';
+  gsap.set(scrollHint, { opacity: 0, y: 10 });
+  fold.appendChild(scrollHint);
+
+  tl.to(scrollHint, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<');
+
+  /* Phase 6 : transition — fond fold-10 → beige, fold-11 disparaît */
+  tl.to(scrollHint, { opacity: 0, duration: 0.3 });
+  tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, '<');
   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
   tl.to(fold, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '<0.2');
 
+  /* ── ScrollTrigger pinné — étendu pour la pause de lecture ── */
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
-    end: '+=400%',
+    end: '+=430%', 
     pin: true,
     scrub: 1.2,
     animation: tl,
@@ -1863,13 +1874,30 @@ function initFold11() {
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
-      gsap.set(fold10, { autoAlpha: 0 });
+      /* Transition smooth vers fold-12 */
       const fold12 = document.getElementById('fold-12');
-      if (fold12) window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+      if (!fold12) return;
+
+      /* On cache fold-10 le temps du scroll */
+      gsap.set(fold10, { autoAlpha: 0 });
+
+      /* Scroll immédiat vers fold-12 */
+      window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+
+      /* Puis on remet fold-10 en état propre en arrière-plan */
       gsap.delayedCall(0.05, () => {
         gsap.set(fold10, { autoAlpha: 1, backgroundColor: '' });
         fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
       });
+
+      /* Fade in de fold-12 pour une arrivée douce */
+      if (fold12) {
+        gsap.fromTo(fold12,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.1 }
+        );
+      }
+
       CharSystem.undim('bruna');
     },
 
@@ -1888,6 +1916,7 @@ function initFold11() {
       }
       fills.forEach(f => gsap.set(f, { width: '0%' }));
       values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
+      gsap.set(scrollHint, { opacity: 0, y: 10 });
       CharSystem.dim('bruna');
     },
   });
