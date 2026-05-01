@@ -2190,14 +2190,29 @@ function initFold14() {
     .attr('fill', 'none').attr('stroke', C.louis)
     .attr('stroke-width', 3).attr('stroke-linecap', 'round').attr('d', line);
 
-  const len = path.node().getTotalLength();
-  path.attr('stroke-dasharray', len).attr('stroke-dashoffset', len);
+  const totalLen = path.node().getTotalLength();
+  path.attr('stroke-dasharray', totalLen).attr('stroke-dashoffset', totalLen);
+
+  /* ── Mesure longueur réelle jusqu'à x(2020) ── */
+  const target2020X = x(2020) + m.left;
+  let len2020 = 0;
+  const STEPS = 1000;
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * totalLen;
+    const pt = path.node().getPointAtLength(t);
+    if (pt.x >= target2020X) {
+      len2020 = t;
+      break;
+    }
+  }
+  const LINE_DURATION = 1.6;
+  const delay2020 = LINE_DURATION * (len2020 / totalLen);
 
   /* ── Points + labels ── */
   ScrollTrigger.create({
     trigger: container, start: 'top 74%', once: true,
     onEnter: () => {
-      gsap.to(path.node(), { strokeDashoffset: 0, duration: 2.4, ease: 'power2.out' });
+      gsap.to(path.node(), { strokeDashoffset: 0, duration: LINE_DURATION, ease: 'power2.out' });
       data.forEach((d, i) => {
         const dot = g.append('circle')
           .attr('cx', x(d.annee)).attr('cy', y(d.tres_actifs_pct))
@@ -2213,7 +2228,7 @@ function initFold14() {
   });
 
   /* ══════════════════════════════════════════════════
-     VIRUS COVID — verts, apparaissent sur 2020
+     VIRUS COVID — verts
   ══════════════════════════════════════════════════ */
   function virusSVG(size = 48, color = C.green) {
     const r = size / 2;
@@ -2222,7 +2237,6 @@ function initFold14() {
     const ballR = size * 0.12;
     let spikePaths = '';
     let ballCircles = '';
-
     for (let i = 0; i < spikes; i++) {
       const angle = (i / spikes) * Math.PI * 2;
       const x1 = Math.cos(angle) * r;
@@ -2233,10 +2247,8 @@ function initFold14() {
         stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
       ballCircles += `<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${ballR.toFixed(1)}" fill="${color}"/>`;
     }
-
     const total = size + spikeLen * 2 + ballR * 2;
     const half = total / 2;
-
     return `<svg width="${total}" height="${total}" viewBox="${-half} ${-half} ${total} ${total}"
       xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible">
       <circle cx="0" cy="0" r="${r}" fill="${color}" opacity="0.9"/>
@@ -2279,7 +2291,6 @@ function initFold14() {
     virusEls.push({ el: wrap, cfg });
   });
 
-  /* Texte hypothèse */
   const covidText = document.createElement('div');
   covidText.className = 'covid-hypothesis';
   covidText.innerHTML = `
@@ -2292,63 +2303,15 @@ function initFold14() {
   gsap.set(covidText, { opacity: 0, y: 14 });
   fold.appendChild(covidText);
 
-  /* ── Lock scroll ── */
-  let lockedAt = null;
-  let animDone = false;
-
-  function onScroll() {
-    if (lockedAt === null) return;
-    window.scrollTo({ top: lockedAt, behavior: 'instant' });
-  }
-  function onWheel(e) { e.preventDefault(); }
-  function onTouch(e) { e.preventDefault(); }
-
-  function lockScroll() {
-    lockedAt = fold.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: lockedAt, behavior: 'instant' });
-    window.addEventListener('scroll', onScroll);
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchmove', onTouch, { passive: false });
-  }
-
-  function unlockScroll() {
-    lockedAt = null;
-    window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('wheel', onWheel);
-    window.removeEventListener('touchmove', onTouch);
-  }
-
-  /* ── Durée totale de l'animation virus ── */
-  /* ligne jusqu'à 2020 + délai max virus + bob = ~4s */
-  const x2020Pct = (x(2020) + m.left) / W;
-  const delay2020 = 2.4 * x2020Pct;
-  const maxVirusDelay = Math.max(...VIRUS_CONFIGS.map(c => c.delay));
-  const TOTAL_ANIM_DURATION = delay2020 + maxVirusDelay + 0.8 + 1.2; /* ligne + virus + texte + lecture */
-
   let covidTriggered = false;
-
-  /* Lock quand fold arrive en top du viewport */
-  ScrollTrigger.create({
-    trigger: fold,
-    start: 'top top',
-    onEnter: () => {
-      if (!animDone) lockScroll();
-    },
-    onEnterBack: () => {
-      animDone = false;
-      lockScroll();
-      resetCovid();
-    },
-    onLeaveBack: () => {
-      unlockScroll();
-    },
-  });
+  let delayedCallRef = null;
 
   function resetCovid() {
     covidTriggered = false;
+    if (delayedCallRef) { delayedCallRef.kill(); delayedCallRef = null; }
     virusEls.forEach(({ el, cfg }) => {
       gsap.killTweensOf(el);
-      gsap.set(el, { opacity: 0, scale: 0 });
+      gsap.set(el, { opacity: 0, scale: 0, y: 0 });
       el.style.transform = `translate(-50%, -50%) rotate(${cfg.rotation}deg) scale(0)`;
     });
     gsap.set(covidText, { opacity: 0, y: 14 });
@@ -2356,15 +2319,12 @@ function initFold14() {
 
   ScrollTrigger.create({
     trigger: container,
-    start: 'top 60%',
-    end: 'bottom 40%',
+    start: 'top 74%',
     onEnter: () => {
       if (covidTriggered) return;
-
-      gsap.delayedCall(delay2020, () => {
+      delayedCallRef = gsap.delayedCall(delay2020, () => {
         covidTriggered = true;
 
-        /* Apparition des virus */
         virusEls.forEach(({ el, cfg }) => {
           gsap.to(el, {
             opacity: 1,
@@ -2378,14 +2338,12 @@ function initFold14() {
             delay: cfg.delay,
             ease: 'back.out(2)',
             onComplete: () => {
-              /* Rotation lente en boucle */
               gsap.to(el, {
                 rotate: cfg.rotation + 360,
                 duration: 8 + Math.random() * 6,
                 repeat: -1,
                 ease: 'none',
               });
-              /* Bob vertical */
               gsap.to(el, {
                 y: -6,
                 duration: 1.8 + Math.random(),
@@ -2398,29 +2356,18 @@ function initFold14() {
           });
         });
 
-        /* Texte hypothèse */
         gsap.to(covidText, {
           opacity: 1, y: 0,
           duration: 0.7,
           delay: 0.5,
           ease: 'power2.out',
         });
-
-        /* Unlock après toute l'animation + temps de lecture */
-        gsap.delayedCall(TOTAL_ANIM_DURATION - delay2020, () => {
-          animDone = true;
-          unlockScroll();
-        });
       });
     },
-
-    onLeaveBack: () => {
-      unlockScroll();
-      resetCovid();
-    },
+    onLeaveBack: () => resetCovid(),
   });
 
-  /* ── Louis marchant (inchangé) ── */
+  /* ── Louis marchant ── */
   const charWrap = document.createElement('div');
   charWrap.className = 'evolution-character';
   charWrap.innerHTML = avatarSVG('louis', 56);
@@ -2428,7 +2375,7 @@ function initFold14() {
 
   gsap.to(charWrap, {
     x: iW * 0.78, ease: 'none',
-    scrollTrigger: { trigger: fold, start: 'top center', end: 'bottom center', scrub: 1.2 },
+    scrollTrigger: { trigger: fold, start: 'top center', end: 'bottom center', scrub: 0.6 },
   });
 
   let walkPhase = 0;
