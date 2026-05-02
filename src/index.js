@@ -14,8 +14,8 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
    ═══════════════════════════════════════════════════════════════ */
 const C = {
   louis: '#3473F0',
-  chloe: '#df3a97',
-  thomas: '#bf4e0d',
+  chloe: '#f4c430',
+  thomas: '#008B8B',
   bruna: '#8B5CF6',
   accent: '#FF3340',
   gold: '#F5A623',
