@@ -26,7 +26,6 @@
     },
     "gymnasiens": {
         "source": "quizz_local",
-        "note_methodo": "Basé sur 3 répondants – à interpréter avec précaution",
         "pratiquent_sport_regulier_pct": 66.7,
         "narretent_sport_pct": 33.3,
         "top3_raisons_arret": [
@@ -46,7 +45,6 @@
     },
     "apprentis": {
         "source": "quizz_local",
-        "note_methodo": "Basé sur 3 répondants – à interpréter avec précaution",
         "pratiquent_sport_regulier_pct": 66.7,
         "top5_benefices_sport": [
             {

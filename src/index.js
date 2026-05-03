@@ -1944,6 +1944,145 @@ function initFold10() {
 
    ═══════════════════════════════════════════════════════════════ */
 
+// function initFold11() {
+//   const fold = document.getElementById('fold-11');
+//   const fold10 = document.getElementById('fold-10');
+//   if (!fold || !fold10) return;
+
+//   const avatarEl = fold.querySelector('.character__avatar');
+//   const bubble = fold.querySelector('.character__bubble');
+//   const container = document.getElementById('master-impact-chart');
+//   const fold10Content = fold10.querySelectorAll('.fold__title, .character, .character__bubble');
+
+//   if (avatarEl) {
+//     avatarEl.innerHTML = avatarSVG('bruna', 110);
+//     gsap.set(avatarEl, { autoAlpha: 0 });
+//   }
+//   if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+
+//   const fills = [];
+//   const pcts = [];
+//   const values = [];
+
+//   if (container) {
+//     container.innerHTML = '';
+//     sportData.master.top5_impacts_positifs_etudes.raisons.forEach(item => {
+//       const row = document.createElement('div');
+//       row.className = 'hbar-chart__row';
+//       row.innerHTML = `
+//         <span class="hbar-chart__label">${item.raison}</span>
+//         <div class="hbar-chart__track"><div class="hbar-chart__fill"></div></div>
+//         <span class="hbar-chart__value">${item.tres_important_pct}%</span>`;
+//       container.appendChild(row);
+//       const fill = row.querySelector('.hbar-chart__fill');
+//       const value = row.querySelector('.hbar-chart__value');
+//       gsap.set(fill, { width: '0%' });
+//       gsap.set(value, { autoAlpha: 0 });
+//       fills.push(fill);
+//       values.push(value);
+//       pcts.push(item.tres_important_pct);
+//     });
+//   }
+
+//   gsap.set(fold, {
+//     position: 'fixed', top: 0, left: 0,
+//     width: '100%', height: '100%',
+//     zIndex: 10, xPercent: 100, autoAlpha: 1,
+//   });
+
+//   const tl = gsap.timeline({ paused: true });
+
+//   /* Phase 1 : slide depuis la droite */
+//   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
+
+//   /* Phase 2 : avatar + bulle */
+//   tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
+//   tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
+
+//   /* Phase 3 : barres une par une */
+//   fills.forEach((fill, i) => {
+//     tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+//     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
+//   });
+
+//   /* Phase 4 : pause de lecture — scroll bloqué ici (~1.5 écrans supplémentaires) */
+//   tl.to({}, { duration: 0.3 });
+
+//   /* Phase 5 : indicateur "scroll pour continuer" qui pulse puis disparaît */
+//   const scrollHint = document.createElement('div');
+//   scrollHint.className = 'fold11-scroll-hint';
+//   scrollHint.textContent = '↓ Continuez à scroller';
+//   gsap.set(scrollHint, { opacity: 0, y: 10 });
+//   fold.appendChild(scrollHint);
+
+//   tl.to(scrollHint, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<');
+
+//   /* Phase 6 : transition — fond fold-10 → beige, fold-11 disparaît */
+//   tl.to(scrollHint, { opacity: 0, duration: 0.3 });
+//   tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, '<');
+//   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
+//   tl.to(fold, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '<0.2');
+
+//   /* ── ScrollTrigger pinné — étendu pour la pause de lecture ── */
+//   ScrollTrigger.create({
+//     trigger: fold10,
+//     start: 'bottom bottom',
+//     end: '+=430%',
+//     pin: true,
+//     scrub: 1.2,
+//     animation: tl,
+
+//     onEnter: () => CharSystem.dim('bruna'),
+//     onEnterBack: () => CharSystem.dim('bruna'),
+
+//     onLeave: () => {
+//       /* Transition smooth vers fold-12 */
+//       const fold12 = document.getElementById('fold-12');
+//       if (!fold12) return;
+
+//       /* On cache fold-10 le temps du scroll */
+//       gsap.set(fold10, { autoAlpha: 0 });
+
+//       /* Scroll immédiat vers fold-12 */
+//       window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+
+//       /* Puis on remet fold-10 en état propre en arrière-plan */
+//       gsap.delayedCall(0.05, () => {
+//         gsap.set(fold10, { autoAlpha: 1, backgroundColor: '' });
+//         fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
+//       });
+
+//       /* Fade in de fold-12 pour une arrivée douce */
+//       if (fold12) {
+//         gsap.fromTo(fold12,
+//           { opacity: 0, y: 30 },
+//           { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.1 }
+//         );
+//       }
+
+//       CharSystem.undim('bruna');
+//     },
+
+//     onLeaveBack: () => {
+//       gsap.set(fold10, { backgroundColor: '' });
+//       fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
+//       gsap.set(fold, {
+//         position: 'fixed', top: 0, left: 0,
+//         width: '100%', height: '100%',
+//         zIndex: 10, xPercent: 100, autoAlpha: 1,
+//       });
+//       if (bubble) gsap.set(bubble, { autoAlpha: 0, x: -16 });
+//       if (avatarEl) {
+//         avatarEl.innerHTML = avatarSVG('bruna', 110);
+//         gsap.set(avatarEl, { autoAlpha: 0 });
+//       }
+//       fills.forEach(f => gsap.set(f, { width: '0%' }));
+//       values.forEach(v => gsap.set(v, { autoAlpha: 0 }));
+//       gsap.set(scrollHint, { opacity: 0, y: 10 });
+//       CharSystem.dim('bruna');
+//     },
+//   });
+// }
 function initFold11() {
   const fold = document.getElementById('fold-11');
   const fold10 = document.getElementById('fold-10');
@@ -1953,6 +2092,7 @@ function initFold11() {
   const bubble = fold.querySelector('.character__bubble');
   const container = document.getElementById('master-impact-chart');
   const fold10Content = fold10.querySelectorAll('.fold__title, .character, .character__bubble');
+  const fold12 = document.getElementById('fold-12');
 
   if (avatarEl) {
     avatarEl.innerHTML = avatarSVG('bruna', 110);
@@ -2005,10 +2145,10 @@ function initFold11() {
     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
   });
 
-  /* Phase 4 : pause de lecture — scroll bloqué ici (~1.5 écrans supplémentaires) */
+  /* Phase 4 : pause */
   tl.to({}, { duration: 0.3 });
 
-  /* Phase 5 : indicateur "scroll pour continuer" qui pulse puis disparaît */
+  /* Phase 5 : scroll hint */
   const scrollHint = document.createElement('div');
   scrollHint.className = 'fold11-scroll-hint';
   scrollHint.textContent = '↓ Continuez à scroller';
@@ -2017,13 +2157,12 @@ function initFold11() {
 
   tl.to(scrollHint, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<');
 
-  /* Phase 6 : transition — fond fold-10 → beige, fold-11 disparaît */
+  /* Phase 6 : transition vers fold-12 */
   tl.to(scrollHint, { opacity: 0, duration: 0.3 });
   tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, '<');
   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
   tl.to(fold, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '<0.2');
 
-  /* ── ScrollTrigger pinné — étendu pour la pause de lecture ── */
   ScrollTrigger.create({
     trigger: fold10,
     start: 'bottom bottom',
@@ -2036,34 +2175,34 @@ function initFold11() {
     onEnterBack: () => CharSystem.dim('bruna'),
 
     onLeave: () => {
-      /* Transition smooth vers fold-12 */
-      const fold12 = document.getElementById('fold-12');
       if (!fold12) return;
 
-      /* On cache fold-10 le temps du scroll */
+      /* Cache fold-10 et fold-12 le temps du saut */
       gsap.set(fold10, { autoAlpha: 0 });
+      gsap.set(fold12, { autoAlpha: 0 });
 
-      /* Scroll immédiat vers fold-12 */
-      window.scrollTo({ top: fold12.offsetTop, behavior: 'instant' });
+      /* Scroll vers le haut de fold-12 moins la char-bar */
+      window.scrollTo({ top: fold12.offsetTop - 90, behavior: 'instant' });
 
-      /* Puis on remet fold-10 en état propre en arrière-plan */
+      /* Remet fold-10 propre en arrière-plan */
       gsap.delayedCall(0.05, () => {
         gsap.set(fold10, { autoAlpha: 1, backgroundColor: '' });
         fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
       });
 
-      /* Fade in de fold-12 pour une arrivée douce */
-      if (fold12) {
-        gsap.fromTo(fold12,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.1 }
-        );
-      }
+      /* Fade in doux de fold-12 depuis le titre */
+      gsap.to(fold12, {
+        autoAlpha: 1,
+        duration: 0.7,
+        ease: 'power2.out',
+        delay: 0.08,
+      });
 
       CharSystem.undim('bruna');
     },
 
     onLeaveBack: () => {
+      gsap.set(fold12, { autoAlpha: 1 });
       gsap.set(fold10, { backgroundColor: '' });
       fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
       gsap.set(fold, {
@@ -2083,7 +2222,6 @@ function initFold11() {
     },
   });
 }
-
 /* ═══════════════════════════════════════════════════════════════
    FOLD 12 — Carte Suisse Romande avec cantons réels (D3 + GeoJSON)
    Remplace l'ancienne initFold12 dans index.js
@@ -2498,14 +2636,14 @@ function initFold14() {
         virusEls.forEach(({ el, cfg }) => {
           gsap.to(el, {
             opacity: 1,
-            duration: 0.5,
-            delay: cfg.delay,
+            duration: 2.2,
+            delay: cfg.delay + 1.8,
             ease: 'power2.out',
           });
           gsap.to(el, {
             scale: 1,
-            duration: 0.6,
-            delay: cfg.delay,
+            duration: 2.0,
+            delay: cfg.delay + 1.8,
             ease: 'back.out(2)',
             onComplete: () => {
               gsap.to(el, {
@@ -2529,7 +2667,7 @@ function initFold14() {
         gsap.to(covidText, {
           opacity: 1, y: 0,
           duration: 0.7,
-          delay: 0.5,
+          delay: 2.4,
           ease: 'power2.out',
         });
       });
@@ -2669,6 +2807,7 @@ function initFold15() {
 /* ═══════════════════════════════════════════════════════════════
    FOLDS 16-17 — Débat
    ═══════════════════════════════════════════════════════════════ */
+
 function initDebate() {
   [
     {
@@ -2687,7 +2826,6 @@ function initDebate() {
     const fold = document.getElementById(id);
     if (!fold) return;
 
-    /* ── Récupérer les bulles originales et leurs textes ── */
     const scene = fold.querySelector('.debate-scene');
     const originalBubbles = [...scene.querySelectorAll('.debate-bubble')];
     const bubbleData = originalBubbles.map((b, i) => ({
@@ -2696,10 +2834,9 @@ function initDebate() {
       side: sequence[i] ?? 'left',
     }));
 
-    /* ── Vider la scène et reconstruire avec avatar + bulle par ligne ── */
     scene.innerHTML = '';
 
-    const rows = []; /* { rowEl, avatarEl, bubbleEl, side } */
+    const rows = [];
     const nameMap = { left: leftName, right: rightName };
 
     bubbleData.forEach(({ text, className, side }) => {
@@ -2713,24 +2850,25 @@ function initDebate() {
       av.innerHTML = avatarSVG(name, 52);
 
       const bub = document.createElement('div');
-      bub.className = className; /* conserve debate-bubble--left/right/etc. */
+      bub.className = className;
       bub.textContent = text;
 
-      /* Avatar toujours du côté extérieur de la conversation
-         gauche → avatar | bulle
-         droite → bulle | avatar  (flex-direction: row-reverse en CSS,
-                                    donc l'avatar reste visuellement à droite) */
       row.appendChild(av);
       row.appendChild(bub);
-
       scene.appendChild(row);
 
-      /* Tout caché au départ */
       gsap.set(row, { autoAlpha: 0 });
       gsap.set(bub, { scale: 0.6, transformOrigin: side === 'left' ? 'bottom left' : 'bottom right' });
 
       rows.push({ rowEl: row, avatarEl: av, bubbleEl: bub, side });
     });
+
+    /* ── Hint scroll ── */
+    const hint = document.createElement('div');
+    hint.className = 'debate-scroll-hint';
+    hint.textContent = '↓ Continuez à scroller';
+    gsap.set(hint, { autoAlpha: 0, y: 8 });
+    fold.appendChild(hint);
 
     /* ── Lock scroll ── */
     let lockedAt = null;
@@ -2748,7 +2886,6 @@ function initDebate() {
     function lockScroll() {
       lockedAt = fold.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: lockedAt, behavior: 'instant' });
-      /* Bloquer le scroll natif ET l'effet élastique */
       window.addEventListener('scroll', onScroll);
       window.addEventListener('wheel', onWheel, { passive: false });
       window.addEventListener('touchmove', onTouch, { passive: false });
@@ -2776,27 +2913,19 @@ function initDebate() {
         },
       });
 
-      /* Délai initial */
       seqTimeline.to({}, { duration: 0.5 });
 
       rows.forEach(({ rowEl, bubbleEl }, i) => {
-        /* La ligne apparaît (avatar + bulle ensemble) */
         seqTimeline.to(rowEl, { autoAlpha: 1, duration: 0.2, ease: 'power2.out' });
+        seqTimeline.to(bubbleEl, { scale: 1, duration: 0.55, ease: 'back.out(2.8)' }, '<');
 
-        /* La bulle bounce */
-        seqTimeline.to(bubbleEl, {
-          scale: 1,
-          duration: 0.55,
-          ease: 'back.out(2.8)',
-        }, '<');
-
-        /* Pause entre messages */
         if (i < rows.length - 1) {
           seqTimeline.to({}, { duration: 0.85 });
         }
       });
 
-      /* Petite pause finale avant de délocker */
+      /* Hint + pause finale */
+      seqTimeline.to(hint, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' });
       seqTimeline.to({}, { duration: 0.6 });
     }
 
@@ -2811,9 +2940,9 @@ function initDebate() {
           transformOrigin: side === 'left' ? 'bottom left' : 'bottom right',
         });
       });
+      gsap.set(hint, { autoAlpha: 0, y: 8 });
     }
 
-    /* ── ScrollTrigger : arrive / depart ── */
     function arrive() {
       playSequence();
     }
@@ -2823,7 +2952,6 @@ function initDebate() {
       resetSequence();
     }
 
-    /* Déclenche la séquence quand la fold est visible */
     ScrollTrigger.create({
       trigger: fold,
       start: 'top 62%',
@@ -2834,7 +2962,6 @@ function initDebate() {
       onLeaveBack: depart,
     });
 
-    /* Lock quand la fold est exactement en haut du viewport */
     ScrollTrigger.create({
       trigger: fold,
       start: 'top top',
