@@ -3486,7 +3486,7 @@ function initDebate() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FOLD 18 — Conclusion
+   FOLD 18 — Conclusiooon
    ═══════════════════════════════════════════════════════════════ */
 function initFold18() {
   const fold = document.getElementById('fold-18');
