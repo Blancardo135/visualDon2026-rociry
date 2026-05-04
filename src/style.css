@@ -12,12 +12,8 @@
   --louis-d: #1A56CC;
   --chloe: #f4c430;
   --chloe-d: #c39e30;
-  /* --chloe: #EF3F3F;
-  --chloe-d: #C42020; */
-  /* --thomas: #0DBF80;
-  --thomas-d: #069A65; */
-  --thomas: #008B8B;
-  --thomas-d: #006565;
+  --thomas: #E91E8C;
+  --thomas-d: #B5166D;
   --bruna: #8B5CF6;
   --bruna-d: #6D35D8;
 
@@ -687,7 +683,7 @@ ul {
   height: 26px;
   border-radius: 50%;
   background: var(--thomas);
-  box-shadow: 0 2px 12px rgba(0, 139, 139, .35);
+  box-shadow: 0 2px 12px rgba(233, 30, 140, .35);
   cursor: pointer;
   border: 3px solid white;
   transition: transform .15s;
@@ -736,13 +732,13 @@ ul {
   font-weight: 700;
   cursor: pointer;
   letter-spacing: .04em;
-  box-shadow: 0 2px 12px rgba(0, 139, 139, .35);
+  box-shadow: 0 4px 20px rgba(233, 30, 140, .30);
   transition: transform .15s, box-shadow .15s;
 }
 
 .quiz-block__submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 12px rgba(0, 139, 139, .35);
+  box-shadow: 0 8px 28px rgba(233, 30, 140, .42);
 }
 
 .quiz-block__submit:active {
@@ -1444,7 +1440,7 @@ ul {
 }
 
 .debate-bubble--left2 {
-  background: var(--chloe);
+  background: var(--chloe-d);
   border: 1px solid rgba(255, 255, 255, .10);
   border-radius: 6px 18px 18px 18px;
   color: var(--text-inv);

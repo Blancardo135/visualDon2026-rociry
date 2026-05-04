@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 const C = {
   louis: '#3473F0',
   chloe: '#f4c430',
-  thomas: '#008B8B',
+  thomas: '#E91E8C',
   bruna: '#8B5CF6',
   accent: '#FF3340',
   gold: '#F5A623',
@@ -59,7 +59,7 @@ function injectStats() {
 const CHARS = {
   louis: { skin: '#F5C4A0', hair: '#2C1A0E', accent: C.louis, dark: '#1A56CC' },
   chloe: { skin: '#F8D4B0', hair: '#1A0A05', accent: C.chloe, dark: '#8a175e' },
-  thomas: { skin: '#F0BB8A', hair: '#4A3728', accent: C.thomas, dark: '#9a2d06' },
+  thomas: { skin: '#F0BB8A', hair: '#4A3728', accent: '#E91E8C', dark: '#9a2d06' },
   bruna: { skin: '#C8906A', hair: '#110806', accent: C.bruna, dark: '#6D35D8' },
 };
 
@@ -2574,13 +2574,13 @@ function initFold14() {
   container.appendChild(covidOverlay);
 
   const VIRUS_CONFIGS = [
-    { x: 52, y: 10, size: 52, delay: 0, rotation: 15 },
-    { x: 44, y: 55, size: 38, delay: 0.15, rotation: -20 },
-    { x: 62, y: 40, size: 44, delay: 0.08, rotation: 30 },
-    { x: 36, y: 20, size: 30, delay: 0.25, rotation: -10 },
-    { x: 70, y: 15, size: 36, delay: 0.18, rotation: 45 },
-    { x: 48, y: 75, size: 28, delay: 0.3, rotation: -35 },
-    { x: 58, y: 68, size: 42, delay: 0.22, rotation: 20 },
+    { x: 52, y: 10, size: 32, delay: 0, rotation: 15 },
+    { x: 44, y: 55, size: 22, delay: 0.15, rotation: -20 },
+    { x: 62, y: 40, size: 28, delay: 0.08, rotation: 30 },
+    { x: 36, y: 20, size: 18, delay: 0.25, rotation: -10 },
+    { x: 70, y: 15, size: 22, delay: 0.18, rotation: 45 },
+    { x: 48, y: 75, size: 16, delay: 0.3, rotation: -35 },
+    { x: 58, y: 68, size: 26, delay: 0.22, rotation: 20 },
   ];
 
   const virusEls = [];
@@ -2636,14 +2636,14 @@ function initFold14() {
         virusEls.forEach(({ el, cfg }) => {
           gsap.to(el, {
             opacity: 1,
-            duration: 2.2,
-            delay: cfg.delay + 1.8,
+            duration: 1.0,
+            delay: cfg.delay + 1.2,
             ease: 'power2.out',
           });
           gsap.to(el, {
             scale: 1,
-            duration: 2.0,
-            delay: cfg.delay + 1.8,
+            duration: 0.8,
+            delay: cfg.delay + 0.5,
             ease: 'back.out(2)',
             onComplete: () => {
               gsap.to(el, {
@@ -2667,7 +2667,7 @@ function initFold14() {
         gsap.to(covidText, {
           opacity: 1, y: 0,
           duration: 0.7,
-          delay: 2.4,
+          delay: 1,
           ease: 'power2.out',
         });
       });
