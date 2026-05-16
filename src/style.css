@@ -82,7 +82,7 @@ ul {
   transform-origin: left;
   transform: scaleX(0);
   z-index: 1000;
-  /* au-dessus de la barre */
+
 }
 
 /* ── SERIES LABEL ───────────────────────────────────────────── */
@@ -358,7 +358,6 @@ ul {
 
 .fold2-disclaimer {
   grid-column: 1 / -1;
-  /* ← span les 2 colonnes */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -429,7 +428,7 @@ ul {
 }
 
 .stat-block__pictogram {
-  /* Grille gérée inline par JS */
+
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
@@ -437,7 +436,6 @@ ul {
 }
 
 
-/* Anneau pulsant autour du héros dans la foule */
 .crowd-hero-ring {
   animation: crowd-ring-pulse 1.8s ease-in-out infinite;
 }
@@ -480,7 +478,7 @@ ul {
   color: var(--text-dim);
 }
 
-/* Picto grid */
+
 .picto-grid {
   display: flex;
   flex-wrap: wrap;
@@ -847,7 +845,7 @@ ul {
 
 }
 
-/* le JS injecte le style inline pour la foule animée */
+
 .dropout-pictogram {
   position: relative;
   width: 100%;
@@ -1283,7 +1281,7 @@ ul {
   color: var(--text-dim);
 }
 
-/* D3 axes */
+
 .chart-axis .tick text {
   font-family: var(--f-b);
   font-size: 11px;
@@ -1338,7 +1336,7 @@ ul {
   right: clamp(8px, 4vw, 40px);
 }
 
-/* ── Débat : lignes avatar + bulle ── */
+
 .debate-row {
   display: flex;
   align-items: flex-end;
@@ -1562,7 +1560,6 @@ ul {
   z-index: 500;
   display: flex;
   align-items: flex-end;
-  /* persos debout sur le bas */
   justify-content: center;
   gap: clamp(1.8rem, 4vw, 4rem);
   padding: 0 2rem 0;
@@ -1656,7 +1653,7 @@ ul {
   padding-top: max(var(--py), 102px);
 }
 
-/* Keyframes foule */
+
 @keyframes halo-pulse {
 
   0%,
@@ -1689,7 +1686,7 @@ ul {
   }
 }
 
-/* Foule : conteneurs */
+
 .stat-block__pictogram {
   display: block;
   position: relative;
@@ -1707,7 +1704,7 @@ ul {
    FOLD 3 — Défilement horizontal
    ═══════════════════════════════════════════════════════════════ */
 
-/* Override : fold-3 devient un conteneur de piste */
+
 #fold-3 {
   padding: 0 !important;
   display: block !important;
@@ -1715,7 +1712,7 @@ ul {
   background: var(--bg);
 }
 
-/* Piste horizontale : panels côte à côte */
+
 .fold3-track {
   display: flex;
   flex-wrap: nowrap;
@@ -1723,7 +1720,7 @@ ul {
   will-change: transform;
 }
 
-/* Chaque panel = 1 écran */
+
 .fold3-panel {
   width: 100vw;
   height: 100vh;
@@ -1737,13 +1734,13 @@ ul {
   background: var(--bg);
 }
 
-/* Panels raisons : légèrement différents */
+
 .fold3-panel--reason {
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Carte raison */
+
 .fold3-reason-card {
   display: flex;
   align-items: center;
@@ -1797,7 +1794,7 @@ ul {
   line-height: 1.5;
 }
 
-/* Fold-4 caché */
+
 #fold-4 {
   display: none !important;
 }
@@ -1807,13 +1804,12 @@ ul {
   max-width: 240px;
   text-align: center;
   border-radius: 16px 16px 4px 16px;
-  /* pointe en bas à droite vers Thomas */
   font-size: .88rem;
   font-weight: 600;
   margin-top: .3rem;
 }
 
-/* Indication fourchette acceptée */
+
 .quiz-block__range-hint {
   font-size: .78rem;
   color: var(--text-muted);
@@ -1856,9 +1852,7 @@ ul {
   color: white;
 }
 
-/* Header ligne : label à gauche, % en grand à droite */
 
-/* ── Picto grid : label + ligne alignée ── */
 .picto-grid__label-text {
   font-size: .82rem;
   font-weight: 500;
@@ -1867,11 +1861,10 @@ ul {
   display: block;
 }
 
-/* Conteneur : stickmen + % sur le même axe horizontal */
+
 .picto-grid__row {
   display: flex;
   align-items: center;
-  /* alignement vertical centré */
   gap: .9rem;
 }
 
@@ -1934,7 +1927,7 @@ ul {
   font-size: 0.95rem;
 }
 
-/* Label à hauteur fixe = alignés sur la même baseline */
+
 #fold-9 .bar-chart__label {
   position: absolute;
   top: calc(100% + 12px);
@@ -1945,7 +1938,6 @@ ul {
   text-align: center;
   width: 100%;
   height: 4.5rem;
-  /* hauteur fixe = tous alignés */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1978,7 +1970,7 @@ ul {
 }
 
 
-/* Fold 11 : layout Bruna + chart côte à côte */
+
 #fold-11 {
   flex-direction: row;
   gap: clamp(2rem, 5vw, 4rem);
@@ -2006,11 +1998,10 @@ ul {
   font-size: .88rem;
 }
 
-/* ── Fold 11 : slide depuis la droite ── */
+
 #fold-11 {
   position: relative;
   overflow: hidden;
-  /* évite la scrollbar horizontale pendant le slide */
   flex-direction: row;
   gap: clamp(2rem, 5vw, 4rem);
   flex-wrap: wrap;
@@ -2046,19 +2037,18 @@ ul {
   color: var(--bruna);
 }
 
-/* Empêcher le scroll horizontal pendant la transition */
+
 body {
   overflow-x: hidden;
 }
 
-/* fold-11 géré en fixed — aucune hauteur dans le flux */
 #fold-11 {
   min-height: 0;
   height: 0;
   overflow: hidden;
 }
 
-/* ── Fold 11 : indicateur scroll ── */
+
 .fold11-scroll-hint {
   position: absolute;
   bottom: 2.5rem;

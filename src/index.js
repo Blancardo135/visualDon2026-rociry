@@ -36,11 +36,11 @@ function injectStats() {
   document.querySelectorAll('[data-stat]').forEach(el => {
     const val = resolvePath(sportData, el.dataset.stat);
     if (val === undefined) return;
-    /* Vérifier si un % suit déjà dans le DOM pour éviter le double %% */
+
     const nextNode = el.nextSibling;
     const hasTrailingPct = nextNode?.nodeType === 3 && nextNode.textContent.trimStart().startsWith('%');
     if (typeof val === 'number') {
-      /* Si % déjà présent après le span, injecter juste le chiffre */
+
       el.textContent = hasTrailingPct
         ? (Number.isInteger(val) ? String(val) : val.toFixed(1))
         : (Number.isInteger(val) ? val + '%' : val.toFixed(1) + '%');
@@ -459,10 +459,10 @@ function stickmanSVG({ color = '#C8C4BB', pose = 'stand', isHero = false, size =
 /* ═══════════════════════════════════════════════════════════════
    GRILLE DE STICKMEN ANIMÉS
    ═══════════════════════════════════════════════════════════════ */
-/* Compteur global pour les clipPath IDs uniques */
+
 let _pictoClipId = 0;
 
-/* Stickman à moitié coloré (gauche = couleur, droite = gris) */
+
 function stickmanHalfSVG(color, size = 34) {
   const id = 'half-clip-' + (++_pictoClipId);
   const w = size;
@@ -510,7 +510,7 @@ function buildPictoGrid(container, {
 } = {}) {
   container.innerHTML = '';
 
-  /* ── Label seul au-dessus ── */
+
   if (label) {
     const lbl = document.createElement('p');
     lbl.className = 'picto-grid__label-text';
@@ -518,7 +518,7 @@ function buildPictoGrid(container, {
     container.appendChild(lbl);
   }
 
-  /* ── Ligne stickmen + % alignés sur le même axe ── */
+
   const row = document.createElement('div');
   row.className = 'picto-grid__row';
 
@@ -537,12 +537,12 @@ function buildPictoGrid(container, {
 
   const STICK = 34;
 
-  /* Détecter le stickman "demi" : quand pct n'est pas multiple de 10 */
+
   const exactActive = pct !== null ? pct / 10 : active;
   const fullActive = Math.floor(exactActive);
   const hasHalf = (exactActive - fullActive) >= 0.3 && fullActive < total;
-  const halfIdx = hasHalf ? fullActive : -1; /* index du stickman demi-coloré */
-  /* active recalculé : on inclut le demi dans le décompte */
+  const halfIdx = hasHalf ? fullActive : -1;
+
   const effectiveActive = hasHalf ? fullActive : active;
 
   const items = [];
@@ -591,7 +591,7 @@ function buildPictoGrid(container, {
   function startWalk() {
     items.forEach(({ span, col, isActive, isHalf, isHero, idx }) => {
 
-      /* Actifs non-héros : marche désynchronisée */
+
       if (isActive && !isHero) {
         const speed = 0.46 + (idx % 4) * 0.06;
         const delay = idx * 0.09;
@@ -611,7 +611,7 @@ function buildPictoGrid(container, {
         gsap.delayedCall(delay, step);
       }
 
-      /* Demi-stickman : balancement léger, garde son apparence */
+
       if (isHalf) {
         gsap.to(span, {
           y: -1, duration: 2.2,
@@ -619,7 +619,7 @@ function buildPictoGrid(container, {
         });
       }
 
-      /* Inactifs : balancement lent */
+
       if (!isActive && !isHalf) {
         gsap.to(span, {
           y: -1.5, duration: 1.8 + idx * 0.13,
@@ -627,7 +627,7 @@ function buildPictoGrid(container, {
         });
       }
 
-      /* Héros Thomas : petit bob vertical */
+
       if (isHero && heroName) {
         gsap.to(span, {
           y: -4, duration: 0.7,
@@ -1313,7 +1313,7 @@ function initFold5() {
     onEnter: arrive, onLeave: depart, onEnterBack: arrive, onLeaveBack: depart,
   });
 
-  /* Lock quand fold-5 atteint exactement le top du viewport */
+
   ScrollTrigger.create({
     trigger: fold,
     start: 'top top',
@@ -1322,7 +1322,7 @@ function initFold5() {
     onLeaveBack: () => { unlockScroll(); },
   });
 
-  /* ── Quiz logic ── */
+
   const slider = document.getElementById('quiz-slider');
   const output = fold.querySelector('.quiz-block__output');
   const btn = fold.querySelector('.quiz-block__submit');
@@ -1530,7 +1530,7 @@ function initFold8() {
     .filter(it => !it.isGreen && !it.isThomas)
     .map(it => it.wrap);
 
-  // Texte hint
+
   const scrollHint = document.createElement('div');
   scrollHint.className = 'fold11-scroll-hint';
   scrollHint.textContent = '↓ Continuez à scroller';
@@ -1549,7 +1549,7 @@ function initFold8() {
       stagger: { each: 0.008, from: 'end' },
       ease: 'power2.in',
       onComplete: () => {
-        // Affiche le hint au lieu du scroll automatique
+
         gsap.to(scrollHint, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
       },
     });
@@ -1698,7 +1698,7 @@ function initFold9() {
     fills.push({ fill, pct: item.pct_2025 });
   });
 
-  // Barres se remplissent à l'entrée dans fold-9
+
   ScrollTrigger.create({
     trigger: fold,
     start: 'top 78%',
@@ -1827,23 +1827,23 @@ function initFold11() {
 
   const tl = gsap.timeline({ paused: true });
 
-  /* Phase 1 : slide depuis la droite */
+
   tl.to(fold, { xPercent: 0, duration: 1, ease: 'power2.inOut' }, 0);
 
-  /* Phase 2 : avatar + bulle */
+
   tl.to(avatarEl, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 1.0);
   tl.to(bubble, { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' }, 1.25);
 
-  /* Phase 3 : barres une par une */
+
   fills.forEach((fill, i) => {
     tl.to(fill, { width: `${pcts[i]}%`, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
     tl.to(values[i], { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 1.65 + i * 0.7);
   });
 
-  /* Phase 4 : pause */
+
   tl.to({}, { duration: 0.3 });
 
-  /* Phase 5 : scroll hint */
+
   const scrollHint = document.createElement('div');
   scrollHint.className = 'fold11-scroll-hint';
   scrollHint.textContent = '↓ Continuez à scroller';
@@ -1852,7 +1852,7 @@ function initFold11() {
 
   tl.to(scrollHint, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<');
 
-  /* Phase 6 : transition vers fold-12 */
+
   tl.to(scrollHint, { opacity: 0, duration: 0.3 });
   tl.to(fold10Content, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, '<');
   tl.to(fold10, { backgroundColor: '#F3F0E9', duration: 0.4, ease: 'power2.inOut' }, '<');
@@ -1872,20 +1872,20 @@ function initFold11() {
     onLeave: () => {
       if (!fold12) return;
 
-      /* Cache fold-10 et fold-12 le temps du saut */
+
       gsap.set(fold10, { autoAlpha: 0 });
       gsap.set(fold12, { autoAlpha: 0 });
 
-      /* Scroll vers le haut de fold-12 moins la char-bar */
+
       window.scrollTo({ top: fold12.offsetTop - 90, behavior: 'instant' });
 
-      /* Remet fold-10 propre en arrière-plan */
+
       gsap.delayedCall(0.05, () => {
         gsap.set(fold10, { autoAlpha: 1, backgroundColor: '' });
         fold10Content.forEach(el => gsap.set(el, { autoAlpha: 1 }));
       });
 
-      /* Fade in doux de fold-12 depuis le titre */
+
       gsap.to(fold12, {
         autoAlpha: 1,
         duration: 0.7,
@@ -2052,7 +2052,7 @@ function initFold12() {
       .attr('transform', `translate(${px},${py})`)
       .style('cursor', 'pointer');
 
-    /* Halo pulsant */
+
     const halo = g.append('circle')
       .attr('r', r).attr('fill', C.green).attr('opacity', 0.12);
     gsap.to(halo.node(), {
@@ -2060,7 +2060,7 @@ function initFold12() {
       duration: 1.8, repeat: -1, ease: 'power2.out', delay: i * 0.35,
     });
 
-    /* Cercle principal */
+
     g.append('circle')
       .attr('r', r)
       .attr('fill', C.green)
@@ -2068,7 +2068,7 @@ function initFold12() {
       .attr('stroke', 'white')
       .attr('stroke-width', 2.5);
 
-    /* Pourcentage */
+
     g.append('text')
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
@@ -2079,7 +2079,7 @@ function initFold12() {
       .attr('pointer-events', 'none')
       .text(uni.tres_actifs + '%');
 
-    /* Nom */
+
     g.append('text')
       .attr('y', r + 13)
       .attr('text-anchor', 'middle')
@@ -2090,7 +2090,7 @@ function initFold12() {
       .attr('pointer-events', 'none')
       .text(uni.name);
 
-    /* ── Hover ── */
+
     g.on('mouseenter', () => {
       gsap.to(g.node(), {
         scale: 1.15, duration: 0.25,
@@ -2107,7 +2107,7 @@ function initFold12() {
     });
   });
 
-  /* ── Animations scroll ── */
+
   ScrollTrigger.create({
     trigger: fold, start: 'top 62%', once: true,
     onEnter: () => {
@@ -2208,7 +2208,7 @@ function initFold14() {
   const totalLen = path.node().getTotalLength();
   path.attr('stroke-dasharray', totalLen).attr('stroke-dashoffset', totalLen);
 
-  /* ── Mesure longueur réelle jusqu'à x(2020) ── */
+
   const target2020X = x(2020) + m.left;
   let len2020 = 0;
   const STEPS = 1000;
@@ -2223,7 +2223,7 @@ function initFold14() {
   const LINE_DURATION = 1.6;
   const delay2020 = LINE_DURATION * (len2020 / totalLen);
 
-  /* ── Points + labels ── */
+
   ScrollTrigger.create({
     trigger: container, start: 'top 74%', once: true,
     onEnter: () => {
@@ -2340,7 +2340,7 @@ function initFold14() {
       delayedCallRef = gsap.delayedCall(delay2020, () => {
         covidTriggered = true;
 
-        /* Label 2019 dynamique */
+
         const label2019 = g.append('text')
           .attr('x', x(2019))
           .attr('y', iH + 28)
@@ -2352,7 +2352,7 @@ function initFold14() {
           .style('opacity', 0)
           .text('2019');
 
-        /* Ligne verticale 2019 */
+
         const line2019 = g.append('line')
           .attr('x1', x(2019)).attr('x2', x(2019))
           .attr('y1', 0).attr('y2', iH)
